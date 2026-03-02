@@ -12,10 +12,12 @@ class GameStateOverride(GameExecutables):
         super().reset_book()
         # Reset parameters relevant to local game only
         self.tumble_win = 0
+        # SKILLS RESET PER BASE GAME SPIN
+        self.skill_meters = {"Yellow": 0, "Green": 0, "Blue": 0, "Red": 0}
+        self.red_skill_used = False
 
     def reset_fs_spin(self):
         super().reset_fs_spin()
-        self.reset_grid_mults()
 
     def assign_special_sym_function(self):
         pass

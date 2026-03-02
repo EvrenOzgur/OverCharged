@@ -262,3 +262,14 @@ def enter_bonus_event(gamestate) -> None:
         "reason": gamestate.bonus_type,
     }
     gamestate.book.add_event(event)
+
+
+def skill_activated_event(gamestate, skill_name: str, action_data: dict) -> None:
+    """Emit event when a skill is triggered."""
+    event = {
+        "index": len(gamestate.book.events),
+        "type": EventConstants.SKILL_ACTIVATED.value,
+        "skill": skill_name,
+        "action": action_data
+    }
+    gamestate.book.add_event(event)

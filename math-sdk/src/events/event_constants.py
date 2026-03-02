@@ -30,3 +30,6 @@ class EventConstants(Enum):
 
     # Special symbol events
     UPDATE_GLOBAL_MULT = "updateGlobalMult"
+
+    # Skill events
+    SKILL_ACTIVATED = "skillActivated"

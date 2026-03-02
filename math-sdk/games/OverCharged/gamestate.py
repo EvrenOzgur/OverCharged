@@ -1,5 +1,5 @@
+
 from game_override import GameStateOverride
-from game_events import update_grid_mult_event
 
 
 class GameState(GameStateOverride):
@@ -16,10 +16,20 @@ class GameState(GameStateOverride):
             self.get_clusters_update_wins()
             self.emit_tumble_win_events()
 
-            while self.win_data["totalWin"] > 0 and not (self.wincap_triggered):
-                self.tumble_game_board()
-                self.get_clusters_update_wins()
-                self.emit_tumble_win_events()
+            skills_active = False
+            if self.win_data["totalWin"] == 0:
+                skills_active = self.process_skills()
+
+            while (self.win_data["totalWin"] > 0 or skills_active) and not (self.wincap_triggered):
+                if self.win_data["totalWin"] > 0:
+                    self.tumble_game_board()
+                    self.get_clusters_update_wins()
+                    self.emit_tumble_win_events()
+                
+                if self.win_data["totalWin"] == 0:
+                    skills_active = self.process_skills()
+                else:
+                    skills_active = False
 
             self.set_end_tumble_event()
             self.win_manager.update_gametype_wins(self.gametype)
@@ -37,17 +47,24 @@ class GameState(GameStateOverride):
         while self.fs < self.tot_fs:
             self.update_freespin()
             self.draw_board()
-            update_grid_mult_event(self)
-            # Apply game-specific actions (i.e special symbol attributes before or after evaluation)
-
+            
             self.get_clusters_update_wins()
             self.emit_tumble_win_events()
-            self.update_grid_mults()
-            while self.win_data["totalWin"] > 0 and not (self.wincap_triggered):
-                self.tumble_game_board()
-                self.get_clusters_update_wins()
-                self.emit_tumble_win_events()
-                self.update_grid_mults()
+
+            skills_active = False
+            if self.win_data["totalWin"] == 0:
+                skills_active = self.process_skills()
+
+            while (self.win_data["totalWin"] > 0 or skills_active) and not (self.wincap_triggered):
+                if self.win_data["totalWin"] > 0:
+                    self.tumble_game_board()
+                    self.get_clusters_update_wins()
+                    self.emit_tumble_win_events()
+                
+                if self.win_data["totalWin"] == 0:
+                    skills_active = self.process_skills()
+                else:
+                    skills_active = False
 
             self.set_end_tumble_event()
             self.win_manager.update_gametype_wins(self.gametype)
