@@ -47,7 +47,7 @@ export function detectWebGL() {
 					// WebGL is enabled.
 					return 1;
 				}
-			} catch (e) {}
+			} catch (e) { }
 		}
 
 		// WebGL is supported, but disabled.
@@ -103,4 +103,8 @@ export function propsSyncEffect<TProps extends object, TTarget>({
 				});
 		}
 	});
+}
+
+export function createAsset(props: Record<string, any>) {
+	return props;
 }

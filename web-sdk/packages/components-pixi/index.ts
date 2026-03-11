@@ -4,8 +4,11 @@ import LoadingProgress from './src/components/LoadingProgress.svelte';
 import WinCountUpProvider from './src/components/WinCountUpProvider.svelte';
 import ResponsiveBitmapText from './src/components/ResponsiveBitmapText.svelte';
 import ResponsiveText from './src/components/ResponsiveText.svelte';
-import Button, { type Props as ButtonProps } from './src/components/Button.svelte';
-import Amount, { type Props as AmountProps } from './src/components/Amount.svelte';
+import type { ComponentProps } from 'svelte';
+import Button from './src/components/Button.svelte';
+type ButtonProps = ComponentProps<typeof Button>;
+import Amount from './src/components/Amount.svelte';
+type AmountProps = ComponentProps<typeof Amount>;
 
 export {
 	EnablePixiExtension,
