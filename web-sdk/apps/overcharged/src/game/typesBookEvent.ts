@@ -111,7 +111,7 @@ type BookEventCreateBonusSnapshot = {
 type BookEventSkillActivated = {
 	index: number;
 	type: 'skillActivated';
-	skillType: 'L1' | 'L2' | 'L3' | 'L4';
+	skillType: 'L1' | 'L2' | 'L3' | 'L4' | 'UPDATE';
 	skillMeters: { L1: number; L2: number; L3: number; L4: number };
 	positions?: Position[]; // if the skill visually affects coords
 };

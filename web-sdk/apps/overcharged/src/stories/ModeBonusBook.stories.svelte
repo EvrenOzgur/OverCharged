@@ -7,7 +7,7 @@
 </script>
 
 <script lang="ts">
-	import {
+import {
 		StoryGameTemplate,
 		StoryLocale,
 		type TemplateArgs,
@@ -18,16 +18,24 @@
 	import Game from '../components/Game.svelte';
 	import { setContext } from '../game/context';
 	import { playBet } from '../game/utils';
-	import books from './data/bonus_books';
+	import books from './data/bonus_books.json';
 
 	setContext();
 </script>
 
-{#snippet template(args: TemplateArgs<any>)}
+{#snippet template(args: TemplateArgs<any> & { bookIndex?: number })}
 	<StoryGameTemplate
 		skipLoadingScreen={args.skipLoadingScreen}
 		action={async () => {
-			await args.action?.(args.data);
+			let index: number;
+			if (args.bookIndex !== undefined && args.bookIndex !== -1) {
+				index = args.bookIndex;
+			} else {
+				index = randomInteger({ min: 0, max: books.length - 1 });
+			}
+			const data = books[index];
+			console.log(`[DEBUG] Playing bonus book at index ${index} (ID: ${data.id})`);
+			await playBet({ ...data, state: data.events });
 		}}
 	>
 		<StoryLocale lang="en">
@@ -38,15 +46,9 @@
 
 <Story
 	name="random"
-	args={templateArgs({
+	args={templateArgs<any>({
 		skipLoadingScreen: true,
-		data: {},
-		action: async () => {
-			const index = randomInteger({ min: 0, max: books.length - 1 });
-			const data = books[index];
-			console.log('Running a book at index', index);
-			await playBet({ ...data, state: data.events });
-		},
+		bookIndex: -1,
 	})}
 	{template}
 />

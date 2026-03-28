@@ -34,17 +34,59 @@
 	import FreeSpinOutro from './FreeSpinOutro.svelte';
 	import Transition from './Transition.svelte';
 	import I18nTest from './I18nTest.svelte';
+	import type { BookEventSkillActivated } from '../game/typesBookEvent';
 
 	const context = getContext();
 
-	onMount(() => (context.stateLayout.showLoadingScreen = true));
+	async function handleSkillActivated(event: BookEventSkillActivated) {
+		console.log('%c[DEBUG] handleSkillActivated called:', 'color: #ff00ff; font-weight: bold', event);
+		const { skillType, skillMeters, positions } = event;
+
+		// 1. Update meters first (always)
+		if (skillMeters) {
+			console.log('[DEBUG] Updating skillMeters to:', skillMeters);
+			context.stateGame.skillMeters.L1 = skillMeters.L1;
+			context.stateGame.skillMeters.L2 = skillMeters.L2;
+			context.stateGame.skillMeters.L3 = skillMeters.L3;
+			context.stateGame.skillMeters.L4 = skillMeters.L4;
+		}
+
+		// 2. Play skill-specific animation if it's a real trigger (L1-L4)
+		if (skillType && skillType !== 'UPDATE') {
+			console.log(`[DEBUG] Playing animation for skill: ${skillType}`);
+			
+			// 3. Update the board for wild-placing skills (L1 and L4)
+			if ((skillType === 'L1' || skillType === 'L4') && positions) {
+				positions.forEach((pos) => {
+					const symbolIndex = pos.row; 
+					const reel = context.stateGame.board[pos.reel];
+					if (reel && reel.reelState.symbols[symbolIndex]) {
+						const reelSymbol = reel.reelState.symbols[symbolIndex];
+						console.log(`[DEBUG] Placing Wild for Skill ${skillType} at Row ${pos.row} (Index ${symbolIndex}) - Original: ${reelSymbol.rawSymbol.name}`);
+						reelSymbol.rawSymbol = { name: 'W' };
+					} else {
+						console.warn(`[DEBUG] MISSING symbol for Skill placement: Reel ${pos.reel}, Row ${pos.row} (Index ${symbolIndex})`);
+					}
+				});
+			}
+
+			// TODO: Trigger more complex visual effects/shaders for the skill
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+		}
+		
+		console.log('[DEBUG] handleSkillActivated finished');
+	}
 
 	context.eventEmitter.subscribeOnMount({
 		buyBonusConfirm: () => {
 			stateModal.modal = { name: 'buyBonusConfirm' };
 		},
+		skillActivated: async (event) => {
+			await handleSkillActivated(event as BookEventSkillActivated);
+		},
 		skillMetersUpdate: (event) => {
-			context.stateGame.skillMeters = event.skillMeters;
+			console.log('%c[DEBUG] Skill Meters Update in Game.svelte:', 'color: #00ff00; font-weight: bold', event.skillMeters);
+			context.stateGame.skillMeters = { ...event.skillMeters };
 		},
 	});
 </script>
@@ -89,7 +131,7 @@
 			<BoardContainer>
 				<SkillMeter
 					x={-SYMBOL_SIZE * 5}
-					y={-SYMBOL_SIZE * 2}
+					y={SYMBOL_SIZE * 1}
 					meterName="L1"
 					currentValue={context.stateGame.skillMeters.L1}
 					targetValue={10}
@@ -97,7 +139,7 @@
 				/>
 				<SkillMeter
 					x={-SYMBOL_SIZE * 5}
-					y={-SYMBOL_SIZE * 1}
+					y={SYMBOL_SIZE * 2}
 					meterName="L2"
 					currentValue={context.stateGame.skillMeters.L2}
 					targetValue={20}
@@ -105,7 +147,7 @@
 				/>
 				<SkillMeter
 					x={-SYMBOL_SIZE * 5}
-					y={0}
+					y={SYMBOL_SIZE * 3}
 					meterName="L3"
 					currentValue={context.stateGame.skillMeters.L3}
 					targetValue={15}
@@ -113,7 +155,7 @@
 				/>
 				<SkillMeter
 					x={-SYMBOL_SIZE * 5}
-					y={SYMBOL_SIZE * 1}
+					y={SYMBOL_SIZE * 4}
 					meterName="L4"
 					currentValue={context.stateGame.skillMeters.L4}
 					targetValue={30}
@@ -124,7 +166,7 @@
 
 		<UI>
 			{#snippet gameName()}
-				<UiGameName name="CLUSTER GAME" />
+				<UiGameName name="Mining Mayhem" />
 			{/snippet}
 			{#snippet logo()}
 				<Text

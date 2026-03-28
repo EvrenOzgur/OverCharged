@@ -45,10 +45,23 @@ const animateSymbols = async ({ positions }: { positions: Position[] }) => {
 export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContext> = {
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
+
+		// Immediate reset of meters for base game spins to improve UX
+		if (bookEvent.gameType === 'basegame') {
+			stateGame.skillMeters = { L1: 0, L2: 0, L3: 0, L4: 0 };
+		}
+
 		const isBonusGame = checkIsMultipleRevealEvents({ bookEvents });
 		if (isBonusGame) {
 			eventEmitter.broadcast({ type: 'stopButtonEnable' });
-			recordBookEvent({ bookEvent });
+			try {
+				const res = recordBookEvent({ bookEvent }) as any;
+				if (res && typeof res.catch === 'function') {
+					res.catch(() => {});
+				}
+			} catch (e) {
+				// 
+			}
 		}
 
 		stateGame.gameType = bookEvent.gameType;
@@ -243,23 +256,21 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
 	},
 	skillActivated: async (bookEvent: BookEventOfType<'skillActivated'>) => {
-		// Update meters
-		await eventEmitter.broadcastAsync({
-			type: 'skillMetersUpdate',
-			skillMeters: bookEvent.skillMeters,
-		});
+		console.log(`[DEBUG] bookEventHandlerMap.skillActivated (Event Index: ${bookEvent.index}) triggered:`, bookEvent);
 
-		// Basic sound mapping for the skill
+		// 1. Play sound
 		const sfxMap: Record<string, string> = {
 			L1: 'sfx_wild_spawn', // Yellow Wilds
 			L2: 'sfx_multiplier_explosion_b', // Green Explode
 			L3: 'sfx_multiplier_levelup', // Blue Multiplier
 			L4: 'sfx_bigwin_coinloop', // Red Mega Wild (placeholder)
 		};
-
 		if (sfxMap[bookEvent.skillType]) {
 			eventEmitter.broadcast({ type: 'soundOnce', name: sfxMap[bookEvent.skillType] });
 		}
+
+		// 2. Broadcast the event so Game.svelte can handle it (meters + animation)
+		await eventEmitter.broadcastAsync(bookEvent);
 	},
 	// customised
 	createBonusSnapshot: async (bookEvent: BookEventOfType<'createBonusSnapshot'>) => {

@@ -7,17 +7,22 @@ class GameStateOverride(GameExecutables):
     e.g: A specific game may have custom book properties to reset
     """
 
+    def __init__(self, config):
+        # SKILLS PARAMETERS
+        super().__init__(config)
+        self.skill_meters = {"Yellow": 0, "Green": 0, "Blue": 0, "Red": 0}
+
     def reset_book(self):
         # Reset global values used across multiple projects
         super().reset_book()
         # Reset parameters relevant to local game only
         self.tumble_win = 0
-        # SKILLS RESET PER BASE GAME SPIN
         self.skill_meters = {"Yellow": 0, "Green": 0, "Blue": 0, "Red": 0}
         self.red_skill_used = False
 
     def reset_fs_spin(self):
         super().reset_fs_spin()
+        self.skill_meters = {"Yellow": 0, "Green": 0, "Blue": 0, "Red": 0}
 
     def assign_special_sym_function(self):
         pass

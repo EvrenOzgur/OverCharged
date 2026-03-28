@@ -12,6 +12,7 @@
 </script>
 
 <script lang="ts">
+	import _ from 'lodash';
 	import { waitForResolve } from 'utils-shared/wait';
 	import { BoardContext } from 'components-shared';
 
@@ -30,13 +31,22 @@
 		boardShow: () => (show = true),
 		boardHide: () => (show = false),
 		boardWithAnimateSymbols: async ({ symbolPositions }) => {
-			const getPromises = () =>
-				symbolPositions.map(async (position) => {
-					const reelSymbol = context.stateGame.board[position.reel].reelState.symbols[position.row];
-					reelSymbol.symbolState = 'win';
-					await waitForResolve((resolve) => (reelSymbol.oncomplete = resolve));
-					reelSymbol.symbolState = 'postWinStatic';
+			const getPromises = () => {
+				const uniquePositions = _.uniqBy(symbolPositions, (p) => `${p.reel}_${p.row}`);
+				return uniquePositions.map(async (position) => {
+					const symbolIndex = position.row;
+					const reel = context.stateGame.board[position.reel];
+					if (reel && reel.reelState.symbols[symbolIndex]) {
+						const reelSymbol = reel.reelState.symbols[symbolIndex];
+						console.log(`[DEBUG] Animating win for Row ${position.row} (Index ${symbolIndex}) - Symbol: ${reelSymbol.rawSymbol.name} at Y: ${reelSymbol.symbolY.current}`);
+						reelSymbol.symbolState = 'win';
+						await waitForResolve((resolve) => (reelSymbol.oncomplete = resolve));
+						reelSymbol.symbolState = 'postWinStatic';
+					} else {
+						console.warn(`[DEBUG] MISSING symbol for Board anim: Reel ${position.reel}, Row ${position.row} (Index ${symbolIndex})`);
+					}
 				});
+			};
 
 			await Promise.all(getPromises());
 		},

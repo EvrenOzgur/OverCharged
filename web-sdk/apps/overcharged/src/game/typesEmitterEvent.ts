@@ -13,6 +13,7 @@ import type { EmitterEventSound } from '../components/Sound.svelte';
 import type { EmitterEventMultiplierGrid } from '../components/MultiplierGrid.svelte';
 import type { EmitterEventTransition } from '../components/Transition.svelte';
 import type { EmitterEventSkillMetersUpdate } from '../components/SkillMeter.svelte';
+import type { BookEventSkillActivated } from './typesBookEvent';
 
 export type EmitterEventGame =
 	| EmitterEventBoard
@@ -28,4 +29,5 @@ export type EmitterEventGame =
 	| EmitterEventSound
 	| EmitterEventMultiplierGrid
 	| EmitterEventTransition
-	| EmitterEventSkillMetersUpdate;
+	| EmitterEventSkillMetersUpdate
+	| BookEventSkillActivated;

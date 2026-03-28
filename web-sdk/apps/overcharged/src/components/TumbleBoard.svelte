@@ -82,12 +82,21 @@
 			context.stateGame.tumbleBoardBase = [];
 		},
 		tumbleBoardExplode: async ({ explodingPositions }) => {
-			const getPromises = () =>
-				explodingPositions.map(async (position) => {
-					const tumbleSymbol = context.stateGame.tumbleBoardBase[position.reel][position.row];
-					tumbleSymbol.symbolState = 'explosion';
-					await waitForResolve((resolve) => (tumbleSymbol.oncomplete = resolve));
+			const getPromises = () => {
+				const uniquePositions = _.uniqBy(explodingPositions, (p) => `${p.reel}_${p.row}`);
+				return uniquePositions.map(async (position) => {
+					const symbolIndex = position.row;
+					const reel = context.stateGame.tumbleBoardBase[position.reel];
+					if (reel && reel[symbolIndex]) {
+						const tumbleSymbol = reel[symbolIndex];
+						console.log(`[DEBUG] Exploding Row ${position.row} (Index ${symbolIndex}) - Symbol: ${tumbleSymbol.rawSymbol.name} at Y: ${tumbleSymbol.symbolY.current}`);
+						tumbleSymbol.symbolState = 'explosion';
+						await waitForResolve((resolve) => (tumbleSymbol.oncomplete = resolve));
+					} else {
+						console.warn(`[DEBUG] MISSING symbol for Tumble Explode: Reel ${position.reel}, Row ${position.row} (Index ${symbolIndex})`);
+					}
 				});
+			};
 
 			await Promise.all(getPromises());
 		},
