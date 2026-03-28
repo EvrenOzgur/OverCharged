@@ -26,7 +26,7 @@
 </script>
 
 <SpineProvider
-	key="anticipation"
+	asset="anticipation"
 	width={SYMBOL_SIZE * 0.56}
 	height={SYMBOL_SIZE * 3.7}
 	x={context.stateGameDerived.boardLayout().x -

@@ -3,8 +3,34 @@ import type { RawType, RawAsset, RawSpine, RawSprites, SpineSrc, RawAudio } from
 
 const PROCESS_METHOD_MAP = {
 	spine: ({ key, rawAsset, src }: { key: string; rawAsset: RawSpine; src: SpineSrc }) => {
-		const atlasAsset = rawAsset[src.atlas] as SPINE_PIXI.TextureAtlas;
-		const skeletonAsset = rawAsset[src.skeleton] as Uint8Array;
+		const findAsset = (url: string) => {
+			if (rawAsset[url]) return rawAsset[url];
+			// Fallback 1: try to find by matching the end of the URL
+			const entry = Object.entries(rawAsset).find(([cacheKey]) => cacheKey.endsWith(url) || url.endsWith(cacheKey));
+			if (entry) return entry[1];
+			
+			// Fallback 2: match just the filename (last part)
+			const filename = url.split('/').pop();
+			if (filename) {
+				const fileEntry = Object.entries(rawAsset).find(([cacheKey]) => {
+					const cacheFilename = cacheKey.split('/').pop();
+					return cacheFilename === filename;
+				});
+				if (fileEntry) return fileEntry[1];
+			}
+			
+			console.warn(`Spine findAsset: Could not find "${url}" in rawAsset. Available keys:`, Object.keys(rawAsset));
+			return undefined;
+		};
+
+		const atlasAsset = findAsset(src.atlas) as SPINE_PIXI.TextureAtlas;
+		const skeletonAsset = findAsset(src.skeleton) as Uint8Array;
+
+		if (!atlasAsset || !skeletonAsset) {
+			console.error(`Spine asset processing failed for "${key}". Atlas: ${!!atlasAsset}, Skeleton: ${!!skeletonAsset}`);
+			return {};
+		}
+
 		const attachmentLoader = new SPINE_PIXI.AtlasAttachmentLoader(atlasAsset);
 		const parser =
 			skeletonAsset instanceof Uint8Array

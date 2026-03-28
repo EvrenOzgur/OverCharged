@@ -71,7 +71,7 @@
 							/>
 						{/if}
 
-						<SpineProvider key="fsOutroNumber" width={sizes.width * 0.4}>
+						<SpineProvider asset="fsOutroNumber" width={sizes.width * 0.4}>
 							<SpineTrack
 								trackIndex={0}
 								{animationName}

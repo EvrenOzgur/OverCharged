@@ -40,28 +40,40 @@
 	};
 
 	const loadAssets = async (nameList: string[]) => {
+		console.log('loadAssets starting for:', nameList);
 		const loadedAssetsArray = await Promise.all(
 			nameList.map(async (key) => {
 				try {
 					const { type, src } = context.stateApp.assets![key];
 					const loadSrc =
 						type === 'spine' ? Object.values(src).filter((item) => typeof item === 'string') : src;
+					
+					console.log(`Loading asset: "${key}" from`, loadSrc);
 					const rawAsset = await PIXI.Assets.load<RawAsset>(loadSrc, onProgress);
 					const processed = getProcessed({ key, rawAsset, type, src });
+					
+					if (!processed || Object.keys(processed).length === 0) {
+						console.error(`Asset processed empty or null for key: "${key}"`);
+					} else {
+						console.log(`Asset processed success for key: "${key}"`, Object.keys(processed));
+					}
+					
 					return processed;
 				} catch (error) {
-					console.error(error);
+					console.error(`Error loading asset "${key}":`, error);
 				}
 			}),
 		);
 
-		return loadedAssetsArray.reduce(
+		const result = loadedAssetsArray.reduce(
 			(acc, cur) => ({
 				...acc,
 				...cur,
 			}),
 			{} as LoadedAssets,
 		);
+		console.log('loadAssets finished. Resulting keys:', Object.keys(result));
+		return result;
 	};
 
 	$effect(() => {
@@ -69,7 +81,12 @@
 			(async () => {
 				if (preAssetNameList.length > 0) {
 					const preLoadedAssets = await loadAssets(preAssetNameList);
-					if (preLoadedAssets) context.stateApp.loadedAssets = preLoadedAssets;
+					if (preLoadedAssets) {
+						context.stateApp.loadedAssets = {
+							...context.stateApp.loadedAssets,
+							...preLoadedAssets,
+						};
+					}
 				}
 				preLoaded = true;
 			})();

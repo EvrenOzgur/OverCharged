@@ -32,7 +32,11 @@
 			resizeTo: window,
 		});
 
-		wrap.appendChild(context.stateApp.pixiApplication.canvas);
+		if (wrap) {
+			wrap.appendChild(context.stateApp.pixiApplication.canvas);
+		} else {
+			console.warn('InitialiseApplication: "wrap" element is null during initialization.');
+		}
 
 		// to prevent that you can't scroll the page with touch on the canvas. https://github.com/pixijs/pixijs/issues/4824
 		context.stateApp.pixiApplication.renderer.events.autoPreventDefault = false;

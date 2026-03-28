@@ -4,9 +4,11 @@
 
 	export type Props = Omit<BaseProps, 'spineData' | 'pivot' | 'scale'> & {
 		debug?: boolean;
-		key: string;
+		asset?: string;
+		key?: string;
 		anchor?: PixiPoint;
 		scale?: PixiPoint;
+		skin?: string;
 	};
 </script>
 
@@ -17,9 +19,19 @@
 	import { anchorToPivot } from '../utils.svelte';
 	import { getContextApp } from '../context.svelte';
 
-	const { debug, key, anchor, children, scale: scaleProp, ...baseSpineProps }: Props = $props();
+	const {
+		debug,
+		asset: assetProp,
+		key: keyProp,
+		anchor,
+		children,
+		scale: scaleProp,
+		skin,
+		...baseSpineProps
+	}: Props = $props();
 	const context = getContextApp();
-	const spineData = $derived(context.stateApp.loadedAssets?.[key] as SPINE_PIXI.SkeletonData);
+	const asset = $derived(assetProp || keyProp || '');
+	const spineData = $derived(context.stateApp.loadedAssets?.[asset] as SPINE_PIXI.SkeletonData);
 
 	const SCALE_BASE = { x: 1, y: 1 };
 
@@ -62,15 +74,17 @@
 </script>
 
 {#if !spineData}
-	{console.error(`Spine: key "${key}" is not found in loadedAssets`)}
+	{console.error(`Spine: asset "${asset}" (from asset:${assetProp} or key:${keyProp}) is not found in loadedAssets`)}
 {/if}
 
 {#if !spineData || debug}
 	{console.log('loadedAssets', $state.snapshot(context.stateApp).loadedAssets)}
 {/if}
 
-{#key spineData}
-	<BaseSpineProvider {...baseSpineProps} {scale} {pivot} {spineData}>
-		{@render children()}
-	</BaseSpineProvider>
-{/key}
+{#if spineData}
+	{#key spineData}
+		<BaseSpineProvider {...baseSpineProps} {scale} {pivot} {spineData} {skin}>
+			{@render children()}
+		</BaseSpineProvider>
+	{/key}
+{/if}

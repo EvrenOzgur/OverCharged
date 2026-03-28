@@ -11,7 +11,7 @@
 </script>
 
 <SpineProvider
-	key="transition"
+	asset="transition"
 	x={context.stateLayoutDerived.canvasSizes().width * 0.5}
 	y={context.stateLayoutDerived.canvasSizes().height * 0.5}
 	height={context.stateLayoutDerived.canvasSizes().height * 1.7}

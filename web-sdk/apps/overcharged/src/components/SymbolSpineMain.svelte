@@ -16,17 +16,20 @@
 	const props: Props = $props();
 </script>
 
-<SpineProvider
-	x={props.x}
-	y={props.y}
-	key={props.symbolInfo.assetKey}
-	height={SYMBOL_SIZE * props.symbolInfo.sizeRatios.height}
->
-	<SpineTrack
-		loop={props.loop}
-		trackIndex={0}
-		animationName={props.symbolInfo.animationName}
-		timeScale={stateBetDerived.timeScale()}
-		listener={props.listener}
-	/>
-</SpineProvider>
+{#if props.symbolInfo}
+	<SpineProvider
+		x={props.x}
+		y={props.y}
+		asset={props.symbolInfo.assetKey}
+		height={SYMBOL_SIZE * props.symbolInfo.sizeRatios.height}
+		skin={props.symbolInfo.skin}
+	>
+		<SpineTrack
+			loop={props.loop}
+			trackIndex={0}
+			animationName={props.symbolInfo.animationName}
+			timeScale={stateBetDerived.timeScale()}
+			listener={props.listener}
+		/>
+	</SpineProvider>
+{/if}

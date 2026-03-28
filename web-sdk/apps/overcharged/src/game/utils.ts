@@ -53,10 +53,14 @@ export const getSymbolX = (reelIndex: number) => SYMBOL_SIZE * (reelIndex + REEL
 export const getSymbolY = (symbolIndexOfBoard: number) => (symbolIndexOfBoard + 0.5) * SYMBOL_SIZE;
 
 export const getSymbolKey = ({ rawSymbol }: { rawSymbol: RawSymbol }) => {
+	const baseName = rawSymbol.name as keyof typeof SYMBOL_INFO_MAP;
 	if (rawSymbol.multiplier !== undefined) {
-		return `${rawSymbol.name}_${rawSymbol.multiplier}` as keyof typeof SYMBOL_INFO_MAP;
+		const keyWithMultiplier = `${rawSymbol.name}_${rawSymbol.multiplier}` as keyof typeof SYMBOL_INFO_MAP;
+		if (SYMBOL_INFO_MAP[keyWithMultiplier]) {
+			return keyWithMultiplier;
+		}
 	}
-	return rawSymbol.name as keyof typeof SYMBOL_INFO_MAP;
+	return baseName;
 };
 
 export const getSymbolInfo = ({

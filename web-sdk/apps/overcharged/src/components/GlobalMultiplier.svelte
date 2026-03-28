@@ -76,7 +76,7 @@
 <FadeContainer {show}>
 	<BoardContainer>
 		<Container {...position} {scale}>
-			<SpineProvider key="globalMultiplier" width={PANEL_WIDTH}>
+			<SpineProvider asset="globalMultiplier" width={PANEL_WIDTH}>
 				<SpineTrack
 					trackIndex={0}
 					{animationName}

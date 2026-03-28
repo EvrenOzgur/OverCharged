@@ -51,7 +51,7 @@
 				key="freespins_{stateUrlDerived.lang()}.png"
 			/>
 
-			<SpineProvider key="fsIntroNumber" width={sizes.width * 0.4}>
+			<SpineProvider asset="fsIntroNumber" width={sizes.width * 0.4}>
 				<SpineTrack
 					trackIndex={0}
 					{animationName}

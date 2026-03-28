@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Rectangle, SpineProvider, SpineTrack } from 'pixi-svelte';
-	import { FadeContainer } from 'components-pixi';
 	import { SECOND } from 'constants-shared/time';
 
 	import { getContext } from '../game/context';
@@ -10,25 +9,15 @@
 		context.stateLayoutDerived.normalBackgroundLayout({ scale: 0.5 }),
 	);
 	const showBaseBackground = $derived(context.stateGame.gameType === 'basegame');
-	const showFeatureBackground = $derived(context.stateGame.gameType === 'freegame');
 </script>
 
 <Rectangle {...context.stateLayoutDerived.canvasSizes()} backgroundColor={0x000000} zIndex={-3} />
 
-<FadeContainer show={showBaseBackground} duration={SECOND} zIndex={-2}>
-	<SpineProvider key="foregroundAnimation" {...backgroundProps}>
-		<SpineTrack trackIndex={0} animationName={'idle'} loop />
-	</SpineProvider>
-	<SpineProvider key="foregroundAnimation" {...backgroundProps}>
-		<SpineTrack trackIndex={0} animationName={'dust'} loop />
-	</SpineProvider>
-</FadeContainer>
-
-<FadeContainer show={showFeatureBackground} duration={SECOND} zIndex={-1}>
-	<SpineProvider key="foregroundFeatureAnimation" {...backgroundProps}>
-		<SpineTrack trackIndex={0} animationName={'idle'} loop />
-	</SpineProvider>
-	<SpineProvider key="foregroundFeatureAnimation" {...backgroundProps}>
-		<SpineTrack trackIndex={0} animationName={'dust'} loop />
-	</SpineProvider>
-</FadeContainer>
+<SpineProvider asset="bgCharacters" {...backgroundProps} zIndex={-2}>
+	<SpineTrack trackIndex={0} animationName={'bg_idle'} loop />
+	{#if showBaseBackground}
+		<SpineTrack trackIndex={1} animationName={'normal_idle'} loop />
+	{:else}
+		<SpineTrack trackIndex={1} animationName={'hulk_idle'} loop />
+	{/if}
+</SpineProvider>

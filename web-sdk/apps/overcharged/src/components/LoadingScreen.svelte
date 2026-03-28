@@ -24,7 +24,7 @@
 			x={context.stateLayoutDerived.mainLayout().width * 0.5}
 			y={context.stateLayoutDerived.mainLayout().height * 0.5}
 		>
-			<SpineProvider key="loader" width={300}>
+			<SpineProvider asset="loader" width={300}>
 				<SpineTrack trackIndex={0} animationName={'title_screen'} loop timeScale={3} />
 			</SpineProvider>
 			{#if !context.stateApp.loaded}

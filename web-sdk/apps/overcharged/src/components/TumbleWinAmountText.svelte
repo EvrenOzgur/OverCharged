@@ -30,7 +30,7 @@
 	});
 </script>
 
-<SpineProvider key="tumble_win" width={props.width}>
+<SpineProvider asset="tumble_win" width={props.width}>
 	<SpineTrack
 		trackIndex={0}
 		{animationName}
