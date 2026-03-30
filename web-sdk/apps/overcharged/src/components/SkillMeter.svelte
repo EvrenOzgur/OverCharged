@@ -45,20 +45,20 @@
 
 	// Fill color mapping
 	const colorCodes = {
-		L1: 0xffd700, // Yellow
+		L1: 0x0000ff, // Blue
 		L2: 0x00ff00, // Green
-		L3: 0x0000ff, // Blue
-		L4: 0xff0000, // Red
+		L3: 0xff0000, // Red
+		L4: 0xffd700, // Yellow
 	} as Record<string, number>;
 
 	let meterColor = $derived(colorCodes[meterName] ?? 0xffffff);
 
 	// Display labels
 	const nameLabels = {
-		L1: 'Yellow Skill',
+		L1: 'Blue Skill',
 		L2: 'Green Skill',
-		L3: 'Blue Skill',
-		L4: 'Red Skill',
+		L3: 'Red Skill',
+		L4: 'Yellow Skill',
 	} as Record<string, string>;
 
 	let label = $derived(nameLabels[meterName] ?? meterName);

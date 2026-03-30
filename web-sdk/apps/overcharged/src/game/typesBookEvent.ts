@@ -88,6 +88,13 @@ type BookEventSetWin = {
 };
 
 // new
+type BookEventMultiplierSymbolActivated = {
+	index: number;
+	type: 'multiplierSymbolActivated';
+	symbols: { reel: number; row: number; value: number }[];
+	newGlobalMultiplier: number;
+};
+
 type BookEventUpdateGrid = {
 	index: number;
 	type: 'updateGrid';
@@ -134,6 +141,7 @@ export type BookEvent =
 	| BookEventFreeSpinRetrigger
 	| BookEventSkillActivated
 	// customised
+	| BookEventMultiplierSymbolActivated
 	| BookEventCreateBonusSnapshot;
 
 export type Bet = BetType<BookEvent>;

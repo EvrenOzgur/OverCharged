@@ -20,7 +20,6 @@
 	import LoadingScreen from './LoadingScreen.svelte';
 	import BoardFrame from './BoardFrame.svelte';
 	import BoardContainer from './BoardContainer.svelte';
-	import MultiplierGrid from './MultiplierGrid.svelte';
 	import Board from './Board.svelte';
 	import Anticipations from './Anticipations.svelte';
 	import ClusterWinAmounts from './ClusterWinAmounts.svelte';
@@ -114,9 +113,7 @@
 			<BoardFrame />
 		</MainContainer>
 
-		<MainContainer>
-			<MultiplierGrid />
-		</MainContainer>
+
 
 		<MainContainer>
 			<Board />

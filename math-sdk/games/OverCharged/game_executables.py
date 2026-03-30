@@ -1,6 +1,12 @@
 from src.executables.executables import Executables
+import random
 from src.calculations.cluster import Cluster
-from src.events.events import update_freespin_event
+from src.events.events import (
+    win_info_event,
+    update_freespin_event,
+    update_global_mult_event,
+)
+from game_events import emit_multiplier_symbol_activated_event
 
 
 class GameExecutables(Executables):
@@ -8,6 +14,34 @@ class GameExecutables(Executables):
 
     def get_clusters_update_wins(self):
         """Find clusters on board and update win manager."""
+        
+        # 1. Collect and activate multiplier symbols (e.g. 'M')
+        multiplier_added = 0
+        multiplier_symbols = []
+        for reel_idx, reel in enumerate(self.board):
+            for row_idx, symbol in enumerate(reel):
+                # If it's a dedicated multiplier symbol 'M' and has no value yet
+                if symbol.name == "M" and not hasattr(symbol, "multiplier"):
+                    # Assign a random multiplier value
+                    val = random.choice([2, 3, 5, 8, 10, 15, 20, 50])
+                    symbol.assign_attribute({"multiplier": val})
+                
+                # Check if symbol has a multiplier and activate it
+                if hasattr(symbol, "multiplier") and not hasattr(symbol, "processed_multiplier"):
+                    val = symbol.get_attribute("multiplier")
+                    if val > 0:
+                        multiplier_added += val
+                        symbol.processed_multiplier = True # prevent double counting on same spin sequence
+                        multiplier_symbols.append({"reel": reel_idx, "row": row_idx, "value": val})
+        
+        if multiplier_added > 0:
+            self.global_multiplier += multiplier_added
+            # Emit specific event for symbol activation
+            emit_multiplier_symbol_activated_event(self, multiplier_symbols)
+            # Emit global multiplier update
+            update_global_mult_event(self)
+
+        # 2. Proceed with win calculation
         clusters = Cluster.get_clusters(self.board, "wild")
         return_data = {"totalWin": 0, "wins": []}
         self.board, self.win_data, total_win = Cluster.evaluate_clusters(

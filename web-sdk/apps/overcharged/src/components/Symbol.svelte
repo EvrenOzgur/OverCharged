@@ -33,6 +33,7 @@
 	<SymbolSpine
 		loop={props.loop}
 		{symbolInfo}
+		multiplier={props.rawSymbol.multiplier}
 		x={props.x}
 		y={props.y}
 		listener={{

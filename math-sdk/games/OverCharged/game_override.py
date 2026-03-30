@@ -19,10 +19,12 @@ class GameStateOverride(GameExecutables):
         self.tumble_win = 0
         self.skill_meters = {"Yellow": 0, "Green": 0, "Blue": 0, "Red": 0}
         self.red_skill_used = False
+        self.global_multiplier = 1
 
     def reset_fs_spin(self):
         super().reset_fs_spin()
         self.skill_meters = {"Yellow": 0, "Green": 0, "Blue": 0, "Red": 0}
+        self.global_multiplier = 1
 
     def assign_special_sym_function(self):
         pass

@@ -41,9 +41,10 @@
 		context.stateLayoutDerived.isStacked() ? portraitPosition : desktopPosition,
 	);
 
-	let show = $state(true);
+	let show = $state(false);
 	let animationName = $state<AnimationName>('static');
-	let multiplier = $state(1);
+	let multiplier = $derived(context.stateGame.globalMultiplier);
+	let previousMultiplierValue = $state(1);
 	let previousMultiplier = new Tween(1);
 	let oncomplete = $state(() => {});
 
@@ -51,25 +52,32 @@
 		globalMultiplierShow: () => (show = true),
 		globalMultiplierHide: () => (show = false),
 		globalMultiplierUpdate: async (emitterEvent) => {
-			if (emitterEvent.multiplier === 1 && multiplier !== 1) {
+			if (emitterEvent.multiplier === 1 && previousMultiplierValue !== 1) {
 				animationName = 'reset';
 				await waitForTimeout(300);
 				context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_reset' });
-				previousMultiplier.set(emitterEvent.multiplier);
+				previousMultiplier.set(1);
+				previousMultiplierValue = 1;
 			}
 
-			if (emitterEvent.multiplier > multiplier) {
+			if (emitterEvent.multiplier > previousMultiplierValue) {
 				context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_update' });
 				animationName = 'increment';
 			}
 
 			if (animationName !== 'static') {
-				multiplier = emitterEvent.multiplier;
 				await waitForResolve((resolve) => (oncomplete = resolve));
 				animationName = 'static';
-				previousMultiplier.set(multiplier, { duration: 0 });
+				previousMultiplierValue = emitterEvent.multiplier;
+				previousMultiplier.set(previousMultiplierValue, { duration: 0 });
 			}
 		},
+	});
+
+	$effect(() => {
+		if (context.stateGame.gameType === 'freegame') {
+			show = true;
+		}
 	});
 </script>
 

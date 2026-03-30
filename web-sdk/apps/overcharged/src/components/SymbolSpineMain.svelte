@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SpineProvider, SpineTrack, type SpineTrackProps } from 'pixi-svelte';
+	import { BitmapText, SpineProvider, SpineTrack, type SpineTrackProps } from 'pixi-svelte';
 	import { stateBetDerived } from 'state-shared';
 
 	import { getSymbolInfo } from '../game/utils';
@@ -11,6 +11,7 @@
 		y?: number;
 		listener: SpineTrackProps['listener'];
 		loop?: boolean;
+		multiplier?: number;
 	};
 
 	const props: Props = $props();
@@ -31,5 +32,15 @@
 			timeScale={stateBetDerived.timeScale()}
 			listener={props.listener}
 		/>
+		{#if props.multiplier}
+			<BitmapText
+				anchor={0.5}
+				text={`${props.multiplier}×`}
+				style={{
+					fontFamily: 'gold',
+					fontSize: SYMBOL_SIZE * 0.8,
+				}}
+			/>
+		{/if}
 	</SpineProvider>
 {/if}

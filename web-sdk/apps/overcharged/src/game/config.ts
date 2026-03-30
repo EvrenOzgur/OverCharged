@@ -26,6 +26,10 @@ export default {
 			paytable: null,
 			special_properties: ['wild', 'multiplier'],
 		},
+		M: {
+			paytable: null,
+			special_properties: ['multiplier'],
+		},
 		L4: {
 			paytable: [
 				{

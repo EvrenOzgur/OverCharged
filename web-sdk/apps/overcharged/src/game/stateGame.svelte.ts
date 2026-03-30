@@ -69,22 +69,11 @@ export type TumbleSymbol = {
 	oncomplete: () => void;
 };
 
-export type MultiplierSymbol = {
-	initX: number;
-	initY: number;
-	symbolX: Tween<number>;
-	symbolY: Tween<number>;
-	rawSymbol: RawSymbol;
-	symbolState: SymbolState;
-	oncomplete: () => void;
-};
-
 export const stateGame = $state({
 	board,
 	gameType: 'basegame' as GameType,
 	tumbleBoardAdding: [] as TumbleSymbol[][],
 	tumbleBoardBase: [] as TumbleSymbol[][],
-	multiplierBoard: [] as (MultiplierSymbol | undefined)[][],
 	scatterCounter: 0,
 	globalMultiplier: 1,
 	skillMeters: {

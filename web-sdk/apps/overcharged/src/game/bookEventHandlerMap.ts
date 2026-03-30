@@ -46,9 +46,10 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
 
-		// Immediate reset of meters for base game spins to improve UX
+		// Immediate reset of meters and multiplier for base game spins to improve UX
 		if (bookEvent.gameType === 'basegame') {
 			stateGame.skillMeters = { L1: 0, L2: 0, L3: 0, L4: 0 };
+			stateGame.globalMultiplier = 1;
 		}
 
 		const isBonusGame = checkIsMultipleRevealEvents({ bookEvents });
@@ -181,9 +182,19 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		if (bookEvent.globalMult === 1) {
 			eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
 		}
+		stateGame.globalMultiplier = bookEvent.globalMult;
 		await eventEmitter.broadcastAsync({
 			type: 'globalMultiplierUpdate',
 			multiplier: bookEvent.globalMult, // resets when multiplier === 1
+		});
+	},
+	multiplierSymbolActivated: async (bookEvent: BookEventOfType<'multiplierSymbolActivated'>) => {
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_levelup' });
+		await animateSymbols({ positions: bookEvent.symbols });
+		stateGame.globalMultiplier = bookEvent.newGlobalMultiplier;
+		await eventEmitter.broadcastAsync({
+			type: 'globalMultiplierUpdate',
+			multiplier: bookEvent.newGlobalMultiplier,
 		});
 	},
 	freeSpinEnd: async (bookEvent: BookEventOfType<'freeSpinEnd'>) => {
@@ -245,10 +256,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		winLevelSoundsStop();
 		eventEmitter.broadcast({ type: 'winHide' });
 	},
-	updateGrid: async (bookEvent: BookEventOfType<'updateGrid'>) => {
-		eventEmitter.broadcast({ type: 'multiplierGridShow' });
-		eventEmitter.broadcast({ type: 'multiplierGridUpdate', grid: bookEvent.gridMultipliers });
-	},
+
 	finalWin: async (bookEvent: BookEventOfType<'finalWin'>) => {
 		eventEmitter.broadcast({ type: 'multiplierGridClear' });
 		eventEmitter.broadcast({ type: 'multiplierGridHide' });

@@ -56,3 +56,15 @@ def emit_skill_meters_update_event(gamestate):
     }
     gamestate.book.add_event(event)
 
+def emit_multiplier_symbol_activated_event(gamestate, symbols):
+    """
+    Emitted when a symbol with a multiplier lands on the board.
+    symbols: list of {'reel': int, 'row': int, 'value': int}
+    """
+    event = {
+        "index": len(gamestate.book.events),
+        "type": "multiplierSymbolActivated",
+        "symbols": symbols,
+        "newGlobalMultiplier": gamestate.global_multiplier
+    }
+    gamestate.book.add_event(event)

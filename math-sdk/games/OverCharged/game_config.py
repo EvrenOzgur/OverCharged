@@ -78,7 +78,7 @@ class GameConfig(Config):
         self.paytable = self.convert_range_table(pay_group)
 
         self.include_padding = True
-        self.special_symbols = {"wild": ["W"], "scatter": ["S"]}
+        self.special_symbols = {"wild": ["W"], "scatter": ["S"], "is_multiplier": ["M"]}
 
         self.freespin_triggers = {
             self.basegame_type: {3: 7, 4: 10, 5: 12, 6: 15, 7: 18, 8: 20},

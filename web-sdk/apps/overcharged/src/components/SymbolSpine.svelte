@@ -10,6 +10,7 @@
 		y?: number;
 		listener: SpineTrackProps['listener'];
 		loop?: boolean;
+		multiplier?: number;
 	};
 
 	const props: Props = $props();
@@ -22,4 +23,5 @@
 	symbolInfo={props.symbolInfo}
 	listener={props.listener}
 	loop={props.loop}
+	multiplier={props.multiplier}
 />
