@@ -42,8 +42,9 @@ class GameExecutables(Executables):
         )
         self.win_data["totalWin"] += total_win
         
-        # 3. Activate multiplier symbols ONLY if there was at least one win on the board!
-        if total_win > 0 and multiplier_candidates:
+        # 3. Activate multiplier symbols ONLY if there was at least one paying win on the board!
+        # We use a threshold of 0.01 to avoid any internal float artifacts.
+        if total_win >= 0.01 and multiplier_candidates:
             activated_symbols = []
             multiplier_added = 0
             
