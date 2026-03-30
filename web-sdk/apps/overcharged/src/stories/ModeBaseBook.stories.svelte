@@ -34,9 +34,7 @@
 				index = randomInteger({ min: 0, max: books.length - 1 });
 			}
 			const data = books[index];
-			console.log(`[DEBUG] Playing book at index ${index} (ID: ${data.id})`);
-			const skillEvents = data.events.filter(e => e.type === 'skillActivated');
-			console.log(`[DEBUG] Found ${skillEvents.length} skill events in book data:`, skillEvents);
+			console.log('[DEBUG] Playing book at index ' + index + ' (ID: ' + data.id + ')');
 			await playBet({ ...data, state: data.events });
 		}}
 	>
@@ -48,9 +46,9 @@
 
 <Story
 	name="random"
-	args={templateArgs<any>({
+	args={{
 		skipLoadingScreen: true,
 		bookIndex: -1,
-	})}
+	}}
 	{template}
 />

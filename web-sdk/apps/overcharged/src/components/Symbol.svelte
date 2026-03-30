@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SpineProvider, SpineTrack } from 'pixi-svelte';
+	import { BitmapText, SpineProvider, SpineTrack, Graphics, Container } from 'pixi-svelte';
 
 	import SymbolSpine from './SymbolSpine.svelte';
 	import SymbolSprite from './SymbolSprite.svelte';
@@ -21,11 +21,26 @@
 	const context = getContext();
 	const symbolInfo = $derived(getSymbolInfo({ rawSymbol: props.rawSymbol, state: props.state }));
 	const isSprite = $derived(symbolInfo.type === 'sprite');
+	const isMultiplierSymbol = $derived(props.rawSymbol.name === 'M');
 	const showWinFrame = $derived(
 		['win', 'postWinStatic', 'explosion'].includes(props.state) &&
-			!['S'].includes(props.rawSymbol.name),
+			!['S', 'M'].includes(props.rawSymbol.name),
 	);
 </script>
+
+{#if isMultiplierSymbol && props.state !== 'explosion'}
+	<!-- Golden Glow Circle Behind Multiplier -->
+	<Container x={props.x} y={props.y}>
+		<Graphics
+			draw={(g) => {
+				g.clear();
+				g.beginFill(0xffd700, 0.4);
+				g.drawCircle(0, 0, SYMBOL_SIZE * 0.5);
+				g.endFill();
+			}}
+		/>
+	</Container>
+{/if}
 
 {#if isSprite}
 	<SymbolSprite {symbolInfo} x={props.x} y={props.y} oncomplete={props.oncomplete} />
@@ -43,6 +58,19 @@
 					context.eventEmitter?.broadcast({ type: 'soundOnce', name: 'sfx_wild_explode' });
 				}
 			},
+		}}
+	/>
+{/if}
+
+{#if props.rawSymbol.multiplier && props.state !== 'explosion'}
+	<BitmapText
+		x={props.x}
+		y={props.y}
+		anchor={0.5}
+		text={`${props.rawSymbol.multiplier}×`}
+		style={{
+			fontFamily: 'gold',
+			fontSize: SYMBOL_SIZE * 0.85,
 		}}
 	/>
 {/if}

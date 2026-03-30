@@ -32,15 +32,5 @@
 			timeScale={stateBetDerived.timeScale()}
 			listener={props.listener}
 		/>
-		{#if props.multiplier}
-			<BitmapText
-				anchor={0.5}
-				text={`${props.multiplier}×`}
-				style={{
-					fontFamily: 'gold',
-					fontSize: SYMBOL_SIZE * 0.8,
-				}}
-			/>
-		{/if}
 	</SpineProvider>
 {/if}

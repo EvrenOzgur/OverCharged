@@ -34,11 +34,12 @@ const winLevelSoundsStop = () => {
 	eventEmitter.broadcastAsync({ type: 'uiShow' });
 };
 
-const animateSymbols = async ({ positions }: { positions: Position[] }) => {
+const animateSymbols = async ({ positions, state = 'win' }: { positions: Position[]; state?: SymbolState }) => {
 	eventEmitter.broadcast({ type: 'boardShow' });
 	await eventEmitter.broadcastAsync({
 		type: 'boardWithAnimateSymbols',
 		symbolPositions: positions,
+		state,
 	});
 };
 
@@ -61,7 +62,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 					res.catch(() => {});
 				}
 			} catch (e) {
-				// 
+				console.warn('[DEBUG] recordBookEvent failed (expected in Storybook):', e);
 			}
 		}
 
@@ -190,7 +191,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	},
 	multiplierSymbolActivated: async (bookEvent: BookEventOfType<'multiplierSymbolActivated'>) => {
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_levelup' });
-		await animateSymbols({ positions: bookEvent.symbols });
+		// Use 'land' state for multiplier activation to avoid destructive 'win' explosions
+		await animateSymbols({ positions: bookEvent.symbols, state: 'land' });
 		stateGame.globalMultiplier = bookEvent.newGlobalMultiplier;
 		await eventEmitter.broadcastAsync({
 			type: 'globalMultiplierUpdate',

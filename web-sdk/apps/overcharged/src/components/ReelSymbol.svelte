@@ -25,8 +25,11 @@
 		state={props.reelSymbol.symbolState}
 		rawSymbol={props.reelSymbol.rawSymbol}
 		oncomplete={() => {
-			if (props.reelSymbol.symbolState === 'win') props.reelSymbol.oncomplete();
-			if (props.reelSymbol.symbolState === 'land') props.reelSymbol.symbolState = 'static';
+			if (props.reelSymbol.symbolState === 'win') props.reelSymbol.oncomplete?.();
+			if (props.reelSymbol.symbolState === 'land') {
+				props.reelSymbol.symbolState = 'static';
+				props.reelSymbol.oncomplete?.();
+			}
 		}}
 	/>
 </SymbolWrap>

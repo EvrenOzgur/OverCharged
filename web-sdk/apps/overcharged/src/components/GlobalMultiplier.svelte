@@ -66,7 +66,11 @@
 			}
 
 			if (animationName !== 'static') {
-				await waitForResolve((resolve) => (oncomplete = resolve));
+				// Safety timeout: 3000ms max wait for animation completion
+				await Promise.race([
+					waitForResolve((resolve) => (oncomplete = resolve)),
+					waitForTimeout(3000)
+				]);
 				animationName = 'static';
 				previousMultiplierValue = emitterEvent.multiplier;
 				previousMultiplier.set(previousMultiplierValue, { duration: 0 });

@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import type { RawSymbol, Position } from '../game/types';
+	import type { RawSymbol, Position, SymbolState } from '../game/types';
 
 	export type EmitterEventBoard =
 		| { type: 'boardSettle'; board: RawSymbol[][] }
@@ -8,6 +8,7 @@
 		| {
 				type: 'boardWithAnimateSymbols';
 				symbolPositions: Position[];
+				state?: SymbolState;
 		  };
 </script>
 
@@ -30,7 +31,7 @@
 		boardSettle: ({ board }) => context.stateGameDerived.enhancedBoard.settle(board),
 		boardShow: () => (show = true),
 		boardHide: () => (show = false),
-		boardWithAnimateSymbols: async ({ symbolPositions }) => {
+		boardWithAnimateSymbols: async ({ symbolPositions, state = 'win' }) => {
 			const getPromises = () => {
 				const uniquePositions = _.uniqBy(symbolPositions, (p) => `${p.reel}_${p.row}`);
 				return uniquePositions.map(async (position) => {
@@ -38,10 +39,18 @@
 					const reel = context.stateGame.board[position.reel];
 					if (reel && reel.reelState.symbols[symbolIndex]) {
 						const reelSymbol = reel.reelState.symbols[symbolIndex];
-						console.log(`[DEBUG] Animating win for Row ${position.row} (Index ${symbolIndex}) - Symbol: ${reelSymbol.rawSymbol.name} at Y: ${reelSymbol.symbolY.current}`);
-						reelSymbol.symbolState = 'win';
-						await waitForResolve((resolve) => (reelSymbol.oncomplete = resolve));
-						reelSymbol.symbolState = 'postWinStatic';
+						console.log(`[DEBUG] Animating ${state} for Reel ${position.reel} Row ${position.row} (Index ${symbolIndex}) - Symbol: ${reelSymbol.rawSymbol.name}`);
+						reelSymbol.symbolState = state;
+						
+						// Safety timeout: 2000ms max wait for animation complete
+						await Promise.race([
+							waitForResolve((resolve) => (reelSymbol.oncomplete = resolve)),
+							new Promise((resolve) => setTimeout(resolve, 2000))
+						]);
+						
+						if (state === 'win') {
+							reelSymbol.symbolState = 'postWinStatic';
+						}
 					} else {
 						console.warn(`[DEBUG] MISSING symbol for Board anim: Reel ${position.reel}, Row ${position.row} (Index ${symbolIndex})`);
 					}
@@ -49,6 +58,7 @@
 			};
 
 			await Promise.all(getPromises());
+			console.log(`[DEBUG] boardWithAnimateSymbols finished all promises`);
 		},
 	});
 

@@ -34,7 +34,7 @@ import {
 				index = randomInteger({ min: 0, max: books.length - 1 });
 			}
 			const data = books[index];
-			console.log(`[DEBUG] Playing bonus book at index ${index} (ID: ${data.id})`);
+			console.log('[DEBUG] Playing bonus book at index ' + index + ' (ID: ' + data.id + ')');
 			await playBet({ ...data, state: data.events });
 		}}
 	>
@@ -46,9 +46,9 @@ import {
 
 <Story
 	name="random"
-	args={templateArgs<any>({
+	args={{
 		skipLoadingScreen: true,
 		bookIndex: -1,
-	})}
+	}}
 	{template}
 />
