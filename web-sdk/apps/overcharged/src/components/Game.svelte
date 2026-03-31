@@ -20,6 +20,7 @@
 	import LoadingScreen from './LoadingScreen.svelte';
 	import BoardFrame from './BoardFrame.svelte';
 	import BoardContainer from './BoardContainer.svelte';
+	import OverchargedUI from './UI/OverchargedUI.svelte';
 	import Board from './Board.svelte';
 	import Anticipations from './Anticipations.svelte';
 	import ClusterWinAmounts from './ClusterWinAmounts.svelte';
@@ -161,7 +162,7 @@
 			</BoardContainer>
 		</MainContainer>
 
-		<UI>
+		<OverchargedUI>
 			{#snippet gameName()}
 				<UiGameName name="Mining Mayhem" />
 			{/snippet}
@@ -178,7 +179,7 @@
 					}}
 				/>
 			{/snippet}
-		</UI>
+		</OverchargedUI>
 		<Win />
 		<FreeSpinIntro />
 		{#if ['desktop', 'landscape'].includes(context.stateLayoutDerived.layoutType())}
