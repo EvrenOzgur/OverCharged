@@ -67,11 +67,12 @@
 		x={props.x}
 		y={props.y}
 		anchor={0.5}
-		text={`${props.rawSymbol.multiplier}×`}
+		text={`X${props.rawSymbol.multiplier}`}
 		style={{
 			fontFamily: 'gold',
-			fontSize: SYMBOL_SIZE * 0.85,
+			fontSize: SYMBOL_SIZE * 0.7,
 		}}
+		tint={0x5e3000} 
 	/>
 {/if}
 

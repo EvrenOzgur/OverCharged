@@ -34,7 +34,13 @@ const winLevelSoundsStop = () => {
 	eventEmitter.broadcastAsync({ type: 'uiShow' });
 };
 
-const animateSymbols = async ({ positions, state = 'win' }: { positions: Position[]; state?: SymbolState }) => {
+const animateSymbols = async ({
+	positions,
+	state = 'win',
+}: {
+	positions: (Position & { multiplier?: number })[];
+	state?: SymbolState;
+}) => {
 	eventEmitter.broadcast({ type: 'boardShow' });
 	await eventEmitter.broadcastAsync({
 		type: 'boardWithAnimateSymbols',
@@ -67,6 +73,27 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		}
 
 		stateGame.gameType = bookEvent.gameType;
+
+		// Lookahead: Pre-populate multipliers on the board so they show "on landing"
+		bookEvent.board.forEach((reel, reelIdx) => {
+			reel.forEach((symbol, rowIdx) => {
+				if (symbol.name === 'M') {
+					const activation = bookEvents.find(
+						(e) =>
+							e.type === 'multiplierSymbolActivated' &&
+							e.symbols.some((s) => s.reel === reelIdx && s.row === rowIdx),
+					) as BookEventOfType<'multiplierSymbolActivated'> | undefined;
+
+					if (activation) {
+						const symbolData = activation.symbols.find((s) => s.reel === reelIdx && s.row === rowIdx);
+						if (symbolData) {
+							symbol.multiplier = symbolData.value;
+						}
+					}
+				}
+			});
+		});
+
 		await stateGameDerived.enhancedBoard.spin({ revealEvent: bookEvent });
 		eventEmitter.broadcast({ type: 'soundScatterCounterClear' });
 	},
@@ -196,7 +223,11 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	multiplierSymbolActivated: async (bookEvent: BookEventOfType<'multiplierSymbolActivated'>) => {
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_levelup' });
 		// Use 'land' state for multiplier activation to avoid destructive 'win' explosions
-		await animateSymbols({ positions: bookEvent.symbols, state: 'land' });
+		// Pass the value as 'multiplier' to ensure the symbol UI has the latest data
+		await animateSymbols({
+			positions: bookEvent.symbols.map((s) => ({ ...s, multiplier: s.value })),
+			state: 'land',
+		});
 		stateGame.globalMultiplier = bookEvent.newGlobalMultiplier;
 		await eventEmitter.broadcastAsync({
 			type: 'globalMultiplierUpdate',

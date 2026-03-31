@@ -7,7 +7,7 @@
 		| { type: 'boardHide' }
 		| {
 				type: 'boardWithAnimateSymbols';
-				symbolPositions: Position[];
+				symbolPositions: (Position & { multiplier?: number })[];
 				state?: SymbolState;
 		  };
 </script>
@@ -40,6 +40,11 @@
 					if (reel && reel.reelState.symbols[symbolIndex]) {
 						const reelSymbol = reel.reelState.symbols[symbolIndex];
 						console.log(`[DEBUG] Animating ${state} for Reel ${position.reel} Row ${position.row} (Index ${symbolIndex}) - Symbol: ${reelSymbol.rawSymbol.name}`);
+
+						if (position.multiplier !== undefined) {
+							reelSymbol.rawSymbol.multiplier = position.multiplier;
+						}
+
 						reelSymbol.symbolState = state;
 						
 						// Safety timeout: 2000ms max wait for animation complete
