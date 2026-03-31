@@ -15,8 +15,7 @@ class GameExecutables(Executables):
     def get_clusters_update_wins(self):
         """Find clusters on board and update win manager."""
         
-        # 1. Capture multiplier symbol candidate positions BEFORE evaluation
-        # This ensures row indices are stable and match the initial board of this tumble.
+        # 1. Capture multiplier symbol candidates BEFORE any board modification
         multiplier_candidates = []
         for reel_idx, reel in enumerate(self.board):
             for row_idx, symbol in enumerate(reel):
@@ -27,40 +26,36 @@ class GameExecutables(Executables):
                         "symbol": symbol
                     })
 
-        # 2. Proceed with win calculation (finding clusters)
+        # 2. Find symbol clusters
         clusters = Cluster.get_clusters(self.board, "wild")
-        return_data = {"totalWin": 0, "wins": []}
         
-        # We use a temporary total_win to decide on multiplier activation
-        self.board, self.win_data, total_win = Cluster.evaluate_clusters(
-            config=self.config,
-            board=self.board,
-            clusters=clusters,
-            global_multiplier=self.global_multiplier,
-            multiplier_key="multiplier",
-            return_data=return_data,
-        )
-        self.win_data["totalWin"] += total_win
-        
-        # 3. Activate multiplier symbols ONLY if there was at least one paying win on the board!
-        # We use a threshold of 0.01 to avoid any internal float artifacts.
-        if total_win >= 0.01 and multiplier_candidates:
+        # 3. Determine if any cluster is a paying win
+        is_any_win = False
+        for sym, clist in clusters.items():
+            for cluster in clist:
+                if (len(cluster), sym) in self.config.paytable:
+                    is_any_win = True
+                    break
+            if is_any_win: break
+
+        # 4. If we have a win, ACTIVATE multipliers first!
+        if is_any_win and multiplier_candidates:
             activated_symbols = []
             multiplier_added = 0
             
             for item in multiplier_candidates:
                 symbol = item["symbol"]
-                # 3a. Assign value if missing (once per symbol lifetime)
+                # assign value if missing
                 if not hasattr(symbol, "multiplier"):
                     val = random.choice([2, 3, 5, 8, 10, 15, 20, 50, 100, 250, 500])
                     symbol.assign_attribute({"multiplier": val})
                 
-                # 3b. Activate if not yet processed in this turn
+                # Activate if not yet processed
                 if not hasattr(symbol, "processed_multiplier"):
                     val = symbol.get_attribute("multiplier")
                     if val > 0:
                         multiplier_added += val
-                        symbol.processed_multiplier = True # one-time activation
+                        symbol.processed_multiplier = True
                         activated_symbols.append({
                             "reel": item["reel"], 
                             "row": item["row"] + 1, 
@@ -69,31 +64,39 @@ class GameExecutables(Executables):
             
             if multiplier_added > 0:
                 self.global_multiplier += multiplier_added
-                # Emit events for activation
+                # Emit events so UI slot updates FIRST
                 emit_multiplier_symbol_activated_event(self, activated_symbols)
                 update_global_mult_event(self)
         else:
-            # Persistent visual value: even if no win, ensure 'M' symbols have a visible multiplier
+            # Persistent visual value assignment for M symbols even without a win
             for item in multiplier_candidates:
                 symbol = item["symbol"]
                 if not hasattr(symbol, "multiplier"):
                     val = random.choice([2, 3, 5, 8, 10, 15, 20, 50, 100])
                     symbol.assign_attribute({"multiplier": val})
+
+        # 5. Evaluate wins using the (potentially updated) global_multiplier
+        return_data = {"totalWin": 0, "wins": []}
+        self.board, self.win_data, total_win = Cluster.evaluate_clusters(
+            config=self.config,
+            board=self.board,
+            clusters=clusters,
+            global_multiplier=self.global_multiplier,
+            multiplier_key="multiplier",
+            return_data=return_data,
+        )
+        self.win_data["totalWin"] = total_win # Reset for this tumble's specific result
         
-        # Track Popped Low-Tier Symbols for Skills
+        # 6. Track Skill Meters
         if hasattr(self, "skill_meters"):
             symbol_to_meter = {"L1": "Yellow", "L2": "Green", "L3": "Blue", "L4": "Red"}
             for win in self.win_data.get("wins", []):
                 sym = win.get("symbol")
-                print(f"DEBUG: Processing win with symbol {sym}")
                 if sym in symbol_to_meter:
-                    # add the number of popped symbols in this cluster
                     val = win.get("clusterSize", 0)
-                    print(f"DEBUG: Adding {val} to {symbol_to_meter[sym]} meter")
                     self.skill_meters[symbol_to_meter[sym]] += val
             
-            # Emit Meter Update Event if there were wins
-            print(f"DEBUG: Current Meters after wins: {self.skill_meters}")
+            # Emit Meter Update
             from game_events import emit_skill_meters_update_event
             emit_skill_meters_update_event(self)
 

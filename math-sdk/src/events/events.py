@@ -44,6 +44,7 @@ def reveal_event(gamestate):
 
 def fs_trigger_event(
     gamestate,
+    added_fs: int = None,
     include_padding_index=True,
     basegame_trigger: bool = None,
     freegame_trigger: bool = None,
@@ -63,6 +64,7 @@ def fs_trigger_event(
             "index": len(gamestate.book.events),
             "type": EventConstants.FREESPINTRIGGER.value,
             "totalFs": gamestate.tot_fs,
+            "addedFs": added_fs if added_fs is not None else gamestate.tot_fs,
             "positions": scatter_positions,
         }
     elif freegame_trigger:
@@ -70,6 +72,7 @@ def fs_trigger_event(
             "index": len(gamestate.book.events),
             "type": EventConstants.FREESPINRETRIGGER.value,
             "totalFs": gamestate.tot_fs,
+            "addedFs": added_fs if added_fs is not None else 0, # Should be explicitly passed
             "positions": scatter_positions,
         }
 

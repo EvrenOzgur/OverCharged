@@ -2,7 +2,7 @@
 	export type EmitterEventFreeSpinIntro =
 		| { type: 'freeSpinIntroShow' }
 		| { type: 'freeSpinIntroHide' }
-		| { type: 'freeSpinIntroUpdate'; totalFreeSpins: number };
+		| { type: 'freeSpinIntroUpdate'; totalFreeSpins: number; addedFs: number; isRetrigger: boolean };
 </script>
 
 <script lang="ts">
@@ -23,10 +23,15 @@
 	let show = $state(false);
 	let animationName = $state<AnimationName>('intro');
 	let freeSpinsFromEvent = $state(0);
+	let addedFsFromEvent = $state(0);
+	let isUpdate = $state(false);
 	let oncomplete = $state(() => {});
 
 	context.eventEmitter.subscribeOnMount({
-		freeSpinIntroShow: () => (show = true),
+		freeSpinIntroShow: () => {
+			show = true;
+			isUpdate = false;
+		},
 		freeSpinIntroHide: () => (show = false),
 		freeSpinIntroUpdate: async (emitterEvent) => {
 			// if (emitterEvent.extraSpins) {
@@ -34,6 +39,8 @@
 			// }
 			// freeSpinsFromEvent = emitterEvent.extraSpins ?? emitterEvent.totalFreeSpins;
 			freeSpinsFromEvent = emitterEvent.totalFreeSpins;
+			addedFsFromEvent = emitterEvent.addedFs;
+			isUpdate = emitterEvent.isRetrigger;
 			await waitForResolve((resolve) => (oncomplete = resolve));
 		},
 	});
@@ -63,7 +70,7 @@
 				<SpineSlot slotName="slot_number">
 					<BitmapText
 						anchor={{ x: 0.5, y: 0.5 }}
-						text={freeSpinsFromEvent}
+						text={isUpdate ? `+${addedFsFromEvent}` : addedFsFromEvent}
 						style={{
 							fontFamily: 'gold',
 							fontSize: sizes.width * 0.15,

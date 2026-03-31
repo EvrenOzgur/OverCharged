@@ -71,17 +71,19 @@ class Executables(Conditions, Tumble):
 
     def update_freespin_amount(self, scatter_key: str = "scatter") -> None:
         """Set initial number of spins for a freegame and transmit event."""
-        self.tot_fs = self.config.freespin_triggers[self.gametype][self.count_special_symbols(scatter_key)]
+        added_fs = self.config.freespin_triggers[self.gametype][self.count_special_symbols(scatter_key)]
+        self.tot_fs = added_fs
         if self.gametype == self.config.basegame_type:
             basegame_trigger, freegame_trigger = True, False
         else:
             basegame_trigger, freegame_trigger = False, True
-        fs_trigger_event(self, basegame_trigger=basegame_trigger, freegame_trigger=freegame_trigger)
+        fs_trigger_event(self, added_fs=added_fs, basegame_trigger=basegame_trigger, freegame_trigger=freegame_trigger)
 
     def update_fs_retrigger_amt(self, scatter_key: str = "scatter") -> None:
         """Update total freespin amount on retrigger."""
-        self.tot_fs += self.config.freespin_triggers[self.gametype][self.count_special_symbols(scatter_key)]
-        fs_trigger_event(self, freegame_trigger=True, basegame_trigger=False)
+        added_fs = self.config.freespin_triggers[self.gametype][self.count_special_symbols(scatter_key)]
+        self.tot_fs += added_fs
+        fs_trigger_event(self, added_fs=added_fs, freegame_trigger=True, basegame_trigger=False)
 
     def update_freespin(self) -> None:
         """Called before a new reveal during freegame."""

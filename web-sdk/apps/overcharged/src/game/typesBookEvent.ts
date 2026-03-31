@@ -44,6 +44,7 @@ type BookEventFreeSpinTrigger = {
 	index: number;
 	type: 'freeSpinTrigger';
 	totalFs: number;
+	addedFs: number;
 	positions: Position[];
 };
 
@@ -105,6 +106,7 @@ type BookEventFreeSpinRetrigger = {
 	index: number;
 	type: 'freeSpinRetrigger';
 	totalFs: number;
+	addedFs: number;
 	positions: Position[];
 };
 
