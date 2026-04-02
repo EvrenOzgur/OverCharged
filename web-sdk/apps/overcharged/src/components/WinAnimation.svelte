@@ -6,32 +6,29 @@
 	import { getContext } from '../game/context';
 
 	type AnimationState = 'intro' | 'idle' | 'outro';
+	type AnimationName = string;
 
 	type Props = {
+		spineKey?: string;
 		animationMap: {
-			intro:
-				| 'big_win_intro'
-				| 'epic_win_intro'
-				| 'max_win_intro'
-				| 'mega_win_intro'
-				| 'super_win_intro';
-			idle: 'big_win_idle' | 'epic_win_idle' | 'max_win_idle' | 'mega_win_idle' | 'super_win_idle';
-			outro: 'big_win_exit' | 'epic_win_exit' | 'max_win_exit' | 'mega_win_exit' | 'super_win_exit';
+			intro: AnimationName;
+			idle: AnimationName;
+			outro: AnimationName;
 		};
 		children: Snippet;
 	};
 
-	const props: Props = $props();
+	const { spineKey = 'bigwin', animationMap, children }: Props = $props();
 	const context = getContext();
 
 	let oncomplete = $state(() => {});
 	let animationState = $state<AnimationState>('intro');
 </script>
 
-<SpineProvider width={context.stateGameDerived.boardLayout().width} key="bigwin">
+<SpineProvider width={context.stateGameDerived.boardLayout().width} key={spineKey}>
 	<SpineTrack
 		trackIndex={0}
-		animationName={props.animationMap[animationState]}
+		animationName={animationMap[animationState]}
 		loop={animationState === 'idle'}
 		listener={{
 			complete: () => {
@@ -41,6 +38,6 @@
 		}}
 	/>
 	<SpineSlot slotName="slot_win_count">
-		{@render props.children()}
+		{@render children()}
 	</SpineSlot>
 </SpineProvider>

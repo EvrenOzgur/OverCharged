@@ -64,7 +64,10 @@
 						y={context.stateGameDerived.boardLayout().y}
 					>
 						{#if winLevelData?.animation}
-							<WinAnimation animationMap={winLevelData.animation}>
+							<WinAnimation
+								spineKey={winLevelData.spineKey}
+								animationMap={winLevelData.animation}
+							>
 								<ResponsiveBitmapText
 									anchor={0.5}
 									maxWidth={2130}
