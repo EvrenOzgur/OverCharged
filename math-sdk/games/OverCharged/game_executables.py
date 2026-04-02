@@ -63,7 +63,10 @@ class GameExecutables(Executables):
                         })
             
             if multiplier_added > 0:
-                self.global_multiplier += multiplier_added
+                if self.global_multiplier == 1:
+                    self.global_multiplier = multiplier_added
+                else:
+                    self.global_multiplier += multiplier_added
                 # Emit events so UI slot updates FIRST
                 emit_multiplier_symbol_activated_event(self, activated_symbols)
                 update_global_mult_event(self)
@@ -203,7 +206,10 @@ class GameExecutables(Executables):
         from src.events.events import update_global_mult_event
         
         mult_add = random.randint(2, 10)
-        self.global_multiplier += mult_add
+        if self.global_multiplier == 1:
+            self.global_multiplier = mult_add
+        else:
+            self.global_multiplier += mult_add
         
         emit_skill_activated_event(self, "L3", {"multiplierAdded": mult_add, "newGlobalMultiplier": self.global_multiplier})
         update_global_mult_event(self)
