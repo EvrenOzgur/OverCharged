@@ -3,6 +3,7 @@ from copy import deepcopy
 APPLY_TUMBLE_MULTIPLIER = "applyMultiplierToTumble"
 UPDATE_GRID = "updateGrid"
 SKILL_ACTIVATED = "skillActivated"
+FINAL_MULTIPLIER_APPLIED = "finalMultiplierApplied"
 
 def update_grid_mult_event(gamestate):
     """Pass updated position multipliers after a win."""
@@ -66,5 +67,19 @@ def emit_multiplier_symbol_activated_event(gamestate, symbols):
         "type": "multiplierSymbolActivated",
         "symbols": symbols,
         "newGlobalMultiplier": gamestate.global_multiplier
+    }
+    gamestate.book.add_event(event)
+
+def emit_final_multiplier_applied_event(gamestate):
+    """
+    Emitted at the end of a tumble sequence to multiply the accumulated base win 
+    by the total global multiplier collected.
+    """
+    event = {
+        "index": len(gamestate.book.events),
+        "type": FINAL_MULTIPLIER_APPLIED,
+        "finalMultiplier": gamestate.global_multiplier,
+        "baseWin": gamestate.accumulated_base_win,
+        "totalWin": gamestate.accumulated_base_win * gamestate.global_multiplier
     }
     gamestate.book.add_event(event)

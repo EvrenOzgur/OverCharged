@@ -90,16 +90,23 @@ export const zIndexes = {
 	},
 };
 
-const explosion = {
+const highExplosion = {
 	type: 'spine',
 	assetKey: 'highSymbols',
 	animationName: 'explosion',
 	sizeRatios: { width: 1, height: 1 },
 };
 
+const lowExplosion = {
+	type: 'spine',
+	assetKey: 'lowSymbols',
+	animationName: 'explosion',
+	sizeRatios: { width: 1, height: 1 },
+};
+
 export const SYMBOL_INFO_MAP = {
 	H1: {
-		explosion,
+		explosion: highExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'highSymbols',
@@ -137,7 +144,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	H2: {
-		explosion,
+		explosion: highExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'highSymbols',
@@ -175,7 +182,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	H3: {
-		explosion,
+		explosion: highExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'highSymbols',
@@ -213,7 +220,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	H4: {
-		explosion,
+		explosion: highExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'highSymbols',
@@ -251,7 +258,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	H5: {
-		explosion,
+		explosion: highExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'highSymbols',
@@ -289,7 +296,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	L1: {
-		explosion,
+		explosion: lowExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'lowSymbols',
@@ -327,7 +334,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	L2: {
-		explosion,
+		explosion: lowExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'lowSymbols',
@@ -365,7 +372,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	L3: {
-		explosion,
+		explosion: lowExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'lowSymbols',
@@ -403,7 +410,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	L4: {
-		explosion,
+		explosion: lowExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'lowSymbols',
@@ -441,7 +448,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	W: {
-		explosion,
+		explosion: lowExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'specialSymbols',
@@ -479,7 +486,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	M: {
-		explosion,
+		explosion: lowExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'specialSymbols',
@@ -517,7 +524,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	S: {
-		explosion,
+		explosion: lowExplosion,
 		win: {
 			type: 'spine',
 			assetKey: 'specialSymbols',

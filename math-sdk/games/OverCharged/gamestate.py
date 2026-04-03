@@ -20,17 +20,19 @@ class GameState(GameStateOverride):
             if self.win_data["totalWin"] == 0:
                 skills_active = self.process_skills()
 
-            while (self.win_data["totalWin"] > 0 or skills_active) and not (self.wincap_triggered):
-                if self.win_data["totalWin"] > 0:
+            while (self.win_data["totalWin"] > 0 or len(self.win_data.get("wins", [])) > 0 or skills_active) and not (self.wincap_triggered):
+                if self.win_data["totalWin"] > 0 or len(self.win_data.get("wins", [])) > 0:
                     self.tumble_game_board()
                     self.get_clusters_update_wins()
                     self.emit_tumble_win_events()
                 
-                if self.win_data["totalWin"] == 0:
+                if self.win_data["totalWin"] == 0 and len(self.win_data.get("wins", [])) == 0:
                     skills_active = self.process_skills()
                 else:
                     skills_active = False
 
+            # End of tumble sequence - Apply multipliers to accumulated base win
+            self.apply_final_multipliers()
             self.set_end_tumble_event()
             self.win_manager.update_gametype_wins(self.gametype)
 
@@ -55,17 +57,19 @@ class GameState(GameStateOverride):
             if self.win_data["totalWin"] == 0:
                 skills_active = self.process_skills()
 
-            while (self.win_data["totalWin"] > 0 or skills_active) and not (self.wincap_triggered):
-                if self.win_data["totalWin"] > 0:
+            while (self.win_data["totalWin"] > 0 or len(self.win_data.get("wins", [])) > 0 or skills_active) and not (self.wincap_triggered):
+                if self.win_data["totalWin"] > 0 or len(self.win_data.get("wins", [])) > 0:
                     self.tumble_game_board()
                     self.get_clusters_update_wins()
                     self.emit_tumble_win_events()
                 
-                if self.win_data["totalWin"] == 0:
+                if self.win_data["totalWin"] == 0 and len(self.win_data.get("wins", [])) == 0:
                     skills_active = self.process_skills()
                 else:
                     skills_active = False
 
+            # End of tumble sequence - Apply multipliers to accumulated base win
+            self.apply_final_multipliers()
             self.set_end_tumble_event()
             self.win_manager.update_gametype_wins(self.gametype)
 

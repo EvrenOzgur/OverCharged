@@ -91,7 +91,12 @@
 						const tumbleSymbol = reel[symbolIndex];
 						console.log(`[DEBUG] Exploding Row ${position.row} (Index ${symbolIndex}) - Symbol: ${tumbleSymbol.rawSymbol.name} at Y: ${tumbleSymbol.symbolY.current}`);
 						tumbleSymbol.symbolState = 'explosion';
-						await waitForResolve((resolve) => (tumbleSymbol.oncomplete = resolve));
+						
+						// Safeguard: Timeout after 3 seconds if animation doesn't complete
+						await Promise.race([
+							waitForResolve((resolve) => (tumbleSymbol.oncomplete = resolve)),
+							new Promise((resolve) => setTimeout(resolve, 3000))
+						]);
 					} else {
 						console.warn(`[DEBUG] MISSING symbol for Tumble Explode: Reel ${position.reel}, Row ${position.row} (Index ${symbolIndex})`);
 					}
@@ -124,12 +129,17 @@
 								if (symbolIndex > 0 && symbolIndex < tumbleReel.length - 1) {
 									tumbleSymbol.symbolState = 'land';
 									context.stateGameDerived.onSymbolLand({ rawSymbol: tumbleSymbol.rawSymbol });
-									await waitForResolve((resolve) => {
-										tumbleSymbol.oncomplete = () => {
-											tumbleSymbol.symbolState = 'static';
-											resolve();
-										};
-									});
+									
+									// Safeguard: Timeout after 2 seconds for land animation
+									await Promise.race([
+										waitForResolve((resolve) => {
+											tumbleSymbol.oncomplete = () => {
+												tumbleSymbol.symbolState = 'static';
+												resolve();
+											};
+										}),
+										new Promise((resolve) => setTimeout(resolve, 2000))
+									]);
 								}
 							}
 						});

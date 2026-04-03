@@ -110,6 +110,14 @@ type BookEventFreeSpinRetrigger = {
 	positions: Position[];
 };
 
+type BookEventFinalMultiplierApplied = {
+	index: number;
+	type: 'finalMultiplierApplied';
+	finalMultiplier: number;
+	baseWin: number;
+	totalWin: number;
+};
+
 // customised
 type BookEventCreateBonusSnapshot = {
 	index: number;
@@ -144,6 +152,7 @@ export type BookEvent =
 	| BookEventSkillActivated
 	// customised
 	| BookEventMultiplierSymbolActivated
+	| BookEventFinalMultiplierApplied
 	| BookEventCreateBonusSnapshot;
 
 export type Bet = BetType<BookEvent>;

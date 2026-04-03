@@ -78,17 +78,19 @@ class GameExecutables(Executables):
                     val = random.choice([2, 3, 5, 8, 10, 15, 20, 50, 100])
                     symbol.assign_attribute({"multiplier": val})
 
-        # 5. Evaluate wins using the (potentially updated) global_multiplier
+        # 5. Evaluate wins using ONLY BASE MULTIPLIER (1.0) during tumble
+        # Final multiplication happens at the end of the tumble sequence
         return_data = {"totalWin": 0, "wins": []}
         self.board, self.win_data, total_win = Cluster.evaluate_clusters(
             config=self.config,
             board=self.board,
             clusters=clusters,
-            global_multiplier=self.global_multiplier,
+            global_multiplier=1.0, # Always base win during tumble
             multiplier_key="multiplier",
             return_data=return_data,
         )
-        self.win_data["totalWin"] = total_win # Reset for this tumble's specific result
+        self.accumulated_base_win += total_win
+        self.win_data["totalWin"] = total_win # Tracking raw win for this stage
         
         # 6. Track Skill Meters
         if hasattr(self, "skill_meters"):
@@ -107,14 +109,32 @@ class GameExecutables(Executables):
         self.win_manager.update_spinwin(self.win_data["totalWin"])
         self.win_manager.tumble_win = self.win_data["totalWin"]
 
+    def apply_final_multipliers(self):
+        """Calculate final total win by applying the global multiplier to accumulated base wins."""
+        if self.accumulated_base_win == 0:
+            return
+
+        final_win = self.accumulated_base_win * self.global_multiplier
+        
+        # Update spin win with the final multiplied value
+        # Subtract accumulated_base_win because it was already added to spin_win in raw form
+        added_win = final_win - self.accumulated_base_win
+        self.win_manager.update_spinwin(added_win)
+
+        # Emit the final multiplier application event for UI
+        from game_events import emit_final_multiplier_applied_event
+        emit_final_multiplier_applied_event(self)
+
     def update_freespin(self) -> None:
         """Called before a new reveal during freegame."""
         self.fs += 1
         update_freespin_event(self)
+        update_global_mult_event(self)
         self.win_manager.reset_spin_win()
         self.tumblewin_mult = 0
         self.win_data = {}
         self.red_skill_used = False
+        self.accumulated_base_win = 0
 
     def process_skills(self) -> bool:
         """
@@ -193,9 +213,21 @@ class GameExecutables(Executables):
                     self.skill_meters[symbol_to_meter[sym.name]] += 1
                     
         emit_skill_activated_event(self, "L2", {"positions": exploded_positions, "count": len(exploded_positions)})
-        # Emulate a win to force the tumble mechanic to clear identical symbols 
-        self.win_data["totalWin"] = 0.00001
-        self.win_manager.update_spinwin(self.win_data["totalWin"])
+        
+        # Correct way to tumble without paying: 
+        # Set win_data with the positions so tumble_game_board knows what to remove
+        self.win_data = {
+            "totalWin": 0,
+            "wins": [{
+                "symbol": "skill_explosion",
+                "clusterSize": len(exploded_positions),
+                "win": 0,
+                "positions": exploded_positions,
+                "meta": {"globalMult": 1, "clusterMult": 0, "winWithoutMult": 0}
+            }]
+        }
+        # Note: self.win_manager.update_spinwin(0) is not strictly needed but ensures clean state
+        self.win_manager.update_spinwin(0)
 
 
     def trigger_blue_skill(self):

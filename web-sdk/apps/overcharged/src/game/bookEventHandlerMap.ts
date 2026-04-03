@@ -51,6 +51,7 @@ const animateSymbols = async ({
 
 export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContext> = {
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
+		console.log(`[SEQUENCE] Starting reveal (Index: ${bookEvent.index})`);
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
 
 		// Immediate reset of meters and multiplier for base game spins to improve UX
@@ -315,7 +316,48 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		}
 
 		// 2. Broadcast the event so Game.svelte can handle it (meters + animation)
-		await eventEmitter.broadcastAsync(bookEvent);
+		// If it's just an UPDATE, we don't need to wait for anything (no animation)
+		if (bookEvent.skillType === 'UPDATE') {
+			eventEmitter.broadcast(bookEvent);
+			return;
+		}
+
+		// Otherwise, wait for animation with a safeguard
+		await Promise.race([
+			eventEmitter.broadcastAsync(bookEvent),
+			new Promise((resolve) => {
+				setTimeout(() => {
+					console.warn(`[WARN] skillActivated animation timeout at index ${bookEvent.index}. Continuing sequence...`);
+					resolve(null);
+				}, 5000);
+			}),
+		]);
+	},
+	finalMultiplierApplied: async (bookEvent: BookEventOfType<'finalMultiplierApplied'>) => {
+		// 1. Ensure Multiplier UI is visible
+		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
+		
+		// 2. Play a "Power Up" sound
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_levelup' });
+
+		// 3. Update global multiplier state
+		stateGame.globalMultiplier = bookEvent.finalMultiplier;
+		await eventEmitter.broadcastAsync({
+			type: 'globalMultiplierUpdate',
+			multiplier: bookEvent.finalMultiplier,
+		});
+
+		// 4. Animate the multiplication on the Tumble Win label
+		// We use tumbleWinAmountUpdate with animate: true to show the jump
+		eventEmitter.broadcast({ type: 'tumbleWinAmountShow' });
+		await eventEmitter.broadcastAsync({
+			type: 'tumbleWinAmountUpdate',
+			amount: bookEvent.totalWin,
+			animate: true,
+		});
+
+		// 5. Short wait for player to "feel" the win
+		await new Promise((resolve) => setTimeout(resolve, 800));
 	},
 	// customised
 	createBonusSnapshot: async (bookEvent: BookEventOfType<'createBonusSnapshot'>) => {
