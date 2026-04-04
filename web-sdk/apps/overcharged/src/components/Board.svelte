@@ -9,7 +9,8 @@
 				type: 'boardWithAnimateSymbols';
 				symbolPositions: (Position & { multiplier?: number })[];
 				state?: SymbolState;
-		  };
+		  }
+		| { type: 'boardSymbolsReset' };
 </script>
 
 <script lang="ts">
@@ -31,6 +32,14 @@
 		boardSettle: ({ board }) => context.stateGameDerived.enhancedBoard.settle(board),
 		boardShow: () => (show = true),
 		boardHide: () => (show = false),
+		boardSymbolsReset: () => {
+			context.stateGame.board.forEach((reel) => {
+				reel.reelState.symbols.forEach((symbol) => {
+					symbol.symbolState = 'static';
+					symbol.oncomplete = () => {};
+				});
+			});
+		},
 		boardWithAnimateSymbols: async ({ symbolPositions, state = 'win' }) => {
 			const getPromises = () => {
 				const uniquePositions = _.uniqBy(symbolPositions, (p) => `${p.reel}_${p.row}`);
