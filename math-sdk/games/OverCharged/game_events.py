@@ -79,7 +79,7 @@ def emit_final_multiplier_applied_event(gamestate):
         "index": len(gamestate.book.events),
         "type": FINAL_MULTIPLIER_APPLIED,
         "finalMultiplier": gamestate.global_multiplier,
-        "baseWin": gamestate.accumulated_base_win,
-        "totalWin": gamestate.accumulated_base_win * gamestate.global_multiplier
+        "baseWin": int(round(gamestate.accumulated_base_win * 100, 0)),
+        "totalWin": int(round(gamestate.accumulated_base_win * gamestate.global_multiplier * 100, 0))
     }
     gamestate.book.add_event(event)

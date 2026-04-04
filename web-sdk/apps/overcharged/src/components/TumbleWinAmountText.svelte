@@ -20,13 +20,13 @@
 	const amount = new Tween(0);
 	const animationName = $derived<AnimationName>(props.animate ? 'explosion' : 'idle');
 
-	const normalUpdate = async () => {
+	const updateAmount = async () => {
 		await amount.set(props.amount);
-		props.oncomplete();
+		if (animationName === 'idle') props.oncomplete();
 	};
 
 	$effect(() => {
-		if (animationName === 'idle') normalUpdate();
+		updateAmount();
 	});
 </script>
 

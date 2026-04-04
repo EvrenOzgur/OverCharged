@@ -188,7 +188,6 @@
 		<FreeSpinOutro />
 		<Transition />
 
-		<I18nTest />
 	{/if}
 </App>
 
