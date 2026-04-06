@@ -39,42 +39,70 @@
 	const context = getContext();
 
 	async function handleSkillActivated(event: BookEventSkillActivated) {
-		console.log('%c[DEBUG] handleSkillActivated called:', 'color: #ff00ff; font-weight: bold', event);
 		const { skillType, skillMeters, positions } = event;
+		const eventAny = event as any;
 
-		// 1. Update meters first (always)
+		// Meterleri her zaman güncelle
 		if (skillMeters) {
-			console.log('[DEBUG] Updating skillMeters to:', skillMeters);
 			context.stateGame.skillMeters.L1 = skillMeters.L1;
 			context.stateGame.skillMeters.L2 = skillMeters.L2;
 			context.stateGame.skillMeters.L3 = skillMeters.L3;
 			context.stateGame.skillMeters.L4 = skillMeters.L4;
 		}
 
-		// 2. Play skill-specific animation if it's a real trigger (L1-L4)
-		if (skillType && skillType !== 'UPDATE') {
-			console.log(`[DEBUG] Playing animation for skill: ${skillType}`);
-			
-			// 3. Update the board for wild-placing skills (L1 and L4)
-			if ((skillType === 'L1' || skillType === 'L4') && positions) {
+		if (!skillType || skillType === 'UPDATE') return;
+
+		if (skillType === 'L1') {
+			// Verilen pozisyonlardaki sembolleri Wild yap, ardından parlama animasyonu
+			if (positions?.length) {
 				positions.forEach((pos) => {
-					const symbolIndex = pos.row; 
 					const reel = context.stateGame.board[pos.reel];
-					if (reel && reel.reelState.symbols[symbolIndex]) {
-						const reelSymbol = reel.reelState.symbols[symbolIndex];
-						console.log(`[DEBUG] Placing Wild for Skill ${skillType} at Row ${pos.row} (Index ${symbolIndex}) - Original: ${reelSymbol.rawSymbol.name}`);
-						reelSymbol.rawSymbol = { name: 'W' };
-					} else {
-						console.warn(`[DEBUG] MISSING symbol for Skill placement: Reel ${pos.reel}, Row ${pos.row} (Index ${symbolIndex})`);
+					if (reel?.reelState.symbols[pos.row]) {
+						reel.reelState.symbols[pos.row].rawSymbol = { name: 'W' };
 					}
 				});
+				await context.eventEmitter.broadcastAsync({
+					type: 'boardWithAnimateSymbols',
+					symbolPositions: positions.map((p) => ({ reel: p.reel, row: p.row })),
+					state: 'win',
+				});
 			}
-
-			// TODO: Trigger more complex visual effects/shaders for the skill
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+		} else if (skillType === 'L2') {
+			// Tüm patlayacak low-tier sembollerde patlama animasyonu
+			if (positions?.length) {
+				await context.eventEmitter.broadcastAsync({
+					type: 'boardWithAnimateSymbols',
+					symbolPositions: positions.map((p) => ({ reel: p.reel, row: p.row })),
+					state: 'explosion',
+				});
+			}
+		} else if (skillType === 'L3') {
+			// Global çarpanı mathdan gelen değerle güncelle
+			const newMult = eventAny.newGlobalMultiplier;
+			if (newMult !== undefined) {
+				context.stateGame.globalMultiplier = newMult;
+				context.eventEmitter.broadcast({ type: 'globalMultiplierShow' });
+				await context.eventEmitter.broadcastAsync({
+					type: 'globalMultiplierUpdate',
+					multiplier: newMult,
+				});
+			}
+		} else if (skillType === 'L4') {
+			// 3×3 bloktaki sembolleri Wild yap, ardından parlama animasyonu
+			if (positions?.length) {
+				positions.forEach((pos) => {
+					const reel = context.stateGame.board[pos.reel];
+					if (reel?.reelState.symbols[pos.row]) {
+						reel.reelState.symbols[pos.row].rawSymbol = { name: 'W' };
+					}
+				});
+				await context.eventEmitter.broadcastAsync({
+					type: 'boardWithAnimateSymbols',
+					symbolPositions: positions.map((p) => ({ reel: p.reel, row: p.row })),
+					state: 'win',
+				});
+			}
 		}
-		
-		console.log('[DEBUG] handleSkillActivated finished');
 	}
 
 	context.eventEmitter.subscribeOnMount({
