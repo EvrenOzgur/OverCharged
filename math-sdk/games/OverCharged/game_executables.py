@@ -94,12 +94,11 @@ class GameExecutables(Executables):
         
         # 6. Track Skill Meters
         if hasattr(self, "skill_meters"):
-            symbol_to_meter = {"L1": "Yellow", "L2": "Green", "L3": "Blue", "L4": "Red"}
             for win in self.win_data.get("wins", []):
                 sym = win.get("symbol")
-                if sym in symbol_to_meter:
+                if sym in self.skill_meters:
                     val = win.get("clusterSize", 0)
-                    self.skill_meters[symbol_to_meter[sym]] += val
+                    self.skill_meters[sym] += val
             
             # Emit Meter Update
             from game_events import emit_skill_meters_update_event
@@ -139,37 +138,37 @@ class GameExecutables(Executables):
     def process_skills(self) -> bool:
         """
         Check if any skills are ready to be triggered based on their thresholds.
-        Evaluates in priority order: Yellow -> Green -> Blue -> Red.
+        Evaluates in priority order: L1 -> L2 -> L3 -> L4.
         Returns True if a skill was activated (meaning tumbles should resume).
         """
         if not hasattr(self, "skill_meters"):
             return False
 
-        # Yellow Skill (Priority 1)
-        if self.skill_meters["Yellow"] >= self.config.skill_thresholds["Yellow"]:
+        # L1 Skill (Priority 1)
+        if self.skill_meters["L1"] >= self.config.skill_thresholds["L1"]:
             self.trigger_yellow_skill()
             return True
 
-        # Green Skill (Priority 2)
-        if self.skill_meters["Green"] >= self.config.skill_thresholds["Green"]:
+        # L2 Skill (Priority 2)
+        if self.skill_meters["L2"] >= self.config.skill_thresholds["L2"]:
             self.trigger_green_skill()
             return True
 
-        # Blue Skill (Priority 3)
-        if self.skill_meters["Blue"] >= self.config.skill_thresholds["Blue"]:
+        # L3 Skill (Priority 3)
+        if self.skill_meters["L3"] >= self.config.skill_thresholds["L3"]:
             self.trigger_blue_skill()
             return True
 
-        # Red Skill (Priority 4 - max 1 per spin)
-        if not self.red_skill_used and self.skill_meters["Red"] >= self.config.skill_thresholds["Red"]:
+        # L4 Skill (Priority 4 - max 1 per spin)
+        if not self.red_skill_used and self.skill_meters["L4"] >= self.config.skill_thresholds["L4"]:
             self.trigger_red_skill()
             return True
 
         return False
 
     def trigger_yellow_skill(self):
-        """Consume meter and add 2-7 random wilds (Yellow Skill - Priority 1)."""
-        self.skill_meters["Yellow"] -= self.config.skill_thresholds["Yellow"]
+        """Consume meter and add 2-7 random wilds (L1 Skill - Priority 1)."""
+        self.skill_meters["L1"] -= self.config.skill_thresholds["L1"]
         import random
         from game_events import emit_skill_activated_event
         
@@ -196,21 +195,19 @@ class GameExecutables(Executables):
 
 
     def trigger_green_skill(self):
-        """Consume meter and explode all low-tier symbols (Green Skill - Priority 2)."""
-        self.skill_meters["Green"] -= self.config.skill_thresholds["Green"]
+        """Consume meter and explode all low-tier symbols (L2 Skill - Priority 2)."""
+        self.skill_meters["L2"] -= self.config.skill_thresholds["L2"]
         from game_events import emit_skill_activated_event
-        
+
         exploded_positions = []
         low_tiers = {"L1", "L2", "L3", "L4"}
-        
+
         for reel_idx, reel in enumerate(self.board):
             for row_idx, sym in enumerate(reel):
                 if sym.name in low_tiers:
                     sym.explode = True
                     exploded_positions.append({"reel": reel_idx, "row": row_idx})
-                    # Add to meters
-                    symbol_to_meter = {"L1": "Yellow", "L2": "Green", "L3": "Blue", "L4": "Red"}
-                    self.skill_meters[symbol_to_meter[sym.name]] += 1
+                    self.skill_meters[sym.name] += 1
                     
         emit_skill_activated_event(self, "L2", {"positions": exploded_positions, "count": len(exploded_positions)})
         
@@ -231,8 +228,8 @@ class GameExecutables(Executables):
 
 
     def trigger_blue_skill(self):
-        """Consume meter and add 2-10 to global multiplier (Blue Skill - Priority 3)."""
-        self.skill_meters["Blue"] -= self.config.skill_thresholds["Blue"]
+        """Consume meter and add 2-10 to global multiplier (L3 Skill - Priority 3)."""
+        self.skill_meters["L3"] -= self.config.skill_thresholds["L3"]
         import random
         from game_events import emit_skill_activated_event
         from src.events.events import update_global_mult_event
@@ -248,8 +245,8 @@ class GameExecutables(Executables):
         
 
     def trigger_red_skill(self):
-        """Consume meter and drop 3x3 Mega Wild (Red Skill - Priority 4)."""
-        self.skill_meters["Red"] -= self.config.skill_thresholds["Red"]
+        """Consume meter and drop 3x3 Mega Wild (L4 Skill - Priority 4)."""
+        self.skill_meters["L4"] -= self.config.skill_thresholds["L4"]
         self.red_skill_used = True
         import random
         from game_events import emit_skill_activated_event

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ButtonProps } from 'components-pixi';
-	import { stateBet, stateBetDerived } from 'state-shared';
+	import { stateBet, stateBetDerived, stateConfig } from 'state-shared';
 
 	import UiButton from './UiButton.svelte';
 	import { UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
@@ -9,8 +9,8 @@
 	const props: Partial<Omit<ButtonProps, 'children'>> = $props();
 	const context = getContext();
 	const sizes = { width: UI_BASE_SIZE, height: UI_BASE_SIZE };
-	const active = $derived(stateBet.isTurbo);
-	const disabled = $derived(stateBet.isSpaceHold);
+	const active = $derived(stateBet.isTurbo && !stateConfig.jurisdiction.disabledTurbo);
+	const disabled = $derived(stateBet.isSpaceHold || stateConfig.jurisdiction.disabledTurbo);
 
 	const onpress = () => {
 		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });

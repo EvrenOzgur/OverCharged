@@ -60,6 +60,12 @@
 				// 	}
 				// }
 				stateConfig.jurisdiction = authenticateData?.config?.jurisdiction;
+				if (typeof authenticateData.config?.minBet === 'number') {
+					stateConfig.minBet = authenticateData.config.minBet / API_AMOUNT_MULTIPLIER;
+				}
+				if (typeof authenticateData.config?.maxBet === 'number') {
+					stateConfig.maxBet = authenticateData.config.maxBet / API_AMOUNT_MULTIPLIER;
+				}
 				stateConfig.betAmountOptions = (authenticateData.config?.betLevels || []).map(
 					(level) => level / API_AMOUNT_MULTIPLIER,
 				);

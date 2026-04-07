@@ -10,7 +10,7 @@ class GameStateOverride(GameExecutables):
     def __init__(self, config):
         # SKILLS PARAMETERS
         super().__init__(config)
-        self.skill_meters = {"Yellow": 0, "Green": 0, "Blue": 0, "Red": 0}
+        self.skill_meters = {"L1": 0, "L2": 0, "L3": 0, "L4": 0}
         self.accumulated_base_win = 0
 
     def reset_book(self):
@@ -18,14 +18,14 @@ class GameStateOverride(GameExecutables):
         super().reset_book()
         # Reset parameters relevant to local game only
         self.tumble_win = 0
-        self.skill_meters = {"Yellow": 0, "Green": 0, "Blue": 0, "Red": 0}
+        self.skill_meters = {"L1": 0, "L2": 0, "L3": 0, "L4": 0}
         self.red_skill_used = False
         self.global_multiplier = 1
         self.accumulated_base_win = 0
 
     def reset_fs_spin(self):
         super().reset_fs_spin()
-        self.skill_meters = {"Yellow": 0, "Green": 0, "Blue": 0, "Red": 0}
+        self.skill_meters = {"L1": 0, "L2": 0, "L3": 0, "L4": 0}
 
     def assign_special_sym_function(self):
         pass

@@ -1,7 +1,7 @@
 export default {
-	providerName: 'sample_provider',
-	gameName: 'sample_lines',
-	gameID: '0_0_cluster',
+	providerName: 'OverCharged',
+	gameName: 'OverCharged',
+	gameID: 'OverCharged',
 	rtp: 0.97,
 	numReels: 8,
 	numRows: [8, 8, 8, 8, 8, 8, 8, 8],
@@ -14,9 +14,9 @@ export default {
 			max_win: 5000.0,
 		},
 		bonus: {
-			cost: 500,
+			cost: 200,
 			feature: true,
-			buyBonus: false,
+			buyBonus: true,
 			rtp: 0.97,
 			max_win: 5000.0,
 		},
@@ -537,28 +537,28 @@ export default {
 		H1: {
 			paytable: [
 				{
-					'5': 3.0,
+					'5': 5.0,
 				},
 				{
-					'6': 7.5,
+					'6': 12.5,
 				},
 				{
-					'7': 7.5,
+					'7': 12.5,
 				},
 				{
-					'8': 7.5,
+					'8': 12.5,
 				},
 				{
-					'9': 15.0,
+					'9': 25.0,
 				},
 				{
-					'10': 15.0,
+					'10': 25.0,
 				},
 				{
-					'11': 15.0,
+					'11': 25.0,
 				},
 				{
-					'12': 15.0,
+					'12': 25.0,
 				},
 				{
 					'13': 60.0,

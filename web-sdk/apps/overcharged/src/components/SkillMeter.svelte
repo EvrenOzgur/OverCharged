@@ -6,7 +6,6 @@
 </script>
 
 <script lang="ts">
-	import * as PIXI from 'pixi.js';
 	import { Sprite, Container, Text, REM, Graphics } from 'pixi-svelte';
 	import { getContext } from '../game/context';
 	import { SYMBOL_SIZE } from '../game/constants';
@@ -85,7 +84,7 @@
 
 	<!-- Background of the progress bar -->
 	<Graphics
-		draw={(g: PIXI.Graphics) => {
+		draw={(g) => {
 			g.clear();
 			g.beginFill(0x333333, 0.8);
 			g.drawRect(0, -METER_HEIGHT / 2, METER_WIDTH, METER_HEIGHT);
@@ -95,7 +94,7 @@
 
 	<!-- Dynamic colored fill -->
 	<Graphics
-		draw={(g: PIXI.Graphics) => {
+		draw={(g) => {
 			g.clear();
 			g.beginFill(meterColor, 1);
 			g.drawRect(0, -METER_HEIGHT / 2, METER_WIDTH * progressPercentage, METER_HEIGHT);

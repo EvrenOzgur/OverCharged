@@ -3,7 +3,35 @@
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
-		<link rel="stylesheet" href="https://use.typekit.net/aba0ebl.css" />
+		<!-- proxima-nova font files must be placed in /static/fonts/
+			 Required files:
+			   proxima-nova-regular.woff2   (weight 400)
+			   proxima-nova-semibold.woff2  (weight 600)
+			   proxima-nova-bold.woff2      (weight 700)
+		-->
+		<style>
+			@font-face {
+				font-family: 'proxima-nova';
+				src: url('/fonts/proxima-nova-regular.woff2') format('woff2');
+				font-weight: 400;
+				font-style: normal;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'proxima-nova';
+				src: url('/fonts/proxima-nova-semibold.woff2') format('woff2');
+				font-weight: 600;
+				font-style: normal;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'proxima-nova';
+				src: url('/fonts/proxima-nova-bold.woff2') format('woff2');
+				font-weight: 700;
+				font-style: normal;
+				font-display: swap;
+			}
+		</style>
 		<meta name="viewport" content="width=device-width" />
 		%sveltekit.head%
 	</head>

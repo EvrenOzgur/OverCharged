@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Text } from 'pixi-svelte';
 	import { Button, type ButtonProps } from 'components-pixi';
-	import { stateModal, stateBet, stateBetDerived } from 'state-shared';
+	import { stateModal, stateBet, stateBetDerived, stateConfig } from 'state-shared';
 
 	import UiSprite from './UiSprite.svelte';
 	import { UI_BASE_FONT_SIZE, UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
@@ -11,7 +11,10 @@
 	const props: Partial<Omit<ButtonProps, 'children'>> = $props();
 	const { stateXstateDerived, eventEmitter } = getContext();
 	const sizes = { width: UI_BASE_SIZE, height: UI_BASE_SIZE };
-	const disabled = $derived(!stateXstateDerived.isIdle());
+	const hidden = $derived(
+		stateConfig.jurisdiction.disabledBuyFeature || stateConfig.jurisdiction.socialCasino,
+	);
+	const disabled = $derived(!stateXstateDerived.isIdle() || hidden);
 	const active = $derived(stateBetDerived.activeBetMode()?.type === 'activate');
 
 	const openModal = () => (stateModal.modal = { name: 'buyBonus' });
@@ -40,6 +43,7 @@
 	};
 </script>
 
+{#if !hidden}
 <Button {...props} {sizes} {disabled} {onpress}>
 	{#snippet children({ center, hovered, pressed })}
 		{@const state = getState({
@@ -84,3 +88,4 @@
 		/>
 	{/snippet}
 </Button>
+{/if}

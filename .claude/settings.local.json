@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(du -h c:/Development/OverCharged_Math/web-sdk/apps/overcharged/build/OverChargedAssets/*/*.png c:/Development/OverCharged_Math/web-sdk/apps/overcharged/build/assets/fonts/goldBlur/*.png)",
+      "Bash(pnpm --filter overcharged build)",
+      "Bash(ls c:/Development/OverCharged_Math/web-sdk/apps/overcharged/build/OverChargedAssets/*/  c:/Development/OverCharged_Math/web-sdk/apps/overcharged/build/fonts/)",
+      "WebSearch",
+      "WebFetch(domain:stakeengine.github.io)",
+      "Bash(cat c:/Development/OverCharged_Math/web-sdk/packages/config-vite/index.*)",
+      "Bash(pnpm --filter cluster build)",
+      "WebFetch(domain:stake-engine.com)",
+      "Bash(grep -E \"\\\\.\\(svelte|py|json\\)$\")",
+      "Bash(grep -E \"\\\\.svelte$\")"
+    ]
+  }
+}

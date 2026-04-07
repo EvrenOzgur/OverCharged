@@ -1,5 +1,6 @@
 import type { BaseBet } from 'utils-bet';
 import { stateMeta } from './stateMeta.svelte';
+import { stateConfig } from './stateConfig.svelte';
 
 export type Currency = string;
 export type LastBet = BaseBet | null;
@@ -25,8 +26,14 @@ const correctBetAmount = (value: number) => {
 	if (value <= 0) return 0;
 	const costMultiplier = betCostMultiplier();
 	if (costMultiplier === 0) return 0;
-	const max = stateBet.balanceAmount / costMultiplier;
+	// Stake spec: bet * costMultiplier must satisfy minBet <= total <= maxBet
+	// and not exceed player balance.
+	const balanceCap = stateBet.balanceAmount / costMultiplier;
+	const maxBetCap = (stateConfig.maxBet ?? Infinity) / costMultiplier;
+	const max = Math.min(balanceCap, maxBetCap);
 	if (value >= max) return max;
+	const minBetFloor = (stateConfig.minBet ?? 0) / costMultiplier;
+	if (value < minBetFloor && minBetFloor <= max) return minBetFloor;
 	return value;
 };
 

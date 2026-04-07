@@ -44,7 +44,7 @@ export const PORTRAIT_MAIN_SIZES = {
 	height: PORTRAIT_HEIGHT,
 };
 
-export const HIGH_SYMBOLS = ['H1', 'H2', 'H3', 'H4', 'H5'];
+export const HIGH_SYMBOLS = ['H1', 'H2', 'H3', 'H4'];
 
 export const INITIAL_SYMBOL_STATE: SymbolState = 'static';
 
@@ -220,44 +220,6 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	H4: {
-		explosion: highExplosion,
-		win: {
-			type: 'spine',
-			assetKey: 'highSymbols',
-			skin: 'h4',
-			animationName: 'win',
-			sizeRatios: { width: 1, height: 1 },
-		},
-		postWinStatic: {
-			type: 'spine',
-			assetKey: 'highSymbols',
-			skin: 'h4',
-			animationName: 'static',
-			sizeRatios: { width: 1, height: 1 },
-		},
-		static: {
-			type: 'spine',
-			assetKey: 'highSymbols',
-			skin: 'h4',
-			animationName: 'static',
-			sizeRatios: { width: 1, height: 1 },
-		},
-		spin: {
-			type: 'spine',
-			assetKey: 'highSymbols',
-			skin: 'h4',
-			animationName: 'spin',
-			sizeRatios: { width: 1, height: 1 },
-		},
-		land: {
-			type: 'spine',
-			assetKey: 'highSymbols',
-			skin: 'h4',
-			animationName: 'land',
-			sizeRatios: { width: 1, height: 1 },
-		},
-	},
-	H5: {
 		explosion: highExplosion,
 		win: {
 			type: 'spine',

@@ -27,10 +27,10 @@ class GameConfig(Config):
         
         # Skill System Configurations
         self.skill_thresholds = {
-            "Yellow": 10, # L1 - Adds 2-7 Wilds
-            "Green": 20, # L2 - Explodes all low-tier symbols
-            "Blue": 15, # L3 - Adds random 2-10 multiplier to global
-            "Red": 30 # L4 - Drops 3x3 Mega Wild
+            "L1": 10, # Adds 2-7 Wilds
+            "L2": 20, # Explodes all low-tier symbols
+            "L3": 15, # Adds random 2-10 multiplier to global
+            "L4": 30, # Drops 3x3 Mega Wild
         }
         
         self.construct_paths()
@@ -145,12 +145,26 @@ class GameConfig(Config):
                 rtp=self.rtp,
                 max_win=self.wincap,
                 auto_close_disabled=False,
-                is_feature=True,
-                is_buybonus=False,
+                is_feature=False,
+                is_buybonus=True,
                 distributions=[
                     Distribution(
+                        criteria="wincap",
+                        quota=0.001,
+                        win_criteria=self.wincap,
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"WCAP": 1},
+                            },
+                            "scatter_triggers": {3: 5, 4: 1},
+                            "force_wincap": True,
+                            "force_freegame": True,
+                        },
+                    ),
+                    Distribution(
                         criteria="freegame",
-                        quota=0.1,
+                        quota=0.999,
                         conditions={
                             "reel_weights": {
                                 self.basegame_type: {"BR0": 1},

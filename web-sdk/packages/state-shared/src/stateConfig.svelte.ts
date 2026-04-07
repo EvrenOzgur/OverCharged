@@ -15,4 +15,6 @@ export const stateConfig = $state({
 	},
 	betAmountOptions: [1, 5, 25, 50, 75, 100, 200, 500, 800, 1000],
 	betMenuOptions: [1, 5, 25, 50, 75, 100, 200, 500, 800, 1000],
+	minBet: 0,
+	maxBet: Infinity,
 });
