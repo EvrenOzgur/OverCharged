@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { editorState, getActivePreset } from '../game/uiLayoutConfig.svelte';
 	import { getContext } from '../game/context';
 	import { initHistory, undo, redo } from './editorHistory.svelte';
@@ -34,57 +34,55 @@
 		}
 	}
 
-	// Cache DOM references once Pixi is ready
-	let wrapperEl: HTMLElement | null = null;
-	let parentEl: HTMLElement | null = null;
-
-	function findElements() {
-		const app = context.stateApp.pixiApplication;
-		if (!app?.canvas) return;
-		wrapperEl = app.canvas.parentElement;
-		parentEl = wrapperEl?.parentElement ?? null;
-	}
-
 	function applyPresetSize(w: number, h: number) {
 		const app = context.stateApp.pixiApplication;
-		if (!app) return;
-		if (!wrapperEl) findElements();
+		if (!app?.canvas) return;
 
 		(app as any).resizeTo = undefined;
 		app.renderer.resize(w, h);
-		app.canvas.style.width = `${w}px`;
-		app.canvas.style.height = `${h}px`;
 
-		if (wrapperEl) {
-			wrapperEl.style.cssText = `width:${w}px;height:${h}px;overflow:hidden;border:1px solid #39ff14;border-radius:4px;box-shadow:0 0 20px rgba(57,255,20,0.3);`;
-		}
-		if (parentEl) {
-			parentEl.style.cssText = 'display:flex;justify-content:center;align-items:center;width:100%;height:100vh;background:#0a0a0a;';
-		}
+		// Position canvas fixed-center, independent of any parent layout
+		const canvas = app.canvas;
+		canvas.style.cssText = `
+			position:fixed;
+			top:50%;left:50%;
+			transform:translate(-50%,-50%);
+			width:${w}px;height:${h}px;
+			border:1px solid #39ff14;
+			border-radius:4px;
+			box-shadow:0 0 20px rgba(57,255,20,0.3);
+			z-index:1;
+		`;
+		document.body.style.background = '#0a0a0a';
 	}
 
 	function restoreFullscreen() {
 		const app = context.stateApp.pixiApplication;
-		if (!app) return;
-		if (!wrapperEl) findElements();
+		if (!app?.canvas) return;
 
 		(app as any).resizeTo = window;
 		app.resize();
-		app.canvas.style.width = '100%';
-		app.canvas.style.height = '100%';
-
-		if (wrapperEl) wrapperEl.style.cssText = '';
-		if (parentEl) parentEl.style.cssText = '';
+		app.canvas.style.cssText = '';
+		document.body.style.background = '';
 	}
 
-	// Resize Pixi renderer + DOM when a resolution preset is active
+	// Resize Pixi renderer + DOM when a resolution preset is active.
+	// Also track activeVariant so effect re-runs when layout component changes.
 	$effect(() => {
 		const app = context.stateApp.pixiApplication;
 		if (!app) return;
 		const preset = getActivePreset();
+		const _variant = editorState.activeVariant; // track variant changes
+
 		if (editorState.enabled && preset) {
+			// Wait for DOM to settle after layout component swap, then apply
+			tick().then(() => {
+				applyPresetSize(preset.width, preset.height);
+			});
+			// Also apply immediately for instant feedback
 			applyPresetSize(preset.width, preset.height);
 		} else if (editorState.enabled) {
+			tick().then(() => restoreFullscreen());
 			restoreFullscreen();
 		}
 	});
