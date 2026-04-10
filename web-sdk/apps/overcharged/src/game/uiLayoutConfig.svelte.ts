@@ -319,12 +319,44 @@ export async function saveUiLayoutConfig(): Promise<boolean> {
  * (outline + drag handles). Toggled on by the Storybook layout-editor story,
  * off everywhere else (production Game).
  */
+// ── Resolution presets (Stake requirements) ─────────────────────
+export type ResolutionPreset = {
+	name: string;
+	width: number;
+	height: number;
+	layoutType: LayoutVariant;
+};
+
+export const RESOLUTION_PRESETS: ResolutionPreset[] = [
+	{ name: 'Desktop', width: 1200, height: 675, layoutType: 'desktop' },
+	{ name: 'Laptop', width: 1024, height: 576, layoutType: 'desktop' },
+	{ name: 'Popout S', width: 400, height: 225, layoutType: 'landscape' },
+	{ name: 'Popout L', width: 800, height: 450, layoutType: 'desktop' },
+	{ name: 'Mobile L', width: 425, height: 812, layoutType: 'portrait' },
+	{ name: 'Mobile M', width: 375, height: 667, layoutType: 'portrait' },
+	{ name: 'Mobile S', width: 320, height: 568, layoutType: 'portrait' },
+];
+
 export const editorState = $state({
 	enabled: false,
 	selected: null as string | null,
 	multiSelected: [] as string[],
 	activeVariant: 'desktop' as LayoutVariant,
+	/** Active resolution preset index, -1 = auto (use window size) */
+	activePreset: -1,
 });
+
+/** Get the editor's forced layout type, or null for auto-detection. */
+export function getEditorLayoutOverride(): LayoutVariant | null {
+	if (!editorState.enabled || editorState.activePreset < 0) return null;
+	return RESOLUTION_PRESETS[editorState.activePreset]?.layoutType ?? null;
+}
+
+/** Get the active resolution preset, or null. */
+export function getActivePreset(): ResolutionPreset | null {
+	if (editorState.activePreset < 0) return null;
+	return RESOLUTION_PRESETS[editorState.activePreset] ?? null;
+}
 
 /** Get the active variant's element config (falls back to desktop). */
 export function getActiveVariantConfig(): Record<string, UiElementConfig> {

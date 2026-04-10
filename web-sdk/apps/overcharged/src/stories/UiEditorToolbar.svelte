@@ -1,18 +1,26 @@
 <script lang="ts">
 	import { gridState } from './editorGrid.svelte';
 	import { clipboardState, copySelected, pasteToSelected, resetSelected } from './editorClipboard.svelte';
-	import { editorState, copyDesktopToVariant, uiLayoutConfig, type LayoutVariant } from '../game/uiLayoutConfig.svelte';
+	import { editorState, copyDesktopToVariant, uiLayoutConfig, RESOLUTION_PRESETS, getActivePreset, type LayoutVariant } from '../game/uiLayoutConfig.svelte';
 	import { pushSnapshot } from './editorHistory.svelte';
 	import UiExportImport from './UiExportImport.svelte';
 
-	function setVariant(v: LayoutVariant) {
-		editorState.activeVariant = v;
-		// If variant has no config yet, prompt to copy from desktop
-		if (v !== 'desktop' && !uiLayoutConfig[v]) {
-			pushSnapshot('copy to ' + v);
-			copyDesktopToVariant(v);
+	function selectPreset(idx: number) {
+		editorState.activePreset = idx;
+		if (idx >= 0) {
+			const preset = RESOLUTION_PRESETS[idx];
+			editorState.activeVariant = preset.layoutType;
+			// Ensure variant config exists
+			if (preset.layoutType !== 'desktop' && !uiLayoutConfig[preset.layoutType]) {
+				pushSnapshot('copy to ' + preset.layoutType);
+				copyDesktopToVariant(preset.layoutType);
+			}
+		} else {
+			editorState.activeVariant = 'desktop';
 		}
 	}
+
+	const activePreset = $derived(getActivePreset());
 
 	const actionFeedback = $derived(
 		clipboardState.lastAction && Date.now() - clipboardState.lastActionTime < 1200
@@ -22,16 +30,22 @@
 </script>
 
 <div class="toolbar">
-	<!-- Layout variant selector -->
+	<!-- Resolution preset selector -->
 	<div class="toolbar-group">
-		<span class="toolbar-label">Layout</span>
-		{#each ['desktop', 'tablet', 'landscape', 'portrait'] as v}
-			<button
-				class="variant-btn"
-				class:active={editorState.activeVariant === v}
-				onclick={() => setVariant(v as LayoutVariant)}
-			>{v.slice(0, 4).toUpperCase()}</button>
-		{/each}
+		<span class="toolbar-label">Resolution</span>
+		<select
+			class="preset-select"
+			value={editorState.activePreset}
+			onchange={(e) => selectPreset(+(e.currentTarget as HTMLSelectElement).value)}
+		>
+			<option value="-1">Auto (Window)</option>
+			{#each RESOLUTION_PRESETS as preset, i}
+				<option value={i}>{preset.name} ({preset.width}x{preset.height})</option>
+			{/each}
+		</select>
+		{#if activePreset}
+			<span class="preset-info">{activePreset.layoutType}</span>
+		{/if}
 	</div>
 
 	<div class="toolbar-sep"></div>
@@ -172,23 +186,24 @@
 		background: #f44;
 		border-color: #f44;
 	}
-	.variant-btn {
-		background: #1a1a1e;
-		color: #888;
+	.preset-select {
+		background: #111;
 		border: 1px solid #333;
+		color: #fff;
 		padding: 3px 6px;
 		border-radius: 3px;
-		font-size: 9px;
+		font-size: 10px;
 		cursor: pointer;
-		font-weight: 700;
-		letter-spacing: 0.5px;
-		transition: all 0.1s;
+		min-width: 160px;
 	}
-	.variant-btn:hover { color: #fff; border-color: #555; }
-	.variant-btn.active {
+	.preset-info {
 		background: #39ff14;
 		color: #111;
-		border-color: #39ff14;
+		padding: 2px 6px;
+		border-radius: 3px;
+		font-size: 9px;
+		font-weight: 700;
+		text-transform: uppercase;
 	}
 	.feedback {
 		color: #39ff14;

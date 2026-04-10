@@ -26,6 +26,7 @@
 	import ButtonGameRules from './ButtonGameRules.svelte';
 	import ButtonSettings from './ButtonSettings.svelte';
 	import ButtonSoundSwitch from './ButtonSoundSwitch.svelte';
+	import { getEditorLayoutOverride } from '../../game/uiLayoutConfig.svelte';
 
 	type Props = {
 		gameName: Snippet;
@@ -42,7 +43,8 @@
 		tablet: LayoutTablet,
 	};
 
-	const LayoutComponent = $derived(LAYOUT_COMPONENT_MAP[stateLayoutDerived.layoutType()]);
+	const effectiveLayout = $derived(getEditorLayoutOverride() ?? stateLayoutDerived.layoutType());
+	const LayoutComponent = $derived(LAYOUT_COMPONENT_MAP[effectiveLayout]);
 </script>
 
 <EnableSpaceHold />
