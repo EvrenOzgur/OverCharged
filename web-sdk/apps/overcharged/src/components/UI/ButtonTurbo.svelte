@@ -5,12 +5,14 @@
 	import UiButton from './UiButton.svelte';
 	import { UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
 	import { getContext } from 'components-ui-pixi/src/context';
+	import { getElementStyle } from '../../game/uiLayoutConfig.svelte';
 
 	const props: Partial<Omit<ButtonProps, 'children'>> = $props();
 	const context = getContext();
 	const sizes = { width: UI_BASE_SIZE, height: UI_BASE_SIZE };
 	const active = $derived(stateBet.isTurbo && !stateConfig.jurisdiction.disabledTurbo);
 	const disabled = $derived(stateBet.isSpaceHold || stateConfig.jurisdiction.disabledTurbo);
+	const styleOverrides = $derived(getElementStyle('buttonTurbo'));
 
 	const onpress = () => {
 		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
@@ -23,4 +25,4 @@
 	});
 </script>
 
-<UiButton {...props} {sizes} {active} {onpress} {disabled} icon="turbo" />
+<UiButton {...props} {sizes} {active} {onpress} {disabled} icon="turbo" {styleOverrides} />

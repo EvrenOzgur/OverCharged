@@ -10,7 +10,11 @@
       "Bash(pnpm --filter cluster build)",
       "WebFetch(domain:stake-engine.com)",
       "Bash(grep -E \"\\\\.\\(svelte|py|json\\)$\")",
-      "Bash(grep -E \"\\\\.svelte$\")"
+      "Bash(grep -E \"\\\\.svelte$\")",
+      "Bash(npx vite:*)",
+      "Bash(ls web-sdk/apps/overcharged/.env*)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 29332 //F)"
     ]
   }
 }

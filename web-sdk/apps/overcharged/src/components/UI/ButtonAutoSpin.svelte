@@ -7,11 +7,13 @@
 	import { getContext } from 'components-ui-pixi/src/context';
 	import { UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
 	import ButtonBetAutoSpinsCounter from './ButtonBetAutoSpinsCounter.svelte';
+	import { getElementStyle } from '../../game/uiLayoutConfig.svelte';
 
 	const props: Partial<Omit<ButtonProps, 'children'>> = $props();
 	const context = getContext();
 	const sizes = { width: UI_BASE_SIZE, height: UI_BASE_SIZE };
 	const active = $derived(stateBetDerived.hasAutoBetCounter());
+	const styleOverrides = $derived(getElementStyle('buttonAutoSpin'));
 	const disabled = $derived.by(() => {
 		if (stateConfig.jurisdiction.disabledAutoplay) return true;
 		if (stateBet.isSpaceHold) return true;
@@ -28,7 +30,7 @@
 	};
 </script>
 
-<UiButton {...props} {sizes} {active} {onpress} {disabled} icon="autoSpin">
+<UiButton {...props} {sizes} {active} {onpress} {disabled} icon="autoSpin" {styleOverrides}>
 	<Container x={sizes.width * 0.5} y={sizes.height * 0.5}>
 		<ButtonBetAutoSpinsCounter />
 	</Container>

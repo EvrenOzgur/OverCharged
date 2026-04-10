@@ -8,15 +8,28 @@
 	import { getContext } from 'components-ui-pixi/src/context';
 	import type { LayoutUiProps } from 'components-ui-pixi/src/types';
 
+	import { uiLayoutConfig } from '../../game/uiLayoutConfig.svelte';
+	import DraggableInEditor from './DraggableInEditor.svelte';
+
+	// Cluster ancestor scales — the parent Container the element lives inside.
+	const TOP_BAR_SCALE = 1;
+	const BOTTOM_ROOT_SCALE = 1;
+	const LEFT_CLUSTER_SCALE = 0.7;
+	const RIGHT_CLUSTER_SCALE = 0.75;
+
 	const props: LayoutUiProps = $props();
 	const context = getContext();
+	const desktopCfg = $derived(uiLayoutConfig.desktop);
 </script>
 
 <MainContainer alignVertical="top">
-	<Container x={20} y={15}>
-		{@render props.gameName()}
-	</Container>
+	<DraggableInEditor id="gameName" transform={desktopCfg.gameName} ancestorScale={TOP_BAR_SCALE}>
+		{#snippet children()}
+			{@render props.gameName()}
+		{/snippet}
+	</DraggableInEditor>
 
+	<!-- Logo: position depends on canvas width, kept non-editable for now. -->
 	<Container x={context.stateLayoutDerived.canvasSizes().width - 20} y={15}>
 		{@render props.logo()}
 	</Container>
@@ -34,54 +47,70 @@
 			},
 		})}
 	>
-		<!-- Center Cluster: Win Amount -->
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={900} scale={0.9}>
-			{@render props.amountWin({ stacked: true })}
+		<DraggableInEditor id="amountWin" transform={desktopCfg.amountWin} ancestorScale={BOTTOM_ROOT_SCALE}>
+			{#snippet children()}
+				{@render props.amountWin({ stacked: true })}
+			{/snippet}
+		</DraggableInEditor>
+
+		<!-- Left Cluster (scale 0.7) -->
+		<Container y={DESKTOP_BASE_SIZE * 0.5} x={100} scale={LEFT_CLUSTER_SCALE}>
+			<DraggableInEditor id="buttonBuyBonus" transform={desktopCfg.buttonBuyBonus} ancestorScale={LEFT_CLUSTER_SCALE}>
+				{#snippet children()}
+					{@render props.buttonBuyBonus({ anchor: 0.5 })}
+				{/snippet}
+			</DraggableInEditor>
+
+			<DraggableInEditor id="buttonMenu" transform={desktopCfg.buttonMenu} ancestorScale={LEFT_CLUSTER_SCALE}>
+				{#snippet children()}
+					{@render props.buttonMenu({ anchor: 0.5 })}
+				{/snippet}
+			</DraggableInEditor>
 		</Container>
 
-		<!-- Left Cluster: Menu & Buy Bonus (Stacked Centered) -->
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={100} scale={0.7}>
-			<Container y={-80}>
-				{@render props.buttonBuyBonus({ anchor: 0.5 })}
-			</Container>
+		<!-- Right Cluster (scale 0.75) -->
+		<Container y={DESKTOP_BASE_SIZE * 0.5} x={context.stateLayoutDerived.mainLayoutStandard().width - 320} scale={RIGHT_CLUSTER_SCALE}>
+			<DraggableInEditor id="amountBalance" transform={desktopCfg.amountBalance} ancestorScale={RIGHT_CLUSTER_SCALE}>
+				{#snippet children()}
+					{@render props.amountBalance({ stacked: false })}
+				{/snippet}
+			</DraggableInEditor>
 
-			<Container y={80}>
-				{@render props.buttonMenu({ anchor: 0.5 })}
-			</Container>
-		</Container>
-
-		<!-- Right Cluster: Balance & Betting (Precise Rows) -->
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={context.stateLayoutDerived.mainLayoutStandard().width - 320} scale={0.75}>
-			<!-- Row 1: Balance (Top) -->
-			<Container x={0} y={-140}>
-				{@render props.amountBalance({ stacked: false })}
-			</Container>
-
-			<!-- Row 2: Bet Amount & +/- Buttons -->
-			<Container x={0} y={-20}>
-				<Container x={-200} scale={0.55}>
+			<DraggableInEditor id="buttonDecrease" transform={desktopCfg.buttonDecrease} ancestorScale={RIGHT_CLUSTER_SCALE}>
+				{#snippet children()}
 					{@render props.buttonDecrease({ anchor: 0.5 })}
-				</Container>
-				<Container x={0} scale={0.8}>
-					{@render props.amountBet({ stacked: false })}
-				</Container>
-				<Container x={200} scale={0.55}>
-					{@render props.buttonIncrease({ anchor: 0.5 })}
-				</Container>
-			</Container>
+				{/snippet}
+			</DraggableInEditor>
 
-			<!-- Row 3: Action Buttons (Bottom) -->
-			<Container x={0} y={110}>
-				<Container x={-180} scale={0.85}>
+			<DraggableInEditor id="amountBet" transform={desktopCfg.amountBet} ancestorScale={RIGHT_CLUSTER_SCALE}>
+				{#snippet children()}
+					{@render props.amountBet({ stacked: false })}
+				{/snippet}
+			</DraggableInEditor>
+
+			<DraggableInEditor id="buttonIncrease" transform={desktopCfg.buttonIncrease} ancestorScale={RIGHT_CLUSTER_SCALE}>
+				{#snippet children()}
+					{@render props.buttonIncrease({ anchor: 0.5 })}
+				{/snippet}
+			</DraggableInEditor>
+
+			<DraggableInEditor id="buttonAutoSpin" transform={desktopCfg.buttonAutoSpin} ancestorScale={RIGHT_CLUSTER_SCALE}>
+				{#snippet children()}
 					{@render props.buttonAutoSpin({ anchor: 0.5 })}
-				</Container>
-				<Container x={0} scale={1.1}>
+				{/snippet}
+			</DraggableInEditor>
+
+			<DraggableInEditor id="buttonBet" transform={desktopCfg.buttonBet} ancestorScale={RIGHT_CLUSTER_SCALE}>
+				{#snippet children()}
 					{@render props.buttonBet({ anchor: 0.5 })}
-				</Container>
-				<Container x={180} scale={0.85}>
+				{/snippet}
+			</DraggableInEditor>
+
+			<DraggableInEditor id="buttonTurbo" transform={desktopCfg.buttonTurbo} ancestorScale={RIGHT_CLUSTER_SCALE}>
+				{#snippet children()}
 					{@render props.buttonTurbo({ anchor: 0.5 })}
-				</Container>
-			</Container>
+				{/snippet}
+			</DraggableInEditor>
 		</Container>
 	</Container>
 </MainContainer>

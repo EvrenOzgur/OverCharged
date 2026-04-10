@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Text } from 'pixi-svelte';
+	import { Text, Sprite, SpineProvider, SpineTrack } from 'pixi-svelte';
 	import { Button, type ButtonProps } from 'components-pixi';
 	import { stateModal, stateBet, stateBetDerived, stateConfig } from 'state-shared';
 
@@ -7,6 +7,7 @@
 	import { UI_BASE_FONT_SIZE, UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
 	import { getContext } from 'components-ui-pixi/src/context';
 	import { i18nDerived } from 'components-ui-pixi/src/i18n/i18nDerived';
+	import { getElementStyle, hexToPixi } from '../../game/uiLayoutConfig.svelte';
 
 	const props: Partial<Omit<ButtonProps, 'children'>> = $props();
 	const { stateXstateDerived, eventEmitter } = getContext();
@@ -16,6 +17,14 @@
 	);
 	const disabled = $derived(!stateXstateDerived.isIdle() || hidden);
 	const active = $derived(stateBetDerived.activeBetMode()?.type === 'activate');
+	const style = $derived(getElementStyle('buttonBuyBonus'));
+	const textColor = $derived(style ? hexToPixi(style.fontColor) : 0xffffff);
+	const fontMult = $derived(style?.fontSize ?? 1);
+	const bgType = $derived(style?.bgType ?? 'color');
+	const bgSpriteKey = $derived(style?.bgSpriteKey ?? '');
+	const bgSpineKey = $derived(style?.bgSpineKey ?? '');
+	const bgSpineAnim = $derived(style?.bgSpineAnim ?? '');
+	const bgSpineLoop = $derived(style?.bgSpineLoop ?? true);
 
 	const openModal = () => (stateModal.modal = { name: 'buyBonus' });
 	const disableActiveBetMode = () => (stateBet.activeBetModeKey = 'BASE');
@@ -53,24 +62,47 @@
 			pressed,
 		})}
 
-		<UiSprite
-			key="buyBonus"
-			{...center}
-			anchor={0.5}
-			width={sizes.width}
-			height={sizes.height}
-			{...disabled
-				? {
-						backgroundColor: 0xaaaaaa,
-					}
-				: {}}
-			{...active
-				? {
-						borderWidth: 10,
-						borderColor: 0xffffff,
-					}
-				: {}}
-		/>
+		<!-- Background: sprite / spine / default UiSprite -->
+		{#if bgType === 'sprite' && bgSpriteKey}
+			<Sprite
+				key={bgSpriteKey}
+				{...center}
+				anchor={0.5}
+				width={sizes.width}
+				height={sizes.height}
+			/>
+		{:else if bgType === 'spine' && bgSpineKey}
+			<SpineProvider
+				key={bgSpineKey}
+				{...center}
+				anchor={0.5}
+				width={sizes.width}
+				height={sizes.height}
+			>
+				{#if bgSpineAnim}
+					<SpineTrack trackIndex={0} animationName={bgSpineAnim} loop={bgSpineLoop} />
+				{/if}
+			</SpineProvider>
+		{:else}
+			<UiSprite
+				key="buyBonus"
+				{...center}
+				anchor={0.5}
+				width={sizes.width}
+				height={sizes.height}
+				{...disabled
+					? {
+							backgroundColor: 0xaaaaaa,
+						}
+					: {}}
+				{...active
+					? {
+							borderWidth: 10,
+							borderColor: 0xffffff,
+						}
+					: {}}
+			/>
+		{/if}
 
 		<Text
 			{...center}
@@ -82,8 +114,8 @@
 				wordWrapWidth: 200,
 				fontFamily: 'proxima-nova',
 				fontWeight: '600',
-				fontSize: UI_BASE_FONT_SIZE * 0.9,
-				fill: 0xffffff,
+				fontSize: UI_BASE_FONT_SIZE * 0.9 * fontMult,
+				fill: textColor,
 			}}
 		/>
 	{/snippet}

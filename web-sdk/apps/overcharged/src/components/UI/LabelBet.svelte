@@ -6,6 +6,7 @@
 	import UiLabel from './UiLabel.svelte';
 	import { getContext } from 'components-ui-pixi/src/context';
 	import { i18nDerived } from 'components-ui-pixi/src/i18n/i18nDerived';
+	import { getElementStyle } from '../../game/uiLayoutConfig.svelte';
 
 	type Props = {
 		stacked?: boolean;
@@ -16,6 +17,7 @@
 	const label = $derived(stateBetDerived.activeBetMode()?.text.betAmountLabel || i18nDerived.bet());
 	const value = $derived(numberToCurrencyString(stateBetDerived.betCost()));
 	const disabled = $derived(!context.stateXstateDerived.isIdle());
+	const styleOverrides = $derived(getElementStyle('amountBet'));
 
 	const onpress = () => {
 		if (disabled) return;
@@ -25,5 +27,5 @@
 </script>
 
 <Container eventMode="static" cursor={disabled ? 'not-allowed' : 'pointer'} onpointerup={onpress}>
-	<UiLabel tiled {label} {value} stacked={props.stacked} />
+	<UiLabel tiled {label} {value} stacked={props.stacked} {styleOverrides} />
 </Container>

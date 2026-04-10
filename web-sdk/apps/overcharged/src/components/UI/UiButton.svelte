@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { Text, Graphics } from 'pixi-svelte';
+	import { Text, Graphics, Sprite, SpineProvider, SpineTrack } from 'pixi-svelte';
 	import { Button, type ButtonProps } from 'components-pixi';
 	import type { Snippet } from 'svelte';
 	import { i18nDerived } from 'components-ui-pixi/src/i18n/i18nDerived';
 	import { UI_BASE_FONT_SIZE } from 'components-ui-pixi/src/constants';
 	import type { ButtonIcon } from 'components-ui-pixi/src/types';
+	import { hexToPixi, type UiElementStyle } from '../../game/uiLayoutConfig.svelte';
 
 	type Props = Omit<ButtonProps, 'children'> & {
 		icon: ButtonIcon;
@@ -12,6 +13,7 @@
 		active?: boolean;
 		children?: Snippet;
 		variant?: 'dark' | 'light';
+		styleOverrides?: UiElementStyle;
 	};
 
 	const {
@@ -20,13 +22,21 @@
 		variant = 'dark',
 		children: childrenFromParent,
 		sizes,
+		styleOverrides,
 		...buttonProps
 	}: Props = $props();
 
-	// Lab Theme Colors
-	const NEON_GREEN = 0x39ff14;
-	const METALLIC_FACE = 0x242428;
-	const BEVEL_COLOR = 0x4a4a4e;
+	// Resolved colors: use overrides when available, otherwise hardcoded defaults.
+	const BG_COLOR = $derived(styleOverrides ? hexToPixi(styleOverrides.backgroundColor) : 0x242428);
+	const BORDER_COLOR = $derived(styleOverrides ? hexToPixi(styleOverrides.borderColor) : 0x4a4a4e);
+	const ACTIVE_COLOR = $derived(styleOverrides ? hexToPixi(styleOverrides.activeColor) : 0x39ff14);
+	const TEXT_COLOR = $derived(styleOverrides ? hexToPixi(styleOverrides.fontColor) : 0xffffff);
+	const FONT_MULT = $derived(styleOverrides?.fontSize ?? 1);
+	const BG_TYPE = $derived(styleOverrides?.bgType ?? 'color');
+	const BG_SPRITE_KEY = $derived(styleOverrides?.bgSpriteKey ?? '');
+	const BG_SPINE_KEY = $derived(styleOverrides?.bgSpineKey ?? '');
+	const BG_SPINE_ANIM = $derived(styleOverrides?.bgSpineAnim ?? '');
+	const BG_SPINE_LOOP = $derived(styleOverrides?.bgSpineLoop ?? true);
 
 	function drawOctagon(g: any) {
 		g.clear();
@@ -35,13 +45,13 @@
 		const b = 15; // bevel size
 
 		// Main Face (Octagon)
-		g.beginFill(METALLIC_FACE);
+		g.beginFill(BG_COLOR);
 		if (active) {
-			g.lineStyle(2, NEON_GREEN, 1);
+			g.lineStyle(2, ACTIVE_COLOR, 1);
 		} else {
-			g.lineStyle(1, BEVEL_COLOR, 0.5);
+			g.lineStyle(1, BORDER_COLOR, 0.5);
 		}
-		
+
 		const path = [
 			b, 0,
 			w - b, 0,
@@ -57,7 +67,7 @@
 
 		// Add a subtle inner glow if active
 		if (active) {
-			g.beginFill(NEON_GREEN, 0.1);
+			g.beginFill(ACTIVE_COLOR, 0.1);
 			g.drawPolygon(path);
 			g.endFill();
 		}
@@ -66,13 +76,42 @@
 
 <Button {...buttonProps} {sizes}>
 	{#snippet children({ center, hovered, pressed })}
-		<Graphics 
-			draw={drawOctagon} 
-			x={center.x - sizes.width / 2} 
-			y={center.y - sizes.height / 2}
-			alpha={buttonProps.disabled ? 0.5 : 1}
-			scale={pressed ? 0.95 : hovered ? 1.05 : 1}
-		/>
+		<!-- Background layer: color / sprite / spine -->
+		{#if BG_TYPE === 'sprite' && BG_SPRITE_KEY}
+			<Sprite
+				key={BG_SPRITE_KEY}
+				x={center.x}
+				y={center.y}
+				anchor={0.5}
+				width={sizes.width}
+				height={sizes.height}
+				alpha={buttonProps.disabled ? 0.5 : 1}
+				scale={pressed ? 0.95 : hovered ? 1.05 : 1}
+			/>
+		{:else if BG_TYPE === 'spine' && BG_SPINE_KEY}
+			<SpineProvider
+				key={BG_SPINE_KEY}
+				x={center.x}
+				y={center.y}
+				anchor={0.5}
+				width={sizes.width}
+				height={sizes.height}
+				alpha={buttonProps.disabled ? 0.5 : 1}
+				scale={pressed ? 0.95 : hovered ? 1.05 : 1}
+			>
+				{#if BG_SPINE_ANIM}
+					<SpineTrack trackIndex={0} animationName={BG_SPINE_ANIM} loop={BG_SPINE_LOOP} />
+				{/if}
+			</SpineProvider>
+		{:else}
+			<Graphics
+				draw={drawOctagon}
+				x={center.x - sizes.width / 2}
+				y={center.y - sizes.height / 2}
+				alpha={buttonProps.disabled ? 0.5 : 1}
+				scale={pressed ? 0.95 : hovered ? 1.05 : 1}
+			/>
+		{/if}
 
 		<Text
 			{...center}
@@ -84,8 +123,8 @@
 				wordWrapWidth: sizes.width * 0.8,
 				fontFamily: 'proxima-nova',
 				fontWeight: '700',
-				fontSize: UI_BASE_FONT_SIZE * 0.8,
-				fill: active ? NEON_GREEN : 0xffffff,
+				fontSize: UI_BASE_FONT_SIZE * 0.8 * FONT_MULT,
+				fill: active ? ACTIVE_COLOR : TEXT_COLOR,
 				dropShadow: active,
 				dropShadowColor: 0x000000,
 				dropShadowBlur: 4,
