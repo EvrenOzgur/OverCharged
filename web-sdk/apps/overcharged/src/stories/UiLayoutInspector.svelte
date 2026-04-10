@@ -255,6 +255,8 @@
 
 <!-- Multi-select batch editor -->
 {#if multiCount >= 2}
+	{@const firstT = getEditableElement(allSelectedIds[0])}
+	{@const firstS = getElementStyle(allSelectedIds[0])}
 	<div class="batch-editor">
 		<header>
 			<span class="title">{allSelectedIds.length} elements selected</span>
@@ -263,19 +265,19 @@
 		<div class="section-title">Batch Edit</div>
 		<div class="row">
 			<label>Scale</label>
-			<input type="number" step="0.05" value="1"
+			<input type="number" step="0.05" value={firstT?.scale ?? 1}
 				onchange={(e) => batchSet('scale', +(e.currentTarget as HTMLInputElement).value)} />
 			<span></span>
 		</div>
 		<div class="row">
 			<label>Alpha</label>
-			<input type="number" step="0.05" min="0" max="1" value="1"
-				onchange={(e) => { const s = getElementStyle(allSelectedIds[0]); batchSet('alpha', +(e.currentTarget as HTMLInputElement).value); }} />
+			<input type="number" step="0.05" min="0" max="1" value={firstS?.alpha ?? 1}
+				onchange={(e) => batchSet('alpha', +(e.currentTarget as HTMLInputElement).value)} />
 			<span></span>
 		</div>
 		<div class="row">
 			<label>Font Size</label>
-			<input type="number" step="0.05" min="0.3" max="3" value="1"
+			<input type="number" step="0.05" min="0.3" max="3" value={firstS?.fontSize ?? 1}
 				onchange={(e) => batchSet('fontSize', +(e.currentTarget as HTMLInputElement).value)} />
 			<span></span>
 		</div>
@@ -350,7 +352,7 @@
 		position: fixed;
 		top: 8px;
 		right: 8px;
-		z-index: 9999;
+		z-index: 10000;
 	}
 	.export-bar button {
 		background: #39ff14;
@@ -383,7 +385,7 @@
 		border: 1px solid #39ff14;
 		border-radius: 6px;
 		padding: 12px;
-		z-index: 9999;
+		z-index: 9990;
 		font-family: -apple-system, system-ui, sans-serif;
 		font-size: 12px;
 		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
@@ -607,7 +609,7 @@
 		border: 1px solid #14aaff;
 		border-radius: 6px;
 		padding: 12px;
-		z-index: 9998;
+		z-index: 9985;
 		font-family: -apple-system, system-ui, sans-serif;
 		font-size: 12px;
 		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);

@@ -20,6 +20,12 @@ export const clipboardState = $state({
 	lastActionTime: 0,
 });
 
+export function resetClipboard() {
+	_copiedTransform = null;
+	_copiedStyle = null;
+	clipboardState.hasData = false;
+}
+
 let _copiedTransform: UiElementTransform | null = null;
 let _copiedStyle: UiElementStyle | null = null;
 

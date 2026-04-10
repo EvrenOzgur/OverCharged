@@ -437,12 +437,19 @@ export function applyPalette(paletteId: string) {
 	const palette = uiLayoutConfig.palettes?.find((p) => p.id === paletteId);
 	if (!palette) return;
 	const c = palette.colors;
-	for (const config of Object.values(uiLayoutConfig.desktop)) {
-		config.style.fontColor = config.style.fontColor === BUTTON_STYLE_DEFAULTS.fontColor ? c.text : config.style.fontColor;
-		config.style.valueColor = c.value;
-		config.style.backgroundColor = c.background;
-		config.style.borderColor = c.border;
-		config.style.activeColor = c.accent;
+	// Apply to all variants
+	const variants: Record<string, UiElementConfig>[] = [uiLayoutConfig.desktop];
+	for (const v of ['tablet', 'landscape', 'portrait'] as const) {
+		if (uiLayoutConfig[v]) variants.push(uiLayoutConfig[v]!);
+	}
+	for (const variantConfig of variants) {
+		for (const config of Object.values(variantConfig)) {
+			config.style.fontColor = c.text;
+			config.style.valueColor = c.value;
+			config.style.backgroundColor = c.background;
+			config.style.borderColor = c.border;
+			config.style.activeColor = c.accent;
+		}
 	}
 	uiLayoutConfig.activePaletteId = paletteId;
 }
@@ -474,15 +481,50 @@ export function downloadConfigAsJson() {
 export function importConfig(jsonStr: string): { ok: boolean; error?: string } {
 	try {
 		const data = JSON.parse(jsonStr);
+		if (!data || typeof data !== 'object') {
+			return { ok: false, error: 'Invalid JSON structure' };
+		}
 		if (!data.desktop || typeof data.desktop !== 'object') {
 			return { ok: false, error: 'Missing "desktop" key' };
 		}
-		// Apply desktop
+		// Validate desktop elements have required transform fields
+		for (const [key, val] of Object.entries(data.desktop)) {
+			const v = val as any;
+			if (typeof v.x !== 'number' || typeof v.y !== 'number') {
+				return { ok: false, error: `Element "${key}" missing x/y coordinates` };
+			}
+		}
+		// Validate bgLayers if present
+		if (data.bgLayers && !Array.isArray(data.bgLayers)) {
+			return { ok: false, error: 'bgLayers must be an array' };
+		}
+
+		// Apply desktop (merge with defaults for missing style fields)
 		for (const key of Object.keys(uiLayoutConfig.desktop)) {
 			if (!(key in data.desktop)) delete uiLayoutConfig.desktop[key];
 		}
 		for (const [key, val] of Object.entries(data.desktop)) {
-			uiLayoutConfig.desktop[key] = val as any;
+			const v = val as any;
+			uiLayoutConfig.desktop[key] = {
+				x: v.x ?? 0,
+				y: v.y ?? 0,
+				scale: v.scale ?? 1,
+				rotation: v.rotation ?? 0,
+				style: { ...getDefaultStyle(key), ...(v.style ?? {}) },
+			};
+		}
+		// Apply variant configs
+		for (const variant of ['tablet', 'landscape', 'portrait'] as const) {
+			if (data[variant] && typeof data[variant] === 'object') {
+				uiLayoutConfig[variant] = {};
+				for (const [key, val] of Object.entries(data[variant])) {
+					const v = val as any;
+					uiLayoutConfig[variant]![key] = {
+						x: v.x ?? 0, y: v.y ?? 0, scale: v.scale ?? 1, rotation: v.rotation ?? 0,
+						style: { ...getDefaultStyle(key), ...(v.style ?? {}) },
+					};
+				}
+			}
 		}
 		// Apply bgLayers
 		if (Array.isArray(data.bgLayers)) {
@@ -490,8 +532,11 @@ export function importConfig(jsonStr: string): { ok: boolean; error?: string } {
 			for (const l of data.bgLayers) uiLayoutConfig.bgLayers.push(l);
 		}
 		// Apply palettes
-		if (data.palettes) uiLayoutConfig.palettes = data.palettes;
-		if (data.boardConfig) uiLayoutConfig.boardConfig = data.boardConfig;
+		if (Array.isArray(data.palettes)) uiLayoutConfig.palettes = data.palettes;
+		// Apply boardConfig
+		if (data.boardConfig && typeof data.boardConfig === 'object') {
+			uiLayoutConfig.boardConfig = { ...BOARD_CONFIG_DEFAULTS, ...data.boardConfig };
+		}
 		return { ok: true };
 	} catch (e) {
 		return { ok: false, error: String(e) };

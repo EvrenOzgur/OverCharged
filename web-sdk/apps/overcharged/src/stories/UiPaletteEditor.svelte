@@ -88,7 +88,7 @@
 		border: 1px solid #e040fb;
 		border-radius: 6px;
 		padding: 10px;
-		z-index: 9999;
+		z-index: 9960;
 		font-family: -apple-system, system-ui, sans-serif;
 		font-size: 11px;
 		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);

@@ -102,7 +102,7 @@
 		border: 1px solid #555;
 		border-radius: 6px;
 		padding: 6px 12px;
-		z-index: 9999;
+		z-index: 9950;
 		font-family: -apple-system, system-ui, sans-serif;
 		font-size: 11px;
 		color: #ccc;

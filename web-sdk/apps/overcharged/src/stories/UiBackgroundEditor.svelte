@@ -10,6 +10,7 @@
 		type SpineAnimTrack,
 	} from '../game/uiLayoutConfig.svelte';
 	import { pushSnapshot, pushSnapshotDebounced } from './editorHistory.svelte';
+	import SpinePreview from './SpinePreview.svelte';
 	import assets from '../game/assets';
 
 	const spriteAssetKeys = Object.entries(assets)
@@ -111,7 +112,7 @@
 					<button
 						class="vis-btn"
 						class:off={!layer.visible}
-						onclick={(e) => { e.stopPropagation(); layer.visible = !layer.visible; }}
+						onclick={(e) => { e.stopPropagation(); pushSnapshot('toggle visibility'); layer.visible = !layer.visible; }}
 						aria-label="Toggle visibility"
 					>{layer.visible ? '&#128065;' : '&#128064;'}</button>
 					<button
@@ -213,6 +214,9 @@
 						<button class="del-btn-sm" onclick={() => handleRemoveAnim(selectedLayer, ai)}>&times;</button>
 					</div>
 				{/each}
+				{#if selectedLayer.spineKey}
+					<SpinePreview spineKey={selectedLayer.spineKey} />
+				{/if}
 			{/if}
 
 			<!-- Transform -->
@@ -268,7 +272,7 @@
 		border: 1px solid #ff9f14;
 		border-radius: 6px;
 		padding: 10px;
-		z-index: 9999;
+		z-index: 9970;
 		font-family: -apple-system, system-ui, sans-serif;
 		font-size: 11px;
 		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);

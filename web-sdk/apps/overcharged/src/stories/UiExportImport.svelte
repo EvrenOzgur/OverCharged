@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { downloadConfigAsJson, importConfig } from '../game/uiLayoutConfig.svelte';
 	import { pushSnapshot } from './editorHistory.svelte';
+	import { resetClipboard } from './editorClipboard.svelte';
 
 	let importStatus = $state<'idle' | 'ok' | 'err'>('idle');
 	let importError = $state('');
@@ -19,6 +20,7 @@
 			pushSnapshot('before import');
 			const result = importConfig(reader.result as string);
 			if (result.ok) {
+				resetClipboard();
 				importStatus = 'ok';
 				setTimeout(() => (importStatus = 'idle'), 2000);
 			} else {

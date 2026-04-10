@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { SpineProvider, SpineTrack } from 'pixi-svelte';
-	import { getContextApp } from 'pixi-svelte/context';
-	import type { SkeletonData } from '@esotericsoftware/spine-pixi-v8';
+	import { getContext } from 'components-ui-pixi/src/context';
 
 	type Props = {
 		spineKey: string;
@@ -9,16 +7,15 @@
 
 	const { spineKey }: Props = $props();
 	let currentAnim = $state('');
-	let playing = $state(true);
 	let looping = $state(true);
 	let animList = $state<string[]>([]);
 
-	const context = getContextApp();
+	const context = getContext();
 
 	// Extract animation list from skeleton data
 	$effect(() => {
 		if (!spineKey) { animList = []; return; }
-		const data = context.stateApp.loadedAssets?.[spineKey] as SkeletonData | undefined;
+		const data = context.stateApp.loadedAssets?.[spineKey] as any;
 		if (data?.animations) {
 			animList = data.animations.map((a: any) => a.name);
 			if (animList.length > 0 && !animList.includes(currentAnim)) {
