@@ -8,14 +8,19 @@
 	import type { LayoutUiProps } from 'components-ui-pixi/src/types';
 	import LabelFreeSpinCounter from './LabelFreeSpinCounter.svelte';
 	import { DESKTOP_BASE_SIZE, DESKTOP_BACKGROUND_WIDTH_LIST } from 'components-ui-pixi/src/constants';
+	import { getActiveVariantConfig } from '../../game/uiLayoutConfig.svelte';
+	import DraggableInEditor from './DraggableInEditor.svelte';
 
 	const props: LayoutUiProps = $props();
 	const context = getContext();
+	const cfg = $derived(getActiveVariantConfig());
 </script>
 
-<Container x={20}>
-	{@render props.gameName()}
-</Container>
+<DraggableInEditor id="gameName" transform={cfg.gameName} ancestorScale={1}>
+	{#snippet children()}
+		{@render props.gameName()}
+	{/snippet}
+</DraggableInEditor>
 
 <Container x={context.stateLayoutDerived.canvasSizes().width - 20}>
 	{@render props.logo()}
@@ -33,45 +38,71 @@
 			},
 		})}
 	>
-		<Container y={DESKTOP_BASE_SIZE * 0.5 - 220} x={880 - 640}>
-			{@render props.amountBalance({ stacked: true })}
-		</Container>
+		<DraggableInEditor id="amountBalance" transform={cfg.amountBalance} ancestorScale={1}>
+			{#snippet children()}
+				<Container y={DESKTOP_BASE_SIZE * 0.5 - 220} x={880 - 640}>
+					{@render props.amountBalance({ stacked: true })}
+				</Container>
+			{/snippet}
+		</DraggableInEditor>
 
-		<Container y={DESKTOP_BASE_SIZE * 0.5 - 220} x={880}>
-			{@render props.amountWin({ stacked: true })}
-		</Container>
+		<DraggableInEditor id="amountWin" transform={cfg.amountWin} ancestorScale={1}>
+			{#snippet children()}
+				<Container y={DESKTOP_BASE_SIZE * 0.5 - 220} x={880}>
+					{@render props.amountWin({ stacked: true })}
+				</Container>
+			{/snippet}
+		</DraggableInEditor>
 
-		<Container y={DESKTOP_BASE_SIZE * 0.5 - 220} x={880 + 640}>
-			{@render props.amountBet({ stacked: true })}
-		</Container>
+		<DraggableInEditor id="amountBet" transform={cfg.amountBet} ancestorScale={1}>
+			{#snippet children()}
+				<Container y={DESKTOP_BASE_SIZE * 0.5 - 220} x={880 + 640}>
+					{@render props.amountBet({ stacked: true })}
+				</Container>
+			{/snippet}
+		</DraggableInEditor>
 
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={20}>
-			{@render props.buttonMenu({ anchor: 0.5 })}
-		</Container>
+		<DraggableInEditor id="buttonMenu" transform={cfg.buttonMenu} ancestorScale={1}>
+			{#snippet children()}
+				{@render props.buttonMenu({ anchor: 0.5 })}
+			{/snippet}
+		</DraggableInEditor>
 
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={20 + 180}>
-			{@render props.buttonBuyBonus({ anchor: 0.5 })}
-		</Container>
+		<DraggableInEditor id="buttonBuyBonus" transform={cfg.buttonBuyBonus} ancestorScale={1}>
+			{#snippet children()}
+				{@render props.buttonBuyBonus({ anchor: 0.5 })}
+			{/snippet}
+		</DraggableInEditor>
 
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={-10 + 180 * 4}>
-			{@render props.buttonAutoSpin({ anchor: 0.5 })}
-		</Container>
+		<DraggableInEditor id="buttonAutoSpin" transform={cfg.buttonAutoSpin} ancestorScale={1}>
+			{#snippet children()}
+				{@render props.buttonAutoSpin({ anchor: 0.5 })}
+			{/snippet}
+		</DraggableInEditor>
 
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={-10 + 180 * 5}>
-			{@render props.buttonBet({ anchor: 0.5 })}
-		</Container>
+		<DraggableInEditor id="buttonBet" transform={cfg.buttonBet} ancestorScale={1}>
+			{#snippet children()}
+				{@render props.buttonBet({ anchor: 0.5 })}
+			{/snippet}
+		</DraggableInEditor>
 
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={-10 + 180 * 6}>
-			{@render props.buttonTurbo({ anchor: 0.5 })}
-		</Container>
+		<DraggableInEditor id="buttonTurbo" transform={cfg.buttonTurbo} ancestorScale={1}>
+			{#snippet children()}
+				{@render props.buttonTurbo({ anchor: 0.5 })}
+			{/snippet}
+		</DraggableInEditor>
 
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={1560}>
-			{@render props.buttonDecrease({ anchor: 0.5 })}
-		</Container>
+		<DraggableInEditor id="buttonDecrease" transform={cfg.buttonDecrease} ancestorScale={1}>
+			{#snippet children()}
+				{@render props.buttonDecrease({ anchor: 0.5 })}
+			{/snippet}
+		</DraggableInEditor>
 
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={1560 + 180}>
-			{@render props.buttonIncrease({ anchor: 0.5 })}
-		</Container>
+		<DraggableInEditor id="buttonIncrease" transform={cfg.buttonIncrease} ancestorScale={1}>
+			{#snippet children()}
+				{@render props.buttonIncrease({ anchor: 0.5 })}
+			{/snippet}
+		</DraggableInEditor>
 
 		{#if stateUi.freeSpinCounterShow}
 			<Container y={DESKTOP_BASE_SIZE * 0.5 - 320} x={668}>
@@ -83,10 +114,7 @@
 
 {#if stateUi.menuOpen}
 	<Rectangle
-		eventMode="static"
-		cursor="pointer"
-		alpha={0.5}
-		anchor={0.5}
+		eventMode="static" cursor="pointer" alpha={0.5} anchor={0.5}
 		backgroundColor={BLACK}
 		width={context.stateLayoutDerived.canvasSizes().width}
 		height={context.stateLayoutDerived.canvasSizes().height}
@@ -100,25 +128,11 @@
 			x={100}
 			y={context.stateLayoutDerived.mainLayoutStandard().height - DESKTOP_BASE_SIZE - 30}
 		>
-			<Container y={DESKTOP_BASE_SIZE * 0.5 - 185 - 210 * 3}>
-				{@render props.buttonPayTable({ anchor: 0.5 })}
-			</Container>
-
-			<Container y={DESKTOP_BASE_SIZE * 0.5 - 185 - 210 * 2}>
-				{@render props.buttonGameRules({ anchor: 0.5 })}
-			</Container>
-
-			<Container y={DESKTOP_BASE_SIZE * 0.5 - 185 - 210 * 1}>
-				{@render props.buttonSettings({ anchor: 0.5 })}
-			</Container>
-
-			<Container y={DESKTOP_BASE_SIZE * 0.5 - 185}>
-				{@render props.buttonSoundSwitch({ anchor: 0.5 })}
-			</Container>
-
-			<Container y={DESKTOP_BASE_SIZE * 0.5}>
-				{@render props.buttonMenuClose({ anchor: 0.5 })}
-			</Container>
+			<Container y={DESKTOP_BASE_SIZE * 0.5 - 185 - 210 * 3}>{@render props.buttonPayTable({ anchor: 0.5 })}</Container>
+			<Container y={DESKTOP_BASE_SIZE * 0.5 - 185 - 210 * 2}>{@render props.buttonGameRules({ anchor: 0.5 })}</Container>
+			<Container y={DESKTOP_BASE_SIZE * 0.5 - 185 - 210 * 1}>{@render props.buttonSettings({ anchor: 0.5 })}</Container>
+			<Container y={DESKTOP_BASE_SIZE * 0.5 - 185}>{@render props.buttonSoundSwitch({ anchor: 0.5 })}</Container>
+			<Container y={DESKTOP_BASE_SIZE * 0.5}>{@render props.buttonMenuClose({ anchor: 0.5 })}</Container>
 		</Container>
 	</MainContainer>
 {/if}

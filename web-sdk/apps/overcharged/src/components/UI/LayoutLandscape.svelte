@@ -7,15 +7,23 @@
 	import { LANDSCAPE_BASE_SIZE, LANDSCAPE_BACKGROUND_WIDTH_LIST } from 'components-ui-pixi/src/constants';
 	import type { LayoutUiProps } from 'components-ui-pixi/src/types';
 	import { getContext } from 'components-ui-pixi/src/context';
+	import { getActiveVariantConfig } from '../../game/uiLayoutConfig.svelte';
+	import DraggableInEditor from './DraggableInEditor.svelte';
 
 	const props: LayoutUiProps = $props();
 	const context = getContext();
+	const cfg = $derived(getActiveVariantConfig());
+
+	const LEFT_SCALE = 0.7;
+	const RIGHT_SCALE = 0.75;
 </script>
 
 <MainContainer alignVertical="top">
-	<Container x={20} y={15}>
-		{@render props.gameName()}
-	</Container>
+	<DraggableInEditor id="gameName" transform={cfg.gameName} ancestorScale={1}>
+		{#snippet children()}
+			{@render props.gameName()}
+		{/snippet}
+	</DraggableInEditor>
 
 	<Container x={context.stateLayoutDerived.canvasSizes().width - 20} y={15}>
 		{@render props.logo()}
@@ -34,64 +42,79 @@
 			},
 		})}
 	>
-		<!-- Center Cluster: Win Amount -->
-		<Container y={LANDSCAPE_BASE_SIZE * 0.5 + 20} x={960} scale={0.9}>
-			{@render props.amountWin({ stacked: true })}
+		<DraggableInEditor id="amountWin" transform={cfg.amountWin} ancestorScale={1}>
+			{#snippet children()}
+				<Container y={LANDSCAPE_BASE_SIZE * 0.5 + 20} x={960} scale={0.9}>
+					{@render props.amountWin({ stacked: true })}
+				</Container>
+			{/snippet}
+		</DraggableInEditor>
+
+		<!-- Left Cluster -->
+		<Container y={LANDSCAPE_BASE_SIZE * 0.5} x={100} scale={LEFT_SCALE}>
+			<DraggableInEditor id="buttonBuyBonus" transform={cfg.buttonBuyBonus} ancestorScale={LEFT_SCALE}>
+				{#snippet children()}
+					{@render props.buttonBuyBonus({ anchor: 0.5 })}
+				{/snippet}
+			</DraggableInEditor>
+
+			<DraggableInEditor id="buttonMenu" transform={cfg.buttonMenu} ancestorScale={LEFT_SCALE}>
+				{#snippet children()}
+					{@render props.buttonMenu({ anchor: 0.5 })}
+				{/snippet}
+			</DraggableInEditor>
 		</Container>
 
-		<!-- Left Cluster: Menu & Buy Bonus (Stacked Centered) -->
-		<Container y={LANDSCAPE_BASE_SIZE * 0.5} x={100} scale={0.7}>
-			<Container y={-80}>
-				{@render props.buttonBuyBonus({ anchor: 0.5 })}
-			</Container>
+		<!-- Right Cluster -->
+		<Container y={LANDSCAPE_BASE_SIZE * 0.5} x={context.stateLayoutDerived.mainLayoutStandard().width - 320} scale={RIGHT_SCALE}>
+			<DraggableInEditor id="amountBalance" transform={cfg.amountBalance} ancestorScale={RIGHT_SCALE}>
+				{#snippet children()}
+					{@render props.amountBalance({ stacked: false })}
+				{/snippet}
+			</DraggableInEditor>
 
-			<Container y={80}>
-				{@render props.buttonMenu({ anchor: 0.5 })}
-			</Container>
-		</Container>
-
-		<!-- Right Cluster: Balance & Betting (Precise Rows) -->
-		<Container y={LANDSCAPE_BASE_SIZE * 0.5} x={context.stateLayoutDerived.mainLayoutStandard().width - 320} scale={0.75}>
-			<!-- Row 1: Balance (Top) -->
-			<Container x={0} y={-140}>
-				{@render props.amountBalance({ stacked: false })}
-			</Container>
-
-			<!-- Row 2: Bet Amount & +/- Buttons -->
-			<Container x={0} y={-20}>
-				<Container x={-200} scale={0.55}>
+			<DraggableInEditor id="buttonDecrease" transform={cfg.buttonDecrease} ancestorScale={RIGHT_SCALE}>
+				{#snippet children()}
 					{@render props.buttonDecrease({ anchor: 0.5 })}
-				</Container>
-				<Container x={0} scale={0.8}>
-					{@render props.amountBet({ stacked: false })}
-				</Container>
-				<Container x={200} scale={0.55}>
-					{@render props.buttonIncrease({ anchor: 0.5 })}
-				</Container>
-			</Container>
+				{/snippet}
+			</DraggableInEditor>
 
-			<!-- Row 3: Action Buttons (Bottom) -->
-			<Container x={0} y={110}>
-				<Container x={-180} scale={0.85}>
+			<DraggableInEditor id="amountBet" transform={cfg.amountBet} ancestorScale={RIGHT_SCALE}>
+				{#snippet children()}
+					{@render props.amountBet({ stacked: false })}
+				{/snippet}
+			</DraggableInEditor>
+
+			<DraggableInEditor id="buttonIncrease" transform={cfg.buttonIncrease} ancestorScale={RIGHT_SCALE}>
+				{#snippet children()}
+					{@render props.buttonIncrease({ anchor: 0.5 })}
+				{/snippet}
+			</DraggableInEditor>
+
+			<DraggableInEditor id="buttonAutoSpin" transform={cfg.buttonAutoSpin} ancestorScale={RIGHT_SCALE}>
+				{#snippet children()}
 					{@render props.buttonAutoSpin({ anchor: 0.5 })}
-				</Container>
-				<Container x={0} scale={1.1}>
+				{/snippet}
+			</DraggableInEditor>
+
+			<DraggableInEditor id="buttonBet" transform={cfg.buttonBet} ancestorScale={RIGHT_SCALE}>
+				{#snippet children()}
 					{@render props.buttonBet({ anchor: 0.5 })}
-				</Container>
-				<Container x={180} scale={0.85}>
+				{/snippet}
+			</DraggableInEditor>
+
+			<DraggableInEditor id="buttonTurbo" transform={cfg.buttonTurbo} ancestorScale={RIGHT_SCALE}>
+				{#snippet children()}
 					{@render props.buttonTurbo({ anchor: 0.5 })}
-				</Container>
-			</Container>
+				{/snippet}
+			</DraggableInEditor>
 		</Container>
 	</Container>
 </MainContainer>
 
 {#if stateUi.menuOpen}
 	<Rectangle
-		eventMode="static"
-		cursor="pointer"
-		alpha={0.5}
-		anchor={0.5}
+		eventMode="static" cursor="pointer" alpha={0.5} anchor={0.5}
 		backgroundColor={BLACK}
 		width={context.stateLayoutDerived.canvasSizes().width}
 		height={context.stateLayoutDerived.canvasSizes().height}
@@ -105,25 +128,11 @@
 			x={165}
 			y={context.stateLayoutDerived.mainLayoutStandard().height - LANDSCAPE_BASE_SIZE - 130}
 		>
-			<Container scale={0.8} y={LANDSCAPE_BASE_SIZE * 0.5 - 150 - 170 * 3}>
-				{@render props.buttonPayTable({ anchor: 0.5 })}
-			</Container>
-
-			<Container scale={0.8} y={LANDSCAPE_BASE_SIZE * 0.5 - 150 - 170 * 2}>
-				{@render props.buttonGameRules({ anchor: 0.5 })}
-			</Container>
-
-			<Container scale={0.8} y={LANDSCAPE_BASE_SIZE * 0.5 - 150 - 170 * 1}>
-				{@render props.buttonSettings({ anchor: 0.5 })}
-			</Container>
-
-			<Container scale={0.8} y={LANDSCAPE_BASE_SIZE * 0.5 - 150}>
-				{@render props.buttonSoundSwitch({ anchor: 0.5 })}
-			</Container>
-
-			<Container scale={0.8} y={LANDSCAPE_BASE_SIZE * 0.5}>
-				{@render props.buttonMenuClose({ anchor: 0.5 })}
-			</Container>
+			<Container scale={0.8} y={LANDSCAPE_BASE_SIZE * 0.5 - 150 - 170 * 3}>{@render props.buttonPayTable({ anchor: 0.5 })}</Container>
+			<Container scale={0.8} y={LANDSCAPE_BASE_SIZE * 0.5 - 150 - 170 * 2}>{@render props.buttonGameRules({ anchor: 0.5 })}</Container>
+			<Container scale={0.8} y={LANDSCAPE_BASE_SIZE * 0.5 - 150 - 170 * 1}>{@render props.buttonSettings({ anchor: 0.5 })}</Container>
+			<Container scale={0.8} y={LANDSCAPE_BASE_SIZE * 0.5 - 150}>{@render props.buttonSoundSwitch({ anchor: 0.5 })}</Container>
+			<Container scale={0.8} y={LANDSCAPE_BASE_SIZE * 0.5}>{@render props.buttonMenuClose({ anchor: 0.5 })}</Container>
 		</Container>
 	</MainContainer>
 {/if}
