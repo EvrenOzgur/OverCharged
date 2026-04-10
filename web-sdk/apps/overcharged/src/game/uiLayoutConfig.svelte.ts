@@ -120,6 +120,8 @@ export type UiLayoutConfig = {
 	tablet?: Record<string, UiElementConfig>;
 	landscape?: Record<string, UiElementConfig>;
 	portrait?: Record<string, UiElementConfig>;
+	/** Per-preset configs keyed by preset name. Each preset has its own element layout. */
+	presetConfigs?: Record<string, Record<string, UiElementConfig>>;
 	bgLayers: BgLayer[];
 	palettes?: ColorPalette[];
 	activePaletteId?: string;
@@ -225,6 +227,7 @@ function initConfig(raw: typeof initial): UiLayoutConfig {
 		: DEFAULT_BG_LAYERS.map((l) => ({ ...l, spineAnims: l.spineAnims.map((a) => ({ ...a })) }));
 	config.boardConfig = { ...BOARD_CONFIG_DEFAULTS, ...((raw as any).boardConfig ?? {}) };
 	if ((raw as any).palettes) config.palettes = (raw as any).palettes;
+	if ((raw as any).presetConfigs) config.presetConfigs = (raw as any).presetConfigs;
 	return config;
 }
 
@@ -358,11 +361,34 @@ export function getActivePreset(): ResolutionPreset | null {
 	return RESOLUTION_PRESETS[editorState.activePreset] ?? null;
 }
 
-/** Get the active variant's element config (falls back to desktop). */
+/** Get the active preset/variant's element config (falls back to desktop). */
 export function getActiveVariantConfig(): Record<string, UiElementConfig> {
+	// If a specific preset is active, use its dedicated config
+	const preset = getActivePreset();
+	if (preset) {
+		const key = getPresetKey(preset);
+		if (uiLayoutConfig.presetConfigs?.[key]) return uiLayoutConfig.presetConfigs[key];
+	}
+	// Fallback to variant-level or desktop
 	const v = editorState.activeVariant;
 	if (v !== 'desktop' && uiLayoutConfig[v]) return uiLayoutConfig[v]!;
 	return uiLayoutConfig.desktop;
+}
+
+/** Get a stable key for a preset (used in presetConfigs). */
+function getPresetKey(preset: ResolutionPreset): string {
+	return `${preset.width}x${preset.height}`;
+}
+
+/** Ensure a preset has its own config (copy from desktop if needed). */
+export function ensurePresetConfig(preset: ResolutionPreset) {
+	if (!uiLayoutConfig.presetConfigs) uiLayoutConfig.presetConfigs = {};
+	const key = getPresetKey(preset);
+	if (!uiLayoutConfig.presetConfigs[key]) {
+		uiLayoutConfig.presetConfigs[key] = structuredClone(
+			$state.snapshot(uiLayoutConfig.desktop),
+		) as Record<string, UiElementConfig>;
+	}
 }
 
 /** Copy desktop config to another variant. */

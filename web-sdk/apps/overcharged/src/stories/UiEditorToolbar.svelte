@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { gridState } from './editorGrid.svelte';
 	import { clipboardState, copySelected, pasteToSelected, resetSelected } from './editorClipboard.svelte';
-	import { editorState, copyDesktopToVariant, uiLayoutConfig, RESOLUTION_PRESETS, getActivePreset, type LayoutVariant } from '../game/uiLayoutConfig.svelte';
+	import { editorState, RESOLUTION_PRESETS, getActivePreset, ensurePresetConfig } from '../game/uiLayoutConfig.svelte';
 	import { pushSnapshot } from './editorHistory.svelte';
 	import UiExportImport from './UiExportImport.svelte';
 
@@ -10,11 +10,8 @@
 		if (idx >= 0) {
 			const preset = RESOLUTION_PRESETS[idx];
 			editorState.activeVariant = preset.layoutType;
-			// Ensure variant config exists
-			if (preset.layoutType !== 'desktop' && !uiLayoutConfig[preset.layoutType]) {
-				pushSnapshot('copy to ' + preset.layoutType);
-				copyDesktopToVariant(preset.layoutType);
-			}
+			pushSnapshot('switch preset ' + preset.name);
+			ensurePresetConfig(preset);
 		} else {
 			editorState.activeVariant = 'desktop';
 		}

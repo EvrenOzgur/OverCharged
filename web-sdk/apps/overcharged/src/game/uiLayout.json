@@ -23,8 +23,8 @@
       }
     },
     "amountWin": {
-      "x": 900,
-      "y": 140,
+      "x": 875,
+      "y": 51,
       "scale": 0.9,
       "rotation": 0,
       "style": {
@@ -45,8 +45,8 @@
       }
     },
     "buttonBuyBonus": {
-      "x": 0,
-      "y": -80,
+      "x": 50,
+      "y": -192,
       "scale": 1,
       "rotation": 0,
       "style": {
@@ -67,8 +67,8 @@
       }
     },
     "buttonMenu": {
-      "x": 0,
-      "y": 80,
+      "x": 53,
+      "y": -6,
       "scale": 1,
       "rotation": 0,
       "style": {
@@ -91,7 +91,7 @@
     "amountBalance": {
       "x": -36,
       "y": -554,
-      "scale": 1,
+      "scale": 0.45,
       "rotation": 0,
       "style": {
         "textOverride": "",
@@ -111,8 +111,8 @@
       }
     },
     "buttonDecrease": {
-      "x": -200,
-      "y": -20,
+      "x": -318,
+      "y": -253,
       "scale": 0.55,
       "rotation": 0,
       "style": {
@@ -133,8 +133,8 @@
       }
     },
     "amountBet": {
-      "x": 0,
-      "y": -20,
+      "x": -17,
+      "y": -281,
       "scale": 0.8,
       "rotation": 0,
       "style": {
@@ -155,8 +155,8 @@
       }
     },
     "buttonIncrease": {
-      "x": 200,
-      "y": -20,
+      "x": 271,
+      "y": -247,
       "scale": 0.55,
       "rotation": 0,
       "style": {
@@ -177,8 +177,8 @@
       }
     },
     "buttonAutoSpin": {
-      "x": -180,
-      "y": 110,
+      "x": -226,
+      "y": -18,
       "scale": 0.85,
       "rotation": 0,
       "style": {
@@ -199,8 +199,8 @@
       }
     },
     "buttonBet": {
-      "x": 0,
-      "y": 110,
+      "x": -51,
+      "y": -25,
       "scale": 1.1,
       "rotation": 0,
       "style": {
@@ -221,8 +221,8 @@
       }
     },
     "buttonTurbo": {
-      "x": 180,
-      "y": 110,
+      "x": 126,
+      "y": -11,
       "scale": 0.85,
       "rotation": 0,
       "style": {
@@ -298,5 +298,495 @@
     "gridGapY": 0,
     "boardPaddingX": 0,
     "boardPaddingY": 0
+  },
+  "presetConfigs": {
+    "1200x675": {
+      "gameName": {
+        "x": 20,
+        "y": 15,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "amountWin": {
+        "x": 875,
+        "y": 51,
+        "scale": 0.9,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonBuyBonus": {
+        "x": 50,
+        "y": -192,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonMenu": {
+        "x": 53,
+        "y": -6,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "amountBalance": {
+        "x": -36,
+        "y": -554,
+        "scale": 0.45,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ededed",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "sprite",
+          "bgSpriteKey": "progressBar",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonDecrease": {
+        "x": -318,
+        "y": -253,
+        "scale": 0.55,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "amountBet": {
+        "x": -17,
+        "y": -281,
+        "scale": 0.8,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonIncrease": {
+        "x": 271,
+        "y": -247,
+        "scale": 0.55,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonAutoSpin": {
+        "x": -226,
+        "y": -18,
+        "scale": 0.85,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonBet": {
+        "x": -51,
+        "y": -25,
+        "scale": 1.1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonTurbo": {
+        "x": 126,
+        "y": -11,
+        "scale": 0.85,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      }
+    },
+    "1024x576": {
+      "gameName": {
+        "x": 20,
+        "y": 15,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "amountWin": {
+        "x": 875,
+        "y": 51,
+        "scale": 0.9,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonBuyBonus": {
+        "x": 50,
+        "y": -192,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonMenu": {
+        "x": 53,
+        "y": -6,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "amountBalance": {
+        "x": -36,
+        "y": -554,
+        "scale": 0.45,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ededed",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "sprite",
+          "bgSpriteKey": "progressBar",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonDecrease": {
+        "x": -318,
+        "y": -253,
+        "scale": 0.55,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "amountBet": {
+        "x": -22,
+        "y": -423,
+        "scale": 0.8,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonIncrease": {
+        "x": 271,
+        "y": -247,
+        "scale": 0.55,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonAutoSpin": {
+        "x": -226,
+        "y": -18,
+        "scale": 0.85,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonBet": {
+        "x": -51,
+        "y": -25,
+        "scale": 1.1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonTurbo": {
+        "x": 126,
+        "y": -11,
+        "scale": 0.85,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      }
+    }
   }
 }
