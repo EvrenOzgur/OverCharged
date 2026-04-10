@@ -4,67 +4,299 @@
       "x": 20,
       "y": 15,
       "scale": 1,
-      "rotation": 0
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#999999",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#1a1a1e",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "color",
+        "bgSpriteKey": "",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     },
     "amountWin": {
       "x": 900,
       "y": 140,
       "scale": 0.9,
-      "rotation": 0
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#999999",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#1a1a1e",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "color",
+        "bgSpriteKey": "",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     },
     "buttonBuyBonus": {
       "x": 0,
       "y": -80,
       "scale": 1,
-      "rotation": 0
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#ffffff",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#242428",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "color",
+        "bgSpriteKey": "",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     },
     "buttonMenu": {
       "x": 0,
       "y": 80,
       "scale": 1,
-      "rotation": 0
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#ffffff",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#242428",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "color",
+        "bgSpriteKey": "",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     },
     "amountBalance": {
-      "x": -6,
-      "y": -394,
+      "x": -36,
+      "y": -554,
       "scale": 1,
-      "rotation": 0
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#ededed",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#1a1a1e",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "sprite",
+        "bgSpriteKey": "progressBar",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     },
     "buttonDecrease": {
       "x": -200,
       "y": -20,
       "scale": 0.55,
-      "rotation": 0
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#ffffff",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#242428",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "color",
+        "bgSpriteKey": "",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     },
     "amountBet": {
       "x": 0,
       "y": -20,
       "scale": 0.8,
-      "rotation": 0
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#999999",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#1a1a1e",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "color",
+        "bgSpriteKey": "",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     },
     "buttonIncrease": {
       "x": 200,
       "y": -20,
       "scale": 0.55,
-      "rotation": 0
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#ffffff",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#242428",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "color",
+        "bgSpriteKey": "",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     },
     "buttonAutoSpin": {
       "x": -180,
       "y": 110,
       "scale": 0.85,
-      "rotation": 0
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#ffffff",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#242428",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "color",
+        "bgSpriteKey": "",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     },
     "buttonBet": {
       "x": 0,
       "y": 110,
       "scale": 1.1,
-      "rotation": 0
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#ffffff",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#242428",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "color",
+        "bgSpriteKey": "",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     },
     "buttonTurbo": {
       "x": 180,
       "y": 110,
       "scale": 0.85,
-      "rotation": 0
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#ffffff",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#242428",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "color",
+        "bgSpriteKey": "",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     }
+  },
+  "bgLayers": [
+    {
+      "id": "base",
+      "name": "Black Base",
+      "type": "color",
+      "color": "#000000",
+      "spriteKey": "",
+      "spineKey": "",
+      "spineAnims": [],
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "alpha": 1,
+      "visible": true,
+      "useResponsiveLayout": false,
+      "responsiveScale": 1
+    },
+    {
+      "id": "bgCharacters",
+      "name": "BG Characters",
+      "type": "spine",
+      "color": "#000000",
+      "spriteKey": "",
+      "spineKey": "bgCharacters",
+      "spineAnims": [
+        {
+          "trackIndex": 0,
+          "animationName": "bg_idle",
+          "loop": true
+        },
+        {
+          "trackIndex": 1,
+          "animationName": "normal_idle",
+          "loop": true
+        }
+      ],
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "alpha": 1,
+      "visible": true,
+      "useResponsiveLayout": true,
+      "responsiveScale": 0.5
+    }
+  ],
+  "boardConfig": {
+    "glowColor": "#39ff14",
+    "frameTint": "#ffffff",
+    "symbolSize": 70,
+    "gridGapX": 0,
+    "gridGapY": 0,
+    "boardPaddingX": 0,
+    "boardPaddingY": 0
   }
 }

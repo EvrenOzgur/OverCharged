@@ -20,6 +20,8 @@ export type UiElementTransform = {
 export type BgType = 'color' | 'sprite' | 'spine';
 
 export type UiElementStyle = {
+	/** Override the element's display text (empty = use default i18n text) */
+	textOverride: string;
 	fontColor: string;
 	valueColor: string;
 	fontSize: number;
@@ -126,6 +128,7 @@ export type UiLayoutConfig = {
 
 // ── Style defaults ────────────────────────────────────────────────
 export const BUTTON_STYLE_DEFAULTS: UiElementStyle = {
+	textOverride: '',
 	fontColor: '#ffffff',
 	valueColor: '#ffffff',
 	fontSize: 1,
@@ -142,6 +145,7 @@ export const BUTTON_STYLE_DEFAULTS: UiElementStyle = {
 };
 
 export const LABEL_STYLE_DEFAULTS: UiElementStyle = {
+	textOverride: '',
 	fontColor: '#999999',
 	valueColor: '#ffffff',
 	fontSize: 1,

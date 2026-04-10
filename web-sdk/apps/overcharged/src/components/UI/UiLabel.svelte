@@ -21,6 +21,7 @@
 	const LABEL_COLOR = $derived(props.styleOverrides ? hexToPixi(props.styleOverrides.fontColor) : 0x999999);
 	const VALUE_COLOR = $derived(props.styleOverrides ? hexToPixi(props.styleOverrides.valueColor) : WHITE);
 	const FONT_MULT = $derived(props.styleOverrides?.fontSize ?? 1);
+	const TEXT_OVERRIDE = $derived(props.styleOverrides?.textOverride ?? '');
 	const PANEL_ALPHA = 0.85;
 
 	function drawPanel(g: any) {
@@ -71,7 +72,7 @@
 		<Container x={(UI_BASE_FONT_SIZE * 3 * (326 / 73)) / 2}>
 			<Text
 				anchor={{ x: 0.5, y: 0.5 }}
-				text={props.label.toUpperCase()}
+				text={(TEXT_OVERRIDE || props.label).toUpperCase()}
 				style={labelStyle}
 				y={UI_BASE_FONT_SIZE * 0.5}
 			/>
@@ -86,7 +87,7 @@
 		<Container x={0}>
 			<Text
 				anchor={{ x: 1, y: 0.5 }}
-				text={props.label.toUpperCase() + ":"}
+				text={(TEXT_OVERRIDE || props.label).toUpperCase() + ":"}
 				style={labelStyle}
 				x={-10}
 				y={UI_BASE_FONT_SIZE * 0.5}

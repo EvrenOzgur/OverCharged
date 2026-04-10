@@ -16,6 +16,7 @@
 	const style = $derived(getElementStyle('buttonBet'));
 	const textColor = $derived(style ? hexToPixi(style.fontColor) : 0xffffff);
 	const fontMult = $derived(style?.fontSize ?? 1);
+	const textOverride = $derived(style?.textOverride ?? '');
 	const bgType = $derived(style?.bgType ?? 'color');
 	const bgSpriteKey = $derived(style?.bgSpriteKey ?? '');
 	const bgSpineKey = $derived(style?.bgSpineKey ?? '');
@@ -48,6 +49,15 @@
 								<SpineTrack trackIndex={0} animationName={bgSpineAnim} loop={bgSpineLoop} />
 							{/if}
 						</SpineProvider>
+					{:else if bgType !== 'color' && (!bgSpriteKey && !bgSpineKey)}
+						<UiSprite
+							key="bet"
+							width={sizes.width}
+							height={sizes.height}
+							anchor={0.5}
+							backgroundColor={0xff9f14}
+							borderColor={0xff9f14}
+						/>
 					{:else}
 						<UiSprite
 							key="bet"
@@ -63,9 +73,9 @@
 					{/if}
 					<Text
 						anchor={0.5}
-						text={['spin_default', 'spin_disabled'].includes(key)
+						text={textOverride || (['spin_default', 'spin_disabled'].includes(key)
 							? i18nDerived.bet()
-							: i18nDerived.stop()}
+							: i18nDerived.stop())}
 						style={{
 							align: 'center',
 							wordWrap: true,

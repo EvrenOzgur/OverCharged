@@ -4,6 +4,15 @@
 	import { alignElements, distributeElements } from './editorGrid.svelte';
 	import assets from '../game/assets';
 
+	// Only show asset keys that work as direct Sprite keys (type='sprite' only).
+	// 'sprites' type = spritesheet (dict of textures, not a single key).
+	const spriteAssetKeys = Object.entries(assets)
+		.filter(([_, v]) => v.type === 'sprite')
+		.map(([k]) => k);
+	const spineAssetKeys = Object.entries(assets)
+		.filter(([_, v]) => v.type === 'spine')
+		.map(([k]) => k);
+
 	const multiCount = $derived(editorState.multiSelected.length);
 	const allSelectedIds = $derived(getAllSelectedIds());
 
@@ -16,14 +25,6 @@
 			if (t && prop in t) (t as any)[prop] = value;
 		}
 	}
-
-	// Derive available asset keys by type for the background dropdowns.
-	const spriteAssetKeys = Object.entries(assets)
-		.filter(([_, v]) => v.type === 'sprite' || v.type === 'sprites' || v.type === 'spriteSheet')
-		.map(([k]) => k);
-	const spineAssetKeys = Object.entries(assets)
-		.filter(([_, v]) => v.type === 'spine')
-		.map(([k]) => k);
 
 	let saveStatus = $state<'idle' | 'saving' | 'ok' | 'err'>('idle');
 	let activeTab = $state<'transform' | 'text' | 'appearance' | 'background'>('transform');
@@ -127,6 +128,10 @@
 		<!-- Text Tab -->
 		{#if activeTab === 'text'}
 			<div class="tab-content">
+				<div class="text-override-row">
+					<label>Text</label>
+					<input type="text" bind:value={style.textOverride} placeholder="(default)" class="text-override-input" />
+				</div>
 				<div class="row">
 					<label>Size</label>
 					<input type="number" bind:value={style.fontSize} step="0.05" min="0.3" max="3" />
@@ -208,7 +213,7 @@
 							{/each}
 						</datalist>
 					</div>
-					<div class="hint">Sprite/SpriteSheet: {spriteAssetKeys.join(', ')}</div>
+					<div class="hint">Sprite: {spriteAssetKeys.length ? spriteAssetKeys.join(', ') : '(no single-sprite assets)'}</div>
 				{/if}
 
 				{#if style.bgType === 'spine'}
@@ -565,6 +570,32 @@
 		line-height: 1.3;
 		margin-top: 2px;
 	}
+	/* Text override row */
+	.text-override-row {
+		display: grid;
+		grid-template-columns: 70px 1fr;
+		gap: 8px;
+		align-items: center;
+		margin-bottom: 4px;
+	}
+	.text-override-row label {
+		color: #aaa;
+		font-size: 11px;
+	}
+	.text-override-input {
+		background: #111;
+		border: 1px solid #333;
+		color: #fff;
+		padding: 4px 6px;
+		border-radius: 3px;
+		font-size: 11px;
+		width: 100%;
+	}
+	.text-override-input::placeholder {
+		color: #555;
+		font-style: italic;
+	}
+
 	/* Batch editor */
 	.batch-editor {
 		position: fixed;

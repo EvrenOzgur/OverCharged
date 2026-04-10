@@ -1,11 +1,14 @@
 <script lang="ts">
-	import { Text, Graphics, Sprite, SpineProvider, SpineTrack } from 'pixi-svelte';
+	import { Container, Text, Graphics, Sprite, SpineProvider, SpineTrack, Rectangle } from 'pixi-svelte';
 	import { Button, type ButtonProps } from 'components-pixi';
 	import type { Snippet } from 'svelte';
 	import { i18nDerived } from 'components-ui-pixi/src/i18n/i18nDerived';
 	import { UI_BASE_FONT_SIZE } from 'components-ui-pixi/src/constants';
+	import { getContext } from 'components-ui-pixi/src/context';
 	import type { ButtonIcon } from 'components-ui-pixi/src/types';
 	import { hexToPixi, type UiElementStyle } from '../../game/uiLayoutConfig.svelte';
+
+	const context = getContext();
 
 	type Props = Omit<ButtonProps, 'children'> & {
 		icon: ButtonIcon;
@@ -32,19 +35,26 @@
 	const ACTIVE_COLOR = $derived(styleOverrides ? hexToPixi(styleOverrides.activeColor) : 0x39ff14);
 	const TEXT_COLOR = $derived(styleOverrides ? hexToPixi(styleOverrides.fontColor) : 0xffffff);
 	const FONT_MULT = $derived(styleOverrides?.fontSize ?? 1);
+	const TEXT_OVERRIDE = $derived(styleOverrides?.textOverride ?? '');
 	const BG_TYPE = $derived(styleOverrides?.bgType ?? 'color');
 	const BG_SPRITE_KEY = $derived(styleOverrides?.bgSpriteKey ?? '');
 	const BG_SPINE_KEY = $derived(styleOverrides?.bgSpineKey ?? '');
 	const BG_SPINE_ANIM = $derived(styleOverrides?.bgSpineAnim ?? '');
 	const BG_SPINE_LOOP = $derived(styleOverrides?.bgSpineLoop ?? true);
 
+	/** Check if an asset key actually exists in loaded assets. */
+	const spriteKeyValid = $derived(BG_SPRITE_KEY ? !!context.stateApp.loadedAssets?.[BG_SPRITE_KEY] : false);
+	const spineKeyValid = $derived(BG_SPINE_KEY ? !!context.stateApp.loadedAssets?.[BG_SPINE_KEY] : false);
+
+	// Force re-draw key: any color/state change triggers a fresh Graphics render.
+	const drawKey = $derived(`${BG_COLOR}-${BORDER_COLOR}-${ACTIVE_COLOR}-${active}-${sizes.width}-${sizes.height}`);
+
 	function drawOctagon(g: any) {
 		g.clear();
 		const w = sizes.width;
 		const h = sizes.height;
-		const b = 15; // bevel size
+		const b = 15;
 
-		// Main Face (Octagon)
 		g.beginFill(BG_COLOR);
 		if (active) {
 			g.lineStyle(2, ACTIVE_COLOR, 1);
@@ -53,31 +63,58 @@
 		}
 
 		const path = [
-			b, 0,
-			w - b, 0,
-			w, b,
-			w, h - b,
-			w - b, h,
-			b, h,
-			0, h - b,
-			0, b
+			b, 0, w - b, 0, w, b, w, h - b,
+			w - b, h, b, h, 0, h - b, 0, b
 		];
 		g.drawPolygon(path);
 		g.endFill();
 
-		// Add a subtle inner glow if active
 		if (active) {
 			g.beginFill(ACTIVE_COLOR, 0.1);
 			g.drawPolygon(path);
 			g.endFill();
 		}
 	}
+
+	function drawPlaceholder(g: any) {
+		g.clear();
+		const w = sizes.width;
+		const h = sizes.height;
+		const sq = 10;
+		// Checkerboard pattern to indicate "no asset set"
+		for (let y = 0; y < h; y += sq) {
+			for (let x = 0; x < w; x += sq) {
+				const even = ((x / sq + y / sq) % 2) === 0;
+				g.beginFill(even ? 0x333333 : 0x222222, 0.8);
+				g.drawRect(x, y, Math.min(sq, w - x), Math.min(sq, h - y));
+				g.endFill();
+			}
+		}
+		g.lineStyle(1, 0xff9f14, 0.6);
+		g.drawRect(0, 0, w, h);
+	}
 </script>
 
 <Button {...buttonProps} {sizes}>
 	{#snippet children({ center, hovered, pressed })}
-		<!-- Background layer: color / sprite / spine -->
-		{#if BG_TYPE === 'sprite' && BG_SPRITE_KEY}
+		{@const bgAlpha = buttonProps.disabled ? 0.5 : 1}
+		{@const bgScale = pressed ? 0.95 : hovered ? 1.05 : 1}
+		{@const showOctagon = BG_TYPE === 'color' || (BG_TYPE !== 'color' && !spriteKeyValid && !spineKeyValid)}
+
+		<!-- Layer 1: Octagon (always mounted, hidden when sprite/spine active) -->
+		{#key drawKey}
+			<Graphics
+				draw={showOctagon ? drawOctagon : drawPlaceholder}
+				x={center.x - sizes.width / 2}
+				y={center.y - sizes.height / 2}
+				alpha={bgAlpha}
+				scale={bgScale}
+				visible={BG_TYPE === 'color' || !spriteKeyValid}
+			/>
+		{/key}
+
+		<!-- Layer 2: Sprite overlay (independent mount) -->
+		{#if BG_TYPE === 'sprite' && spriteKeyValid}
 			<Sprite
 				key={BG_SPRITE_KEY}
 				x={center.x}
@@ -85,10 +122,13 @@
 				anchor={0.5}
 				width={sizes.width}
 				height={sizes.height}
-				alpha={buttonProps.disabled ? 0.5 : 1}
-				scale={pressed ? 0.95 : hovered ? 1.05 : 1}
+				alpha={bgAlpha}
+				scale={bgScale}
 			/>
-		{:else if BG_TYPE === 'spine' && BG_SPINE_KEY}
+		{/if}
+
+		<!-- Layer 3: Spine overlay (independent mount) -->
+		{#if BG_TYPE === 'spine' && spineKeyValid}
 			<SpineProvider
 				key={BG_SPINE_KEY}
 				x={center.x}
@@ -96,27 +136,20 @@
 				anchor={0.5}
 				width={sizes.width}
 				height={sizes.height}
-				alpha={buttonProps.disabled ? 0.5 : 1}
-				scale={pressed ? 0.95 : hovered ? 1.05 : 1}
+				alpha={bgAlpha}
+				scale={bgScale}
 			>
 				{#if BG_SPINE_ANIM}
 					<SpineTrack trackIndex={0} animationName={BG_SPINE_ANIM} loop={BG_SPINE_LOOP} />
 				{/if}
 			</SpineProvider>
-		{:else}
-			<Graphics
-				draw={drawOctagon}
-				x={center.x - sizes.width / 2}
-				y={center.y - sizes.height / 2}
-				alpha={buttonProps.disabled ? 0.5 : 1}
-				scale={pressed ? 0.95 : hovered ? 1.05 : 1}
-			/>
 		{/if}
 
+		<!-- Layer 4: Text (always mounted, never destroyed) -->
 		<Text
 			{...center}
 			anchor={0.5}
-			text={i18nDerived[icon]()}
+			text={TEXT_OVERRIDE || i18nDerived[icon]()}
 			style={{
 				align: 'center',
 				wordWrap: true,

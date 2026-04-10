@@ -20,6 +20,7 @@
 	const style = $derived(getElementStyle('buttonBuyBonus'));
 	const textColor = $derived(style ? hexToPixi(style.fontColor) : 0xffffff);
 	const fontMult = $derived(style?.fontSize ?? 1);
+	const textOverride = $derived(style?.textOverride ?? '');
 	const bgType = $derived(style?.bgType ?? 'color');
 	const bgSpriteKey = $derived(style?.bgSpriteKey ?? '');
 	const bgSpineKey = $derived(style?.bgSpineKey ?? '');
@@ -83,6 +84,15 @@
 					<SpineTrack trackIndex={0} animationName={bgSpineAnim} loop={bgSpineLoop} />
 				{/if}
 			</SpineProvider>
+		{:else if bgType !== 'color' && (!bgSpriteKey && !bgSpineKey)}
+			<UiSprite
+				key="buyBonus"
+				{...center}
+				anchor={0.5}
+				width={sizes.width}
+				height={sizes.height}
+				backgroundColor={0xff9f14}
+			/>
 		{:else}
 			<UiSprite
 				key="buyBonus"
@@ -107,7 +117,7 @@
 		<Text
 			{...center}
 			anchor={0.5}
-			text={state === 'active' ? i18nDerived.disable() : i18nDerived.buyBonus()}
+			text={textOverride || (state === 'active' ? i18nDerived.disable() : i18nDerived.buyBonus())}
 			style={{
 				align: 'center',
 				wordWrap: true,

@@ -13,7 +13,7 @@
 	import assets from '../game/assets';
 
 	const spriteAssetKeys = Object.entries(assets)
-		.filter(([_, v]) => v.type === 'sprite' || v.type === 'sprites' || v.type === 'spriteSheet')
+		.filter(([_, v]) => v.type === 'sprite')
 		.map(([k]) => k);
 	const spineAssetKeys = Object.entries(assets)
 		.filter(([_, v]) => v.type === 'spine')
