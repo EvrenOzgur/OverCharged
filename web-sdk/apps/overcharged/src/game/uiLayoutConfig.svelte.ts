@@ -44,8 +44,84 @@ export type UiElementConfig = UiElementTransform & {
 	style: UiElementStyle;
 };
 
+// ── Background layer types ───────────────────────────────────────
+export type SpineAnimTrack = {
+	trackIndex: number;
+	animationName: string;
+	loop: boolean;
+};
+
+export type BgLayerType = 'color' | 'sprite' | 'spine';
+
+export type BgLayer = {
+	id: string;
+	name: string;
+	type: BgLayerType;
+	/** Solid fill color (hex) when type='color' */
+	color: string;
+	/** Asset key when type='sprite' */
+	spriteKey: string;
+	/** Asset key when type='spine' */
+	spineKey: string;
+	/** Multiple animation tracks for spine */
+	spineAnims: SpineAnimTrack[];
+	x: number;
+	y: number;
+	scaleX: number;
+	scaleY: number;
+	alpha: number;
+	visible: boolean;
+	/** Use responsive layout helper (normalBackgroundLayout) */
+	useResponsiveLayout: boolean;
+	/** Scale passed to normalBackgroundLayout */
+	responsiveScale: number;
+};
+
+export type ColorPalette = {
+	id: string;
+	name: string;
+	colors: {
+		primary: string;
+		secondary: string;
+		accent: string;
+		background: string;
+		border: string;
+		text: string;
+		value: string;
+	};
+};
+
+export type BoardConfig = {
+	glowColor: string;
+	frameTint: string;
+	symbolSize: number;
+	gridGapX: number;
+	gridGapY: number;
+	boardPaddingX: number;
+	boardPaddingY: number;
+};
+
+export const BOARD_CONFIG_DEFAULTS: BoardConfig = {
+	glowColor: '#39ff14',
+	frameTint: '#ffffff',
+	symbolSize: 70,
+	gridGapX: 0,
+	gridGapY: 0,
+	boardPaddingX: 0,
+	boardPaddingY: 0,
+};
+
+export type LayoutVariant = 'desktop' | 'tablet' | 'landscape' | 'portrait';
+
 export type UiLayoutConfig = {
 	desktop: Record<string, UiElementConfig>;
+	tablet?: Record<string, UiElementConfig>;
+	landscape?: Record<string, UiElementConfig>;
+	portrait?: Record<string, UiElementConfig>;
+	bgLayers: BgLayer[];
+	palettes?: ColorPalette[];
+	activePaletteId?: string;
+	boardConfig?: BoardConfig;
 };
 
 // ── Style defaults ────────────────────────────────────────────────
@@ -87,9 +163,49 @@ function getDefaultStyle(id: string): UiElementStyle {
 		: { ...LABEL_STYLE_DEFAULTS };
 }
 
-/** Merge raw JSON (which may lack `style`) into full UiElementConfig objects. */
+export const DEFAULT_BG_LAYERS: BgLayer[] = [
+	{
+		id: 'base',
+		name: 'Black Base',
+		type: 'color',
+		color: '#000000',
+		spriteKey: '',
+		spineKey: '',
+		spineAnims: [],
+		x: 0,
+		y: 0,
+		scaleX: 1,
+		scaleY: 1,
+		alpha: 1,
+		visible: true,
+		useResponsiveLayout: false,
+		responsiveScale: 1,
+	},
+	{
+		id: 'bgCharacters',
+		name: 'BG Characters',
+		type: 'spine',
+		color: '#000000',
+		spriteKey: '',
+		spineKey: 'bgCharacters',
+		spineAnims: [
+			{ trackIndex: 0, animationName: 'bg_idle', loop: true },
+			{ trackIndex: 1, animationName: 'normal_idle', loop: true },
+		],
+		x: 0,
+		y: 0,
+		scaleX: 1,
+		scaleY: 1,
+		alpha: 1,
+		visible: true,
+		useResponsiveLayout: true,
+		responsiveScale: 0.5,
+	},
+];
+
+/** Merge raw JSON (which may lack `style` or `bgLayers`) into full config. */
 function initConfig(raw: typeof initial): UiLayoutConfig {
-	const config: UiLayoutConfig = { desktop: {} };
+	const config: UiLayoutConfig = { desktop: {}, bgLayers: [] };
 	for (const [id, v] of Object.entries(raw.desktop)) {
 		config.desktop[id] = {
 			x: v.x ?? 0,
@@ -99,23 +215,76 @@ function initConfig(raw: typeof initial): UiLayoutConfig {
 			style: { ...getDefaultStyle(id), ...((v as any).style ?? {}) },
 		};
 	}
+	const rawLayers = (raw as any).bgLayers as BgLayer[] | undefined;
+	config.bgLayers = rawLayers?.length
+		? rawLayers.map((l) => ({ ...l }))
+		: DEFAULT_BG_LAYERS.map((l) => ({ ...l, spineAnims: l.spineAnims.map((a) => ({ ...a })) }));
+	config.boardConfig = { ...BOARD_CONFIG_DEFAULTS, ...((raw as any).boardConfig ?? {}) };
+	if ((raw as any).palettes) config.palettes = (raw as any).palettes;
 	return config;
 }
 
 export const uiLayoutConfig = $state<UiLayoutConfig>(initConfig(initial));
 
 // ── Hex ↔ Pixi color helpers ─────────────────────────────────────
+const HEX_RE = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
+
 export function hexToPixi(hex: string): number {
-	return parseInt(hex.replace('#', ''), 16);
+	const m = HEX_RE.exec(hex);
+	if (!m) return 0x000000;
+	let h = m[1];
+	if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+	const v = parseInt(h, 16);
+	return isNaN(v) ? 0x000000 : v;
 }
 
 export function pixiToHex(num: number): string {
-	return '#' + num.toString(16).padStart(6, '0');
+	return '#' + (num & 0xffffff).toString(16).padStart(6, '0');
 }
 
-/** Get the reactive style object for a layout element. */
+/** Normalize any hex string to #rrggbb format. */
+export function normalizeHex(hex: string): string {
+	return pixiToHex(hexToPixi(hex));
+}
+
+// ── Save debounce ────────────────────────────────────────────────
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let saveInFlight = false;
+let saveQueued = false;
+
+async function doSave(): Promise<boolean> {
+	saveInFlight = true;
+	try {
+		return await saveUiLayoutConfig();
+	} finally {
+		saveInFlight = false;
+		if (saveQueued) {
+			saveQueued = false;
+			doSave();
+		}
+	}
+}
+
+/**
+ * Debounced save — coalesces rapid changes into a single write.
+ * Both inspector panels should call this instead of saveUiLayoutConfig().
+ */
+export function debouncedSave(callback?: (ok: boolean) => void) {
+	if (saveTimer) clearTimeout(saveTimer);
+	saveTimer = setTimeout(async () => {
+		saveTimer = null;
+		if (saveInFlight) {
+			saveQueued = true;
+			return;
+		}
+		const ok = await doSave();
+		callback?.(ok);
+	}, 300);
+}
+
+/** Get the reactive style object for a layout element (variant-aware). */
 export function getElementStyle(id: string): UiElementStyle | undefined {
-	return uiLayoutConfig.desktop[id]?.style;
+	return getActiveVariantConfig()[id]?.style;
 }
 
 export function exportUiLayoutConfig(): string {
@@ -149,7 +318,31 @@ export async function saveUiLayoutConfig(): Promise<boolean> {
 export const editorState = $state({
 	enabled: false,
 	selected: null as string | null,
+	multiSelected: [] as string[],
+	activeVariant: 'desktop' as LayoutVariant,
 });
+
+/** Get the active variant's element config (falls back to desktop). */
+export function getActiveVariantConfig(): Record<string, UiElementConfig> {
+	const v = editorState.activeVariant;
+	if (v !== 'desktop' && uiLayoutConfig[v]) return uiLayoutConfig[v]!;
+	return uiLayoutConfig.desktop;
+}
+
+/** Copy desktop config to another variant. */
+export function copyDesktopToVariant(variant: LayoutVariant) {
+	if (variant === 'desktop') return;
+	uiLayoutConfig[variant] = structuredClone($state.snapshot(uiLayoutConfig.desktop)) as Record<string, UiElementConfig>;
+}
+
+/** All selected element IDs (single + multi merged). */
+export function getAllSelectedIds(): string[] {
+	const ids = [...editorState.multiSelected];
+	if (editorState.selected && !ids.includes(editorState.selected)) {
+		ids.push(editorState.selected);
+	}
+	return ids;
+}
 
 /**
  * Registry of all draggable elements currently mounted, keyed by id.
@@ -168,4 +361,135 @@ export function unregisterEditableElement(id: string) {
 
 export function getEditableElement(id: string): UiElementTransform | undefined {
 	return registry.get(id);
+}
+
+// ── Background layer helpers ─────────────────────────────────────
+let bgLayerCounter = 0;
+
+export function addBgLayer(type: BgLayerType = 'color'): BgLayer {
+	bgLayerCounter++;
+	const layer: BgLayer = {
+		id: `layer_${Date.now()}_${bgLayerCounter}`,
+		name: `Layer ${uiLayoutConfig.bgLayers.length}`,
+		type,
+		color: '#000000',
+		spriteKey: '',
+		spineKey: '',
+		spineAnims: [],
+		x: 0,
+		y: 0,
+		scaleX: 1,
+		scaleY: 1,
+		alpha: 1,
+		visible: true,
+		useResponsiveLayout: type !== 'color',
+		responsiveScale: 0.5,
+	};
+	uiLayoutConfig.bgLayers.push(layer);
+	return layer;
+}
+
+export function removeBgLayer(id: string) {
+	const idx = uiLayoutConfig.bgLayers.findIndex((l) => l.id === id);
+	if (idx >= 0) uiLayoutConfig.bgLayers.splice(idx, 1);
+}
+
+export function moveBgLayer(id: string, direction: -1 | 1) {
+	const layers = uiLayoutConfig.bgLayers;
+	const idx = layers.findIndex((l) => l.id === id);
+	const target = idx + direction;
+	if (idx < 0 || target < 0 || target >= layers.length) return;
+	[layers[idx], layers[target]] = [layers[target], layers[idx]];
+}
+
+// ── Palette helpers ──────────────────────────────────────────────
+export function addPalette(name: string): ColorPalette {
+	if (!uiLayoutConfig.palettes) uiLayoutConfig.palettes = [];
+	const palette: ColorPalette = {
+		id: `pal_${Date.now()}`,
+		name,
+		colors: {
+			primary: '#ffffff',
+			secondary: '#999999',
+			accent: '#39ff14',
+			background: '#242428',
+			border: '#4a4a4e',
+			text: '#ffffff',
+			value: '#ffffff',
+		},
+	};
+	uiLayoutConfig.palettes.push(palette);
+	return palette;
+}
+
+export function removePalette(id: string) {
+	if (!uiLayoutConfig.palettes) return;
+	const idx = uiLayoutConfig.palettes.findIndex((p) => p.id === id);
+	if (idx >= 0) uiLayoutConfig.palettes.splice(idx, 1);
+	if (uiLayoutConfig.activePaletteId === id) uiLayoutConfig.activePaletteId = undefined;
+}
+
+export function applyPalette(paletteId: string) {
+	const palette = uiLayoutConfig.palettes?.find((p) => p.id === paletteId);
+	if (!palette) return;
+	const c = palette.colors;
+	for (const config of Object.values(uiLayoutConfig.desktop)) {
+		config.style.fontColor = config.style.fontColor === BUTTON_STYLE_DEFAULTS.fontColor ? c.text : config.style.fontColor;
+		config.style.valueColor = c.value;
+		config.style.backgroundColor = c.background;
+		config.style.borderColor = c.border;
+		config.style.activeColor = c.accent;
+	}
+	uiLayoutConfig.activePaletteId = paletteId;
+}
+
+// ── Board config helpers ─────────────────────────────────────────
+export function getBoardConfig(): BoardConfig {
+	return uiLayoutConfig.boardConfig ?? { ...BOARD_CONFIG_DEFAULTS };
+}
+
+export function ensureBoardConfig(): BoardConfig {
+	if (!uiLayoutConfig.boardConfig) {
+		uiLayoutConfig.boardConfig = { ...BOARD_CONFIG_DEFAULTS };
+	}
+	return uiLayoutConfig.boardConfig;
+}
+
+// ── Export/Import helpers ────────────────────────────────────────
+export function downloadConfigAsJson() {
+	const data = exportUiLayoutConfig();
+	const blob = new Blob([data], { type: 'application/json' });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = `uiLayout_${new Date().toISOString().slice(0, 10)}.json`;
+	a.click();
+	URL.revokeObjectURL(url);
+}
+
+export function importConfig(jsonStr: string): { ok: boolean; error?: string } {
+	try {
+		const data = JSON.parse(jsonStr);
+		if (!data.desktop || typeof data.desktop !== 'object') {
+			return { ok: false, error: 'Missing "desktop" key' };
+		}
+		// Apply desktop
+		for (const key of Object.keys(uiLayoutConfig.desktop)) {
+			if (!(key in data.desktop)) delete uiLayoutConfig.desktop[key];
+		}
+		for (const [key, val] of Object.entries(data.desktop)) {
+			uiLayoutConfig.desktop[key] = val as any;
+		}
+		// Apply bgLayers
+		if (Array.isArray(data.bgLayers)) {
+			uiLayoutConfig.bgLayers.length = 0;
+			for (const l of data.bgLayers) uiLayoutConfig.bgLayers.push(l);
+		}
+		// Apply palettes
+		if (data.palettes) uiLayoutConfig.palettes = data.palettes;
+		if (data.boardConfig) uiLayoutConfig.boardConfig = data.boardConfig;
+		return { ok: true };
+	} catch (e) {
+		return { ok: false, error: String(e) };
+	}
 }

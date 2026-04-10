@@ -14,7 +14,9 @@
       "Bash(npx vite:*)",
       "Bash(ls web-sdk/apps/overcharged/.env*)",
       "Bash(netstat -ano)",
-      "Bash(taskkill //PID 29332 //F)"
+      "Bash(taskkill //PID 29332 //F)",
+      "Bash(find /c/Development/OverCharged_Math/web-sdk -type f \\\\\\( -name \"*.svelte\" -o -name \"*.ts\" \\\\\\) -exec grep -l \"foregroundAnimation\\\\|foregroundFeatureAnimation\" {} \\\\;)",
+      "Bash(ls -la /c/Development/OverCharged_Math/web-sdk/apps/overcharged/src/components/UI/Layout*)"
     ]
   }
 }

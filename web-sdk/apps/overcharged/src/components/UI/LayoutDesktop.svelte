@@ -8,7 +8,7 @@
 	import { getContext } from 'components-ui-pixi/src/context';
 	import type { LayoutUiProps } from 'components-ui-pixi/src/types';
 
-	import { uiLayoutConfig } from '../../game/uiLayoutConfig.svelte';
+	import { getActiveVariantConfig } from '../../game/uiLayoutConfig.svelte';
 	import DraggableInEditor from './DraggableInEditor.svelte';
 
 	// Cluster ancestor scales — the parent Container the element lives inside.
@@ -19,7 +19,7 @@
 
 	const props: LayoutUiProps = $props();
 	const context = getContext();
-	const desktopCfg = $derived(uiLayoutConfig.desktop);
+	const desktopCfg = $derived(getActiveVariantConfig());
 </script>
 
 <MainContainer alignVertical="top">

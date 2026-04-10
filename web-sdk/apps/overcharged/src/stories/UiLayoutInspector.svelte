@@ -1,6 +1,21 @@
 <script lang="ts">
-	import { editorState, getElementStyle, saveUiLayoutConfig, getEditableElement, type BgType } from '../game/uiLayoutConfig.svelte';
+	import { editorState, getElementStyle, debouncedSave, getEditableElement, getAllSelectedIds, uiLayoutConfig, type BgType } from '../game/uiLayoutConfig.svelte';
+	import { pushSnapshotDebounced, pushSnapshot, undo, redo, canUndo, canRedo } from './editorHistory.svelte';
+	import { alignElements, distributeElements } from './editorGrid.svelte';
 	import assets from '../game/assets';
+
+	const multiCount = $derived(editorState.multiSelected.length);
+	const allSelectedIds = $derived(getAllSelectedIds());
+
+	function batchSet(prop: string, value: any) {
+		pushSnapshot('batch ' + prop);
+		for (const id of allSelectedIds) {
+			const s = getElementStyle(id);
+			if (s && prop in s) (s as any)[prop] = value;
+			const t = getEditableElement(id);
+			if (t && prop in t) (t as any)[prop] = value;
+		}
+	}
 
 	// Derive available asset keys by type for the background dropdowns.
 	const spriteAssetKeys = Object.entries(assets)
@@ -13,11 +28,17 @@
 	let saveStatus = $state<'idle' | 'saving' | 'ok' | 'err'>('idle');
 	let activeTab = $state<'transform' | 'text' | 'appearance' | 'background'>('transform');
 
-	async function save() {
+	function save() {
 		saveStatus = 'saving';
-		const ok = await saveUiLayoutConfig();
-		saveStatus = ok ? 'ok' : 'err';
-		setTimeout(() => (saveStatus = 'idle'), 1500);
+		debouncedSave((ok) => {
+			saveStatus = ok ? 'ok' : 'err';
+			setTimeout(() => (saveStatus = 'idle'), 1500);
+		});
+	}
+
+	/** Track inspector value changes for undo. */
+	function onValueChange() {
+		pushSnapshotDebounced('inspector change');
 	}
 
 	const transform = $derived(editorState.selected ? getEditableElement(editorState.selected) : undefined);
@@ -38,6 +59,8 @@
 </script>
 
 <div class="export-bar">
+	<button class="undo-btn" onclick={undo} disabled={!canUndo()} aria-label="Undo" title="Undo (Ctrl+Z)">&#8630;</button>
+	<button class="undo-btn" onclick={redo} disabled={!canRedo()} aria-label="Redo" title="Redo (Ctrl+Shift+Z)">&#8631;</button>
 	<button onclick={save} disabled={saveStatus === 'saving'}>
 		{#if saveStatus === 'saving'}Saving…
 		{:else if saveStatus === 'ok'}Saved
@@ -48,7 +71,8 @@
 </div>
 
 {#if transform && style && editorState.selected}
-	<div class="inspector">
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="inspector" onchange={onValueChange} oninput={onValueChange}>
 		<header>
 			<span class="title">{editorState.selected}</span>
 			<button class="close" onclick={close} aria-label="Close">&times;</button>
@@ -224,6 +248,98 @@
 	</div>
 {/if}
 
+<!-- Multi-select batch editor -->
+{#if multiCount >= 2}
+	<div class="batch-editor">
+		<header>
+			<span class="title">{allSelectedIds.length} elements selected</span>
+		</header>
+
+		<div class="section-title">Batch Edit</div>
+		<div class="row">
+			<label>Scale</label>
+			<input type="number" step="0.05" value="1"
+				onchange={(e) => batchSet('scale', +(e.currentTarget as HTMLInputElement).value)} />
+			<span></span>
+		</div>
+		<div class="row">
+			<label>Alpha</label>
+			<input type="number" step="0.05" min="0" max="1" value="1"
+				onchange={(e) => { const s = getElementStyle(allSelectedIds[0]); batchSet('alpha', +(e.currentTarget as HTMLInputElement).value); }} />
+			<span></span>
+		</div>
+		<div class="row">
+			<label>Font Size</label>
+			<input type="number" step="0.05" min="0.3" max="3" value="1"
+				onchange={(e) => batchSet('fontSize', +(e.currentTarget as HTMLInputElement).value)} />
+			<span></span>
+		</div>
+
+		<div class="section-title">Align</div>
+		<div class="align-row">
+			<button class="align-btn" onclick={() => { pushSnapshot('align'); alignElements(allSelectedIds, 'left'); }} title="Align Left">&#8676;</button>
+			<button class="align-btn" onclick={() => { pushSnapshot('align'); alignElements(allSelectedIds, 'centerH'); }} title="Center H">&#8596;</button>
+			<button class="align-btn" onclick={() => { pushSnapshot('align'); alignElements(allSelectedIds, 'right'); }} title="Align Right">&#8677;</button>
+			<button class="align-btn" onclick={() => { pushSnapshot('align'); alignElements(allSelectedIds, 'top'); }} title="Align Top">&#8673;</button>
+			<button class="align-btn" onclick={() => { pushSnapshot('align'); alignElements(allSelectedIds, 'centerV'); }} title="Center V">&#8597;</button>
+			<button class="align-btn" onclick={() => { pushSnapshot('align'); alignElements(allSelectedIds, 'bottom'); }} title="Align Bottom">&#8675;</button>
+		</div>
+		<div class="section-title">Distribute</div>
+		<div class="align-row">
+			<button class="align-btn" onclick={() => { pushSnapshot('distribute'); distributeElements(allSelectedIds, 'horizontal'); }} title="Distribute H">&#9776; H</button>
+			<button class="align-btn" onclick={() => { pushSnapshot('distribute'); distributeElements(allSelectedIds, 'vertical'); }} title="Distribute V">&#9776; V</button>
+		</div>
+	</div>
+{/if}
+
+<!-- Board Config (shown when nothing selected) -->
+{#if !editorState.selected && multiCount < 2}
+	{@const bc = uiLayoutConfig.boardConfig!}
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="inspector" onchange={onValueChange} oninput={onValueChange}>
+		<header>
+			<span class="title">Board Config</span>
+		</header>
+		<div class="tab-content">
+			<div class="color-row">
+				<label>Glow Color</label>
+				<input type="color" bind:value={bc.glowColor} />
+				<input type="text" bind:value={bc.glowColor} class="hex-input" />
+			</div>
+			<div class="color-row">
+				<label>Frame Tint</label>
+				<input type="color" bind:value={bc.frameTint} />
+				<input type="text" bind:value={bc.frameTint} class="hex-input" />
+			</div>
+			<div class="row">
+				<label>Symbol Size</label>
+				<input type="number" bind:value={bc.symbolSize} step="1" min="20" max="200" />
+				<input type="range" min="20" max="200" step="1" bind:value={bc.symbolSize} />
+			</div>
+			<div class="row">
+				<label>Gap X</label>
+				<input type="number" bind:value={bc.gridGapX} step="1" min="0" max="20" />
+				<input type="range" min="0" max="20" step="1" bind:value={bc.gridGapX} />
+			</div>
+			<div class="row">
+				<label>Gap Y</label>
+				<input type="number" bind:value={bc.gridGapY} step="1" min="0" max="20" />
+				<input type="range" min="0" max="20" step="1" bind:value={bc.gridGapY} />
+			</div>
+			<div class="row">
+				<label>Padding X</label>
+				<input type="number" bind:value={bc.boardPaddingX} step="1" min="0" max="50" />
+				<input type="range" min="0" max="50" step="1" bind:value={bc.boardPaddingX} />
+			</div>
+			<div class="row">
+				<label>Padding Y</label>
+				<input type="number" bind:value={bc.boardPaddingY} step="1" min="0" max="50" />
+				<input type="range" min="0" max="50" step="1" bind:value={bc.boardPaddingY} />
+			</div>
+		</div>
+	</div>
+{/if}
+
 <style>
 	.export-bar {
 		position: fixed;
@@ -239,6 +355,17 @@
 		font-weight: 700;
 		cursor: pointer;
 		border-radius: 4px;
+	}
+	.undo-btn {
+		background: #333 !important;
+		color: #ccc !important;
+		padding: 6px 8px !important;
+		font-size: 16px !important;
+		line-height: 1 !important;
+	}
+	.undo-btn:disabled {
+		opacity: 0.3;
+		cursor: default !important;
 	}
 
 	.inspector {
@@ -437,5 +564,49 @@
 		word-break: break-all;
 		line-height: 1.3;
 		margin-top: 2px;
+	}
+	/* Batch editor */
+	.batch-editor {
+		position: fixed;
+		top: 60px;
+		right: 8px;
+		width: 300px;
+		background: rgba(20, 20, 24, 0.96);
+		color: #fff;
+		border: 1px solid #14aaff;
+		border-radius: 6px;
+		padding: 12px;
+		z-index: 9998;
+		font-family: -apple-system, system-ui, sans-serif;
+		font-size: 12px;
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+	}
+	.batch-editor header {
+		margin-bottom: 8px;
+		padding-bottom: 8px;
+		border-bottom: 1px solid #333;
+	}
+	.batch-editor .title {
+		color: #14aaff;
+	}
+	.align-row {
+		display: flex;
+		gap: 4px;
+		flex-wrap: wrap;
+	}
+	.align-btn {
+		background: #2a2a2e;
+		color: #ccc;
+		border: 1px solid #444;
+		padding: 4px 8px;
+		border-radius: 3px;
+		font-size: 12px;
+		cursor: pointer;
+		transition: all 0.1s;
+	}
+	.align-btn:hover {
+		background: #14aaff;
+		color: #111;
+		border-color: #14aaff;
 	}
 </style>

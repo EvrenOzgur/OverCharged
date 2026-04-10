@@ -8,8 +8,11 @@
 	import { Sprite, SpineProvider, SpineTrack } from 'pixi-svelte';
 
 	import { getContext } from '../game/context';
+	import { getBoardConfig, hexToPixi } from '../game/uiLayoutConfig.svelte';
 
 	const context = getContext();
+	const boardCfg = $derived(getBoardConfig());
+	const frameTint = $derived(hexToPixi(boardCfg.frameTint));
 	const SPINE_SCALE = { width: 0.6, height: 0.6 };
 	const SPRITE_SCALE = { width: 1.07, height: 1.19 };
 	const BG_RATIO = 937 / 806;
@@ -66,6 +69,7 @@
 <Sprite
 	key="frame_bg.png"
 	anchor={0.5}
+	tint={frameTint}
 	x={context.stateGameDerived.boardLayout().x * POSITION_ADJUSTMENT}
 	y={context.stateGameDerived.boardLayout().y * POSITION_ADJUSTMENT}
 	width={context.stateGameDerived.boardLayout().width * BG_RATIO * SPRITE_SCALE.width}
@@ -75,6 +79,7 @@
 <Sprite
 	key="frame_edge.png"
 	anchor={0.5}
+	tint={frameTint}
 	x={context.stateGameDerived.boardLayout().x * POSITION_ADJUSTMENT}
 	y={context.stateGameDerived.boardLayout().y * POSITION_ADJUSTMENT}
 	width={context.stateGameDerived.boardLayout().width * BG_RATIO * SPRITE_SCALE.width}

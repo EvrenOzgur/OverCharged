@@ -9,6 +9,8 @@
 		getElementStyle,
 		type UiElementTransform,
 	} from '../../game/uiLayoutConfig.svelte';
+	import { pushSnapshot } from '../../stories/editorHistory.svelte';
+	import { snapToGrid } from '../../stories/editorGrid.svelte';
 
 	type Props = {
 		id: string;
@@ -40,7 +42,8 @@
 	let startCfgY = 0;
 
 	const isSelected = $derived(editorState.selected === id);
-	const showOutline = $derived(editorState.enabled && (hovered || dragging || isSelected));
+	const isMultiSelected = $derived(editorState.multiSelected.includes(id));
+	const showOutline = $derived(editorState.enabled && (hovered || dragging || isSelected || isMultiSelected));
 	const elStyle = $derived(getElementStyle(id));
 
 	onMount(() => {
@@ -48,12 +51,16 @@
 		return () => unregisterEditableElement(id);
 	});
 
+	const DRAG_MIN = -2000;
+	const DRAG_MAX = 2000;
+	function clamp(v: number) { return Math.max(DRAG_MIN, Math.min(DRAG_MAX, v)); }
+
 	function onWindowMove(e: PointerEvent) {
 		if (!dragging) return;
 		const dx = (e.clientX - startScreenX) / ancestorScale;
 		const dy = (e.clientY - startScreenY) / ancestorScale;
-		transform.x = Math.round(startCfgX + dx);
-		transform.y = Math.round(startCfgY + dy);
+		transform.x = clamp(snapToGrid(Math.round(startCfgX + dx)));
+		transform.y = clamp(snapToGrid(Math.round(startCfgY + dy)));
 	}
 
 	function onWindowUp() {
@@ -61,10 +68,27 @@
 		dragging = false;
 		window.removeEventListener('pointermove', onWindowMove);
 		window.removeEventListener('pointerup', onWindowUp);
+		pushSnapshot('drag ' + id);
 	}
 
 	function onPointerDown(e: any) {
 		if (!editorState.enabled) return;
+
+		// Shift+Click: toggle multi-select
+		const isShift = e.shiftKey ?? e.nativeEvent?.shiftKey ?? false;
+		if (isShift) {
+			const idx = editorState.multiSelected.indexOf(id);
+			if (idx >= 0) {
+				editorState.multiSelected.splice(idx, 1);
+			} else {
+				editorState.multiSelected.push(id);
+			}
+			if (!editorState.selected) editorState.selected = id;
+			e?.stopPropagation?.();
+			return;
+		}
+
+		editorState.multiSelected.length = 0;
 		editorState.selected = id;
 		dragging = true;
 		startScreenX = e.clientX ?? e.nativeEvent?.clientX ?? 0;
@@ -135,9 +159,10 @@
 		};
 
 		// Always draw a (nearly) transparent fill so the Graphics has a real hit area.
-		g.beginFill(0x39ff14, showOutline ? (dragging ? 0.18 : 0.08) : 0.001);
+		const isHighlighted = isSelected || isMultiSelected || dragging;
+		g.beginFill(isMultiSelected ? 0x14aaff : 0x39ff14, showOutline ? (dragging ? 0.18 : 0.08) : 0.001);
 		if (showOutline) {
-			g.lineStyle(2, isSelected || dragging ? 0x39ff14 : 0xffffff, 1);
+			g.lineStyle(2, isHighlighted ? (isMultiSelected && !isSelected ? 0x14aaff : 0x39ff14) : 0xffffff, 1);
 		}
 		g.drawRect(rect.x, rect.y, rect.w, rect.h);
 		g.endFill();
