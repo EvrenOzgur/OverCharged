@@ -1,0 +1,522 @@
+{
+  "sounds": {
+    "bgm_main": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "music",
+      "enabled": true
+    },
+    "bgm_freespin": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "music",
+      "enabled": true
+    },
+    "bgm_winlevel_big": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "music",
+      "enabled": true
+    },
+    "bgm_winlevel_epic": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "music",
+      "enabled": true
+    },
+    "bgm_winlevel_max": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "music",
+      "enabled": true
+    },
+    "bgm_winlevel_mega": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "music",
+      "enabled": true
+    },
+    "bgm_winlevel_superwin": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "music",
+      "enabled": true
+    },
+    "jng_intro_fs": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "anticipation",
+      "enabled": true
+    },
+    "sfx_anticipation": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "anticipation",
+      "enabled": true
+    },
+    "sfx_anticipation_start": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "anticipation",
+      "enabled": true
+    },
+    "sfx_bigwin_coinloop": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "sfx_btn_general": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "ui",
+      "enabled": true
+    },
+    "sfx_btn_spin": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "ui",
+      "enabled": true
+    },
+    "sfx_fs_respins": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "anticipation",
+      "enabled": true
+    },
+    "sfx_multiplier_combine_a": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "multiplier",
+      "enabled": true
+    },
+    "sfx_multiplier_combine_b": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "multiplier",
+      "enabled": true
+    },
+    "sfx_multiplier_explosion_a": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "multiplier",
+      "enabled": true
+    },
+    "sfx_multiplier_explosion_b": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "multiplier",
+      "enabled": true
+    },
+    "sfx_multiplier_explosion_c": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "multiplier",
+      "enabled": true
+    },
+    "sfx_multiplier_landing": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "multiplier",
+      "enabled": true
+    },
+    "sfx_multiplier_reset": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "multiplier",
+      "enabled": true
+    },
+    "sfx_multiplier_up": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "multiplier",
+      "enabled": true
+    },
+    "sfx_multiplier_update": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "multiplier",
+      "enabled": true
+    },
+    "sfx_multiplier_win": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "multiplier",
+      "enabled": true
+    },
+    "sfx_reel_stop_1": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_reel_stop_2": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_reel_stop_3": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_reel_stop_4": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_reel_stop_5": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_royals_landing": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_scatter_reveal": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_scatter_stop_1": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_scatter_stop_2": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_scatter_stop_3": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_scatter_stop_4": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_scatter_stop_5": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_scatter_win": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "sfx_scatter_win_v2": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "sfx_superfreespin": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "anticipation",
+      "enabled": true
+    },
+    "sfx_symbols_landing": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_wild_explode": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_winlevel_end": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "sfx_winlevel_nice": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "sfx_winlevel_small": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "sfx_winlevel_standard": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "sfx_winlevel_substantial": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "sfx_youwon_panel": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "tumble_win_1": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "tumble_win_2": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "tumble_win_3": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "tumble_win_4": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    }
+  },
+  "groups": {
+    "music": {
+      "label": "Music",
+      "masterVolume": 1
+    },
+    "ui": {
+      "label": "UI Sounds",
+      "masterVolume": 1
+    },
+    "reel": {
+      "label": "Reel",
+      "masterVolume": 1
+    },
+    "win": {
+      "label": "Win",
+      "masterVolume": 1
+    },
+    "multiplier": {
+      "label": "Multiplier",
+      "masterVolume": 1
+    },
+    "anticipation": {
+      "label": "Anticipation",
+      "masterVolume": 1
+    }
+  },
+  "sequences": {},
+  "eventMappings": {
+    "soundPressGeneral": [
+      {
+        "soundName": "sfx_btn_general",
+        "playType": "once"
+      }
+    ],
+    "soundPressBet": [
+      {
+        "soundName": "sfx_btn_spin",
+        "playType": "once"
+      }
+    ],
+    "winShow": [
+      {
+        "soundName": "sfx_winlevel_small",
+        "playType": "once"
+      }
+    ],
+    "freeSpinIntroShow": [
+      {
+        "soundName": "jng_intro_fs",
+        "playType": "once"
+      }
+    ],
+    "globalMultiplierUpdate": [
+      {
+        "soundName": "sfx_multiplier_update",
+        "playType": "once"
+      }
+    ]
+  }
+}

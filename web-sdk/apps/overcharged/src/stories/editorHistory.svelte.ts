@@ -60,8 +60,8 @@ export function initHistory() {
 }
 
 function applySnapshot(entry: HistoryEntry) {
-	// Use JSON round-trip to avoid $state proxy issues with structuredClone
 	const snap = JSON.parse(JSON.stringify($state.snapshot(entry.snapshot))) as UiLayoutConfig;
+
 	// Apply desktop elements
 	for (const key of Object.keys(uiLayoutConfig.desktop)) {
 		if (!(key in snap.desktop)) delete uiLayoutConfig.desktop[key];
@@ -69,11 +69,29 @@ function applySnapshot(entry: HistoryEntry) {
 	for (const [key, val] of Object.entries(snap.desktop)) {
 		uiLayoutConfig.desktop[key] = val;
 	}
+
+	// Apply variant configs (tablet, landscape, portrait)
+	for (const variant of ['tablet', 'landscape', 'portrait'] as const) {
+		if (snap[variant]) {
+			uiLayoutConfig[variant] = snap[variant];
+		} else {
+			uiLayoutConfig[variant] = undefined;
+		}
+	}
+
+	// Apply presetConfigs
+	if (snap.presetConfigs) {
+		uiLayoutConfig.presetConfigs = snap.presetConfigs;
+	} else {
+		uiLayoutConfig.presetConfigs = undefined;
+	}
+
 	// Apply bgLayers
 	uiLayoutConfig.bgLayers.length = 0;
 	for (const layer of snap.bgLayers) {
 		uiLayoutConfig.bgLayers.push(layer);
 	}
+
 	// Apply boardConfig
 	if (snap.boardConfig) uiLayoutConfig.boardConfig = snap.boardConfig;
 	// Apply palettes

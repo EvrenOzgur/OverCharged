@@ -16,7 +16,22 @@
       "Bash(netstat -ano)",
       "Bash(taskkill //PID 29332 //F)",
       "Bash(find /c/Development/OverCharged_Math/web-sdk -type f \\\\\\( -name \"*.svelte\" -o -name \"*.ts\" \\\\\\) -exec grep -l \"foregroundAnimation\\\\|foregroundFeatureAnimation\" {} \\\\;)",
-      "Bash(ls -la /c/Development/OverCharged_Math/web-sdk/apps/overcharged/src/components/UI/Layout*)"
+      "Bash(ls -la /c/Development/OverCharged_Math/web-sdk/apps/overcharged/src/components/UI/Layout*)",
+      "Bash(grep -r \"portrait\\\\|landscape\\\\|tablet\" /c/Development/OverCharged_Math/web-sdk/apps/overcharged/src/components/UI/Layout*.svelte)",
+      "Bash(ls -la \"c:/Development/OverCharged_Math/web-sdk/apps/overcharged/src/stories/\"Sound*.svelte \"c:/Development/OverCharged_Math/web-sdk/apps/overcharged/src/stories/\"editor*.svelte.ts)",
+      "Bash(tasklist)",
+      "Bash(wmic process:*)",
+      "Bash(taskkill //PID 13760 //F)",
+      "Bash(taskkill //PID 14152 //F)",
+      "Bash(curl -s http://localhost:6001/src/stories/SoundLibrary.svelte)",
+      "Bash(curl -s \"http://localhost:6001/src/stories/UiLayoutEditorHost.svelte\")",
+      "Bash(curl -s \"http://localhost:6001/src/stories/SoundEditorHost.svelte\")",
+      "Bash(curl -s \"http://localhost:6001/src/game/soundConfig.svelte.ts\")",
+      "Bash(npx svelte-check:*)",
+      "Bash(curl -s \"http://localhost:6001/src/stories/SoundLibrary.svelte\")",
+      "Bash(curl -s \"http://localhost:6001/src/stories/SoundEventMapper.svelte\")",
+      "Bash(curl -s \"http://localhost:6001/src/stories/SoundEditorToolbar.svelte\")",
+      "Bash(curl -s \"http://localhost:6001/src/stories/editorSoundPanels.svelte.ts\")"
     ]
   }
 }

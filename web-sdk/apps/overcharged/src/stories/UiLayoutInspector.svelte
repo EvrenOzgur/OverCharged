@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { editorState, getElementStyle, debouncedSave, getEditableElement, getAllSelectedIds, uiLayoutConfig, type BgType } from '../game/uiLayoutConfig.svelte';
+	import { editorState, getElementStyle, debouncedSave, getEditableElement, getAllSelectedIds, getActivePreset, uiLayoutConfig, type BgType } from '../game/uiLayoutConfig.svelte';
 	import { pushSnapshotDebounced, pushSnapshot, undo, redo, canUndo, canRedo } from './editorHistory.svelte';
 	import { alignElements, distributeElements } from './editorGrid.svelte';
 	import assets from '../game/assets';
@@ -62,6 +62,9 @@
 <div class="export-bar">
 	<button class="undo-btn" onclick={undo} disabled={!canUndo()} aria-label="Undo" title="Undo (Ctrl+Z)">&#8630;</button>
 	<button class="undo-btn" onclick={redo} disabled={!canRedo()} aria-label="Redo" title="Redo (Ctrl+Shift+Z)">&#8631;</button>
+	{#if getActivePreset()}
+		<span class="preset-badge">{getActivePreset()?.name}</span>
+	{/if}
 	<button onclick={save} disabled={saveStatus === 'saving'}>
 		{#if saveStatus === 'saving'}Saving…
 		{:else if saveStatus === 'ok'}Saved
@@ -362,6 +365,14 @@
 		font-weight: 700;
 		cursor: pointer;
 		border-radius: 4px;
+	}
+	.preset-badge {
+		background: #ff9f14;
+		color: #111;
+		padding: 4px 8px;
+		border-radius: 3px;
+		font-size: 10px;
+		font-weight: 700;
 	}
 	.undo-btn {
 		background: #333 !important;

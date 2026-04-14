@@ -1,18 +1,47 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import { editorState, getActivePreset } from '../game/uiLayoutConfig.svelte';
+	import { editorState, getActivePreset, getEditableElement } from '../game/uiLayoutConfig.svelte';
 	import { getContext } from '../game/context';
-	import { initHistory, undo, redo } from './editorHistory.svelte';
-	import { copySelected, pasteToSelected } from './editorClipboard.svelte';
+	import { initHistory, pushSnapshot, undo, redo } from './editorHistory.svelte';
+	import { copySelected, pasteToSelected, resetSelected } from './editorClipboard.svelte';
 	import { panelsVisible } from './editorPanels.svelte';
+	import { gridState } from './editorGrid.svelte';
 
 	const context = getContext();
+
+	function nudgeSelected(dx: number, dy: number) {
+		const id = editorState.selected;
+		if (!id) return;
+		const t = getEditableElement(id);
+		if (!t) return;
+		pushSnapshot('nudge ' + id);
+		t.x += dx;
+		t.y += dy;
+	}
 
 	function onKeyDown(e: KeyboardEvent) {
 		// Tab: toggle panels
 		if (e.key === 'Tab') {
 			e.preventDefault();
 			panelsVisible.value = !panelsVisible.value;
+			return;
+		}
+
+		// Arrow keys: nudge selected element
+		if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && editorState.selected) {
+			e.preventDefault();
+			const step = e.shiftKey ? (gridState.gridSize || 10) : (gridState.gridSize || 1);
+			if (e.key === 'ArrowUp') nudgeSelected(0, -step);
+			if (e.key === 'ArrowDown') nudgeSelected(0, step);
+			if (e.key === 'ArrowLeft') nudgeSelected(-step, 0);
+			if (e.key === 'ArrowRight') nudgeSelected(step, 0);
+			return;
+		}
+
+		// Delete: reset selected element
+		if ((e.key === 'Delete' || e.key === 'Backspace') && editorState.selected) {
+			e.preventDefault();
+			resetSelected();
 			return;
 		}
 

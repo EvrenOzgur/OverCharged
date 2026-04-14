@@ -3,10 +3,10 @@
  */
 
 import {
-	uiLayoutConfig,
 	editorState,
 	getEditableElement,
 	getElementStyle,
+	getActiveVariantConfig,
 	BUTTON_STYLE_DEFAULTS,
 	LABEL_STYLE_DEFAULTS,
 	type UiElementTransform,
@@ -47,7 +47,7 @@ export function pasteToSelected() {
 	const id = editorState.selected;
 	if (!id || !_copiedTransform || !_copiedStyle) return;
 	const t = getEditableElement(id);
-	const config = uiLayoutConfig.desktop[id];
+	const config = getActiveVariantConfig()[id];
 	if (!t || !config) return;
 
 	pushSnapshot('paste to ' + id);
@@ -64,7 +64,7 @@ export function resetSelected() {
 	const id = editorState.selected;
 	if (!id) return;
 	const t = getEditableElement(id);
-	const config = uiLayoutConfig.desktop[id];
+	const config = getActiveVariantConfig()[id];
 	if (!t || !config) return;
 
 	pushSnapshot('reset ' + id);
