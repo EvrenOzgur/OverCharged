@@ -89,7 +89,6 @@
 					const reel = context.stateGame.tumbleBoardBase[position.reel];
 					if (reel && reel[symbolIndex]) {
 						const tumbleSymbol = reel[symbolIndex];
-						console.log(`[DEBUG] Exploding Row ${position.row} (Index ${symbolIndex}) - Symbol: ${tumbleSymbol.rawSymbol.name} at Y: ${tumbleSymbol.symbolY.current}`);
 						tumbleSymbol.symbolState = 'explosion';
 						
 						// Safeguard: Timeout after 3 seconds if animation doesn't complete
@@ -97,8 +96,6 @@
 							waitForResolve((resolve) => (tumbleSymbol.oncomplete = resolve)),
 							new Promise((resolve) => setTimeout(resolve, 3000))
 						]);
-					} else {
-						console.warn(`[DEBUG] MISSING symbol for Tumble Explode: Reel ${position.reel}, Row ${position.row} (Index ${symbolIndex})`);
 					}
 				});
 			};

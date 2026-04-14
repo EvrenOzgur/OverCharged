@@ -77,10 +77,6 @@
 	{console.error(`Spine: asset "${asset}" (from asset:${assetProp} or key:${keyProp}) is not found in loadedAssets`)}
 {/if}
 
-{#if !spineData || debug}
-	{console.log('loadedAssets', $state.snapshot(context.stateApp).loadedAssets)}
-{/if}
-
 {#if spineData}
 	{#key spineData}
 		<BaseSpineProvider {...baseSpineProps} {scale} {pivot} {spineData} {skin}>

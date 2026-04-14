@@ -28,13 +28,6 @@
 				track = spine.state.setAnimation(props.trackIndex, props.animationName, props.loop);
 			} catch (error) {
 				console.error(error);
-				const animations = spine?.state?.data?.skeletonData?.animations;
-				if (animations) {
-					console.log(
-						'Available animation names:',
-						animations.map((animation) => animation.name),
-					);
-				}
 			}
 		}
 	});

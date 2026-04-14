@@ -51,7 +51,6 @@ const animateSymbols = async ({
 
 export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContext> = {
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
-		console.log(`[SEQUENCE] Starting reveal (Index: ${bookEvent.index})`);
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
 
 		// Immediate reset of meters and multiplier for base game spins to improve UX
@@ -68,9 +67,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 				if (res && typeof res.catch === 'function') {
 					res.catch(() => {});
 				}
-			} catch (e) {
-				console.warn('[DEBUG] recordBookEvent failed (expected in Storybook):', e);
-			}
+			} catch {}
 		}
 
 		stateGame.gameType = bookEvent.gameType;
@@ -302,8 +299,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
 	},
 	skillActivated: async (bookEvent: BookEventOfType<'skillActivated'>) => {
-		console.log(`[DEBUG] bookEventHandlerMap.skillActivated (Event Index: ${bookEvent.index}) triggered:`, bookEvent);
-
 		// 1. Play sound
 		const sfxMap: Record<string, string> = {
 			L1: 'sfx_wild_spawn', // Yellow Wilds
@@ -327,7 +322,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			eventEmitter.broadcastAsync(bookEvent),
 			new Promise((resolve) => {
 				setTimeout(() => {
-					console.warn(`[WARN] skillActivated animation timeout at index ${bookEvent.index}. Continuing sequence...`);
 					resolve(null);
 				}, 5000);
 			}),

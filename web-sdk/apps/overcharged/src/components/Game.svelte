@@ -113,7 +113,6 @@
 			await handleSkillActivated(event as BookEventSkillActivated);
 		},
 		skillMetersUpdate: (event) => {
-			console.log('%c[DEBUG] Skill Meters Update in Game.svelte:', 'color: #00ff00; font-weight: bold', event.skillMeters);
 			context.stateGame.skillMeters = { ...event.skillMeters };
 		},
 	});

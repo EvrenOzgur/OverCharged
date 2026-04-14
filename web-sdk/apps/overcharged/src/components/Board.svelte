@@ -48,7 +48,6 @@
 					const reel = context.stateGame.board[position.reel];
 					if (reel && reel.reelState.symbols[symbolIndex]) {
 						const reelSymbol = reel.reelState.symbols[symbolIndex];
-						console.log(`[DEBUG] Animating ${state} for Reel ${position.reel} Row ${position.row} (Index ${symbolIndex}) - Symbol: ${reelSymbol.rawSymbol.name}`);
 
 						if (position.multiplier !== undefined) {
 							reelSymbol.rawSymbol.multiplier = position.multiplier;
@@ -65,14 +64,11 @@
 						if (state === 'win') {
 							reelSymbol.symbolState = 'postWinStatic';
 						}
-					} else {
-						console.warn(`[DEBUG] MISSING symbol for Board anim: Reel ${position.reel}, Row ${position.row} (Index ${symbolIndex})`);
 					}
 				});
 			};
 
 			await Promise.all(getPromises());
-			console.log(`[DEBUG] boardWithAnimateSymbols finished all promises`);
 		},
 	});
 

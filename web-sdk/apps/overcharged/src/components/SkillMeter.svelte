@@ -33,12 +33,6 @@
 		Math.min(Math.max(currentValue / targetValue, 0), 1)
 	);
 
-	$effect(() => {
-		if (currentValue > 0) {
-			console.log(`[DEBUG] SkillMeter ${meterName} updated to ${currentValue}`);
-		}
-	});
-
 	const METER_WIDTH = SYMBOL_SIZE * 2;
 	const METER_HEIGHT = SYMBOL_SIZE * 0.4;
 
