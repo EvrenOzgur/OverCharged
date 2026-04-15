@@ -1,8 +1,17 @@
 <script lang="ts" module>
+	import type { MultiplierUpdateSource } from '../game/skillAssets';
+
 	export type EmitterEventGlobalMultiplier =
 		| { type: 'globalMultiplierShow' }
 		| { type: 'globalMultiplierHide' }
-		| { type: 'globalMultiplierUpdate'; multiplier: number };
+		| {
+				type: 'globalMultiplierUpdate';
+				multiplier: number;
+				// Optional origin tag so the UI can render skill-triggered
+				// multiplier changes differently from M-symbol activations.
+				// Unset = default symbol path.
+				source?: MultiplierUpdateSource;
+		  };
 </script>
 
 <script lang="ts">
@@ -23,6 +32,7 @@
 	import BoardContainer from './BoardContainer.svelte';
 	import { getContext } from '../game/context';
 	import { SYMBOL_SIZE } from '../game/constants';
+	import { SKILL_L3_ASSETS } from '../game/skillAssets';
 
 	type AnimationName = 'static' | 'win' | 'reset' | 'increment';
 
@@ -61,8 +71,15 @@
 			}
 
 			if (emitterEvent.multiplier > previousMultiplierValue) {
-				context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_update' });
-				animationName = 'increment';
+				if (emitterEvent.source === 'skill') {
+					// L3 skill path — reuses the default assets today but is
+					// a dedicated branch so `skillAssets.ts` can retarget it
+					// without affecting the M-symbol activation path.
+					animationName = SKILL_L3_ASSETS.multiplierAnimation;
+				} else {
+					context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_update' });
+					animationName = 'increment';
+				}
 			}
 
 			if (animationName !== 'static') {

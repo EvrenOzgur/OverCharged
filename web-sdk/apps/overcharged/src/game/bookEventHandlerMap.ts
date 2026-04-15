@@ -7,6 +7,7 @@ import { eventEmitter } from './eventEmitter';
 import { playBookEvent } from './utils';
 import { winLevelMap, type WinLevel, type WinLevelData } from './winLevelMap';
 import { stateGame, stateGameDerived } from './stateGame.svelte';
+import { SKILL_L3_ASSETS } from './skillAssets';
 import type { BookEvent, BookEventOfType, BookEventContext } from './typesBookEvent';
 import type { Position, SymbolState } from './types';
 
@@ -149,6 +150,10 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			isRetrigger: false,
 		});
 		stateGame.gameType = 'freegame';
+		// Math resets skill meters in `reset_fs_spin` on FS entry; mirror that
+		// here so the UI does not carry base-game meter values into the first
+		// FS spin. Retriggers keep their meters (see `freeSpinRetrigger`).
+		stateGame.skillMeters = { L1: 0, L2: 0, L3: 0, L4: 0 };
 		eventEmitter.broadcast({ type: 'freeSpinIntroHide' });
 		eventEmitter.broadcast({ type: 'boardFrameGlowShow' });
 		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
@@ -298,12 +303,30 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
 		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
 	},
+	wincap: async (bookEvent: BookEventOfType<'wincap'>) => {
+		// Wincap hit: math locks the payout at config.wincap and skips remaining
+		// tumbles/free spins. Play the max-win presentation here.
+		const winLevelData = winLevelMap[10 as WinLevel];
+
+		eventEmitter.broadcast({ type: 'winShow' });
+		winLevelSoundsPlay({ winLevelData });
+		await eventEmitter.broadcastAsync({
+			type: 'winUpdate',
+			amount: bookEvent.amount,
+			winLevelData,
+		});
+		winLevelSoundsStop();
+		eventEmitter.broadcast({ type: 'winHide' });
+	},
 	skillActivated: async (bookEvent: BookEventOfType<'skillActivated'>) => {
 		// 1. Play sound
 		const sfxMap: Record<string, string> = {
 			L1: 'sfx_wild_spawn', // Yellow Wilds
 			L2: 'sfx_multiplier_explosion_b', // Green Explode
-			L3: 'sfx_multiplier_levelup', // Blue Multiplier
+			// L3 uses the dedicated skill asset bucket — change the SFX in
+			// `skillAssets.ts` to retarget just the L3 skill path without
+			// affecting M-symbol multiplier activation sounds.
+			L3: SKILL_L3_ASSETS.sfx,
 			L4: 'sfx_bigwin_coinloop', // Red Mega Wild (placeholder)
 		};
 		if (sfxMap[bookEvent.skillType]) {

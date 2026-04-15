@@ -118,6 +118,12 @@ type BookEventFinalMultiplierApplied = {
 	totalWin: number;
 };
 
+type BookEventWincap = {
+	index: number;
+	type: 'wincap';
+	amount: number;
+};
+
 // customised
 type BookEventCreateBonusSnapshot = {
 	index: number;
@@ -155,7 +161,8 @@ export type BookEvent =
 	| BookEventFreeSpinRetrigger
 	| BookEventSkillActivated
 	| BookEventMultiplierSymbolActivated
-	| BookEventFinalMultiplierApplied;
+	| BookEventFinalMultiplierApplied
+	| BookEventWincap;
 
 export type Bet = BetType<BookEvent>;
 export type BookEventOfType<T> = Extract<BookEvent, { type: T }>;

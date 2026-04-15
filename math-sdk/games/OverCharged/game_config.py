@@ -105,7 +105,7 @@ class GameConfig(Config):
 
         self.freespin_triggers = {
             self.basegame_type: {3: 7, 4: 10, 5: 12, 6: 15, 7: 18, 8: 20},
-            self.freegame_type: {2: 2, 3: 4, 4: 4, 5: 4, 6: 4, 7: 4, 8: 4},
+            self.freegame_type: {2: 2, 3: 3, 4: 5, 5: 7, 6: 10, 7: 13, 8: 16},
         }
         self.anticipation_triggers = {
             self.basegame_type: min(self.freespin_triggers[self.basegame_type].keys()) - 1,

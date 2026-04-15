@@ -78,7 +78,9 @@
 				});
 			}
 		} else if (skillType === 'L3') {
-			// Global çarpanı mathdan gelen değerle güncelle
+			// Global çarpanı mathdan gelen değerle güncelle.
+			// `source: 'skill'` bayrağı GlobalMultiplier'ın L3 branch'ini
+			// çalıştırır; M sembol aktivasyonu default branch'i kullanır.
 			const newMult = eventAny.newGlobalMultiplier;
 			if (newMult !== undefined) {
 				context.stateGame.globalMultiplier = newMult;
@@ -86,6 +88,7 @@
 				await context.eventEmitter.broadcastAsync({
 					type: 'globalMultiplierUpdate',
 					multiplier: newMult,
+					source: 'skill',
 				});
 			}
 		} else if (skillType === 'L4') {
