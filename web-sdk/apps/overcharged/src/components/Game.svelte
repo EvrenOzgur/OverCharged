@@ -12,6 +12,7 @@
 
 	import { getContext } from '../game/context';
 	import { SYMBOL_SIZE } from '../game/constants';
+	import config from '../game/config';
 	import EnableSound from './EnableSound.svelte';
 	import EnableGameActor from './EnableGameActor.svelte';
 	import ResumeBet from './ResumeBet.svelte';
@@ -159,7 +160,7 @@
 					y={SYMBOL_SIZE * 1}
 					meterName="L1"
 					currentValue={context.stateGame.skillMeters.L1}
-					targetValue={10}
+					targetValue={config.skillThresholds.L1}
 					colorId={0xffd700}
 				/>
 				<SkillMeter
@@ -167,7 +168,7 @@
 					y={SYMBOL_SIZE * 2}
 					meterName="L2"
 					currentValue={context.stateGame.skillMeters.L2}
-					targetValue={20}
+					targetValue={config.skillThresholds.L2}
 					colorId={0x00ff00}
 				/>
 				<SkillMeter
@@ -175,7 +176,7 @@
 					y={SYMBOL_SIZE * 3}
 					meterName="L3"
 					currentValue={context.stateGame.skillMeters.L3}
-					targetValue={15}
+					targetValue={config.skillThresholds.L3}
 					colorId={0x0000ff}
 				/>
 				<SkillMeter
@@ -183,7 +184,7 @@
 					y={SYMBOL_SIZE * 4}
 					meterName="L4"
 					currentValue={context.stateGame.skillMeters.L4}
-					targetValue={30}
+					targetValue={config.skillThresholds.L4}
 					colorId={0xff0000}
 				/>
 			</BoardContainer>

@@ -77,10 +77,10 @@ export const stateGame = $state({
 	scatterCounter: 0,
 	globalMultiplier: 1,
 	skillMeters: {
-		L1: 0, // Yellow (target: 10)
-		L2: 0, // Green (target: 20)
-		L3: 0, // Blue (target: 15)
-		L4: 0, // Red (target: 30)
+		L1: 0, // Yellow
+		L2: 0, // Green
+		L3: 0, // Blue
+		L4: 0, // Red
 	},
 });
 

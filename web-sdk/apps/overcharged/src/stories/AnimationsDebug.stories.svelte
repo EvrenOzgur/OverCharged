@@ -9,6 +9,7 @@
 	import Game from '../components/Game.svelte';
 	import { setContext, getContext } from '../game/context';
 	import { winLevelMap } from '../game/winLevelMap';
+	import config from '../game/config';
 
 	setContext();
 	const context = getContext();
@@ -87,10 +88,10 @@
 	type SkillKey = 'L1' | 'L2' | 'L3' | 'L4';
 
 	const SKILLS = [
-		{ key: 'L1' as SkillKey, label: 'L1 — Blue',   target: 10, color: '#6699ff', border: '#3366bb' },
-		{ key: 'L2' as SkillKey, label: 'L2 — Green',  target: 20, color: '#66ff66', border: '#33aa33' },
-		{ key: 'L3' as SkillKey, label: 'L3 — Red',    target: 15, color: '#ff6666', border: '#aa3333' },
-		{ key: 'L4' as SkillKey, label: 'L4 — Yellow', target: 30, color: '#ffd700', border: '#aa8800' },
+		{ key: 'L1' as SkillKey, label: 'L1 — Yellow', target: config.skillThresholds.L1, color: '#ffd700', border: '#aa8800' },
+		{ key: 'L2' as SkillKey, label: 'L2 — Green',  target: config.skillThresholds.L2, color: '#66ff66', border: '#33aa33' },
+		{ key: 'L3' as SkillKey, label: 'L3 — Blue',   target: config.skillThresholds.L3, color: '#6699ff', border: '#3366bb' },
+		{ key: 'L4' as SkillKey, label: 'L4 — Red',    target: config.skillThresholds.L4, color: '#ff6666', border: '#aa3333' },
 	];
 
 	let selectedSkill = $state<SkillKey>('L1');
@@ -127,7 +128,8 @@
 			extra = { positions: pos };
 		} else if (key === 'L3') {
 			const cur = context.stateGame.globalMultiplier;
-			const factor = Math.floor(Math.random() * 9) + 2;
+			const [lo, hi] = config.l3FactorRange;
+			const factor = Math.floor(Math.random() * (hi - lo + 1)) + lo;
 			extra = { multiplierFactor: factor, newGlobalMultiplier: cur * factor };
 		} else if (key === 'L4') {
 			const pos = [];

@@ -12,9 +12,37 @@ from game_events import emit_multiplier_symbol_activated_event
 class GameExecutables(Executables):
     """Game dependent grouped functions."""
 
+    def _assign_multiplier_value(self, symbol):
+        """Assign a weighted random multiplier value to an M symbol if not already set."""
+        if not hasattr(symbol, "multiplier"):
+            weights_map = self.config.multiplier_weights
+            vals = list(weights_map.keys())
+            weights = list(weights_map.values())
+            val = random.choices(vals, weights=weights, k=1)[0]
+            symbol.assign_attribute({"multiplier": val})
+
+    def _apply_m_spawn_filter(self):
+        """Roll spawn rate for each unresolved M on the board. Dormant M's are
+        converted into a random low-tier symbol; active M's are flagged so the
+        roll only happens once per symbol lifetime."""
+        low_tiers = ["L1", "L2", "L3", "L4"]
+        for reel_idx, reel in enumerate(self.board):
+            for row_idx, symbol in enumerate(reel):
+                if symbol.name != "M" or hasattr(symbol, "m_resolved"):
+                    continue
+                if random.random() >= self.config.m_spawn_rate:
+                    self.board[reel_idx][row_idx] = self.create_symbol(
+                        random.choice(low_tiers)
+                    )
+                else:
+                    symbol.assign_attribute({"m_resolved": True})
+
     def get_clusters_update_wins(self):
         """Find clusters on board and update win manager."""
-        
+
+        # 0. Apply M spawn-rate filter before any multiplier logic runs
+        self._apply_m_spawn_filter()
+
         # 1. Capture multiplier symbol candidates BEFORE any board modification
         multiplier_candidates = []
         for reel_idx, reel in enumerate(self.board):
@@ -45,11 +73,8 @@ class GameExecutables(Executables):
             
             for item in multiplier_candidates:
                 symbol = item["symbol"]
-                # assign value if missing
-                if not hasattr(symbol, "multiplier"):
-                    val = random.choice([2, 3, 5, 8, 10, 15, 20, 50, 100, 250, 500])
-                    symbol.assign_attribute({"multiplier": val})
-                
+                self._assign_multiplier_value(symbol)
+
                 # Activate if not yet processed
                 if not hasattr(symbol, "processed_multiplier"):
                     val = symbol.get_attribute("multiplier")
@@ -73,10 +98,7 @@ class GameExecutables(Executables):
         else:
             # Persistent visual value assignment for M symbols even without a win
             for item in multiplier_candidates:
-                symbol = item["symbol"]
-                if not hasattr(symbol, "multiplier"):
-                    val = random.choice([2, 3, 5, 8, 10, 15, 20, 50, 100])
-                    symbol.assign_attribute({"multiplier": val})
+                self._assign_multiplier_value(item["symbol"])
 
         # 5. Evaluate wins using ONLY BASE MULTIPLIER (1.0) during tumble
         # Final multiplication happens at the end of the tumble sequence
@@ -228,13 +250,18 @@ class GameExecutables(Executables):
 
 
     def trigger_blue_skill(self):
-        """Consume meter and multiply global multiplier by 2-10 (L3 Skill - Priority 3)."""
+        """Consume meter and multiply global multiplier by a random factor (L3 Skill - Priority 3).
+
+        Factor range is configurable via `config.l3_factor_range`. Can trigger multiple
+        times per spin; each trigger compounds onto the current global multiplier.
+        """
         self.skill_meters["L3"] -= self.config.skill_thresholds["L3"]
         import random
         from game_events import emit_skill_activated_event
         from src.events.events import update_global_mult_event
 
-        mult_factor = random.randint(2, 10)
+        lo, hi = self.config.l3_factor_range
+        mult_factor = random.randint(lo, hi)
         self.global_multiplier *= mult_factor
 
         emit_skill_activated_event(self, "L3", {"multiplierFactor": mult_factor, "newGlobalMultiplier": self.global_multiplier})

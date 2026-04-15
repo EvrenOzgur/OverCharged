@@ -42,7 +42,11 @@
       "Read(//c/Development/OverCharged_Math/BEGIN{printf \"Bonus wincap: 1 in %.0f/n\", 1125899906837544 /**)",
       "Bash(python3 -m json.tool)",
       "Bash(python3 -c \"import json; f=open\\('/c/Development/OverCharged_Math/math-sdk/games/OverCharged/library/books/books_base.json'\\); data=json.load\\(f\\); print\\(json.dumps\\(data[0], indent=2\\)[:2000]\\)\")",
-      "Bash(wc -l /c/Development/OverCharged_Math/math-sdk/games/OverCharged/library/forces/*.json)"
+      "Bash(wc -l /c/Development/OverCharged_Math/math-sdk/games/OverCharged/library/forces/*.json)",
+      "Bash(\"../../venv/Scripts/python.exe\" run.py)",
+      "Bash(\"../../venv/Scripts/python.exe\" -u run.py)",
+      "Bash(python -c \"import sys,json; b=json.loads\\(sys.stdin.read\\(\\).split\\('\\\\n'\\)[0]\\); print\\('id:',b.get\\('id'\\),'payout:',b.get\\('payoutMultiplier'\\),'baseWin:',b.get\\('baseGameWins'\\),'freeWin:',b.get\\('freeGameWins'\\),'criteria:',b.get\\('criteria'\\),'events:',len\\(b.get\\('events',[]\\)\\)\\)\")",
+      "Bash(ls \"c:/Development/OverCharged_Math/math-sdk/\"*.log)"
     ]
   }
 }

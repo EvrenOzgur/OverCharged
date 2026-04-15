@@ -124,3 +124,8 @@ Desktop.ini
 .cache/
 .temp/
 
+# Ad-hoc debug artifacts
+web-sdk/apps/**/temp_book_*.json
+math-sdk/**/test_run*.py
+math-sdk/**/test_hang.py
+

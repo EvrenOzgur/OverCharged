@@ -19,19 +19,42 @@ class GameConfig(Config):
     def __init__(self):
         super().__init__()
         self.game_id = "OverCharged"
+        self.provider_name = "OverCharged"
+        self.game_name = "OverCharged"
         self.provider_number = 0
         self.working_name = "OverCharged"
         self.wincap = 5000.0
         self.win_type = "cluster"
         self.rtp = 0.9700
-        
+
         # Skill System Configurations
         self.skill_thresholds = {
             "L1": 10, # Adds 2-7 Wilds
             "L2": 20, # Explodes all low-tier symbols
-            "L3": 15, # Adds random 2-10 multiplier to global
+            "L3": 25, # Multiplies global multiplier by 2-5
             "L4": 30, # Drops 3x3 Mega Wild
         }
+
+        # Multiplier symbol (M) weighted value pool — higher values are rarer.
+        # Weights are relative; they are normalised at sample time.
+        self.multiplier_weights = {
+            2: 60,
+            3: 25,
+            5: 8,
+            8: 4,
+            10: 2,
+            15: 0.5,
+            20: 0.25,
+            50: 0.1,
+            100: 0.05,
+            250: 0.025,
+            500: 0.01,
+        }
+        # L3 blue skill random factor range (multiplicative)
+        self.l3_factor_range = [2, 5]
+        # Probability that an M symbol on the board remains active.
+        # Failing the roll converts the M into a random low-tier symbol.
+        self.m_spawn_rate = 0.25
         
         self.construct_paths()
 
@@ -141,7 +164,7 @@ class GameConfig(Config):
             ),
             BetMode(
                 name="bonus",
-                cost=200,
+                cost=100,
                 rtp=self.rtp,
                 max_win=self.wincap,
                 auto_close_disabled=False,

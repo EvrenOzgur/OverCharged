@@ -130,7 +130,12 @@ type BookEventSkillActivated = {
 	type: 'skillActivated';
 	skillType: 'L1' | 'L2' | 'L3' | 'L4' | 'UPDATE';
 	skillMeters: { L1: number; L2: number; L3: number; L4: number };
-	positions?: Position[]; // if the skill visually affects coords
+	// L1/L2/L4: visual positions affected by the skill
+	positions?: Position[];
+	count?: number;
+	// L3 (blue): multiplicative factor applied to the global multiplier
+	multiplierFactor?: number;
+	newGlobalMultiplier?: number;
 };
 
 export type BookEvent =
@@ -146,14 +151,11 @@ export type BookEvent =
 	| BookEventFinalWin
 	| BookEventSetWin
 	| BookEventFreeSpinEnd
-	// new
 	| BookEventUpdateGrid
 	| BookEventFreeSpinRetrigger
 	| BookEventSkillActivated
-	// customised
 	| BookEventMultiplierSymbolActivated
-	| BookEventFinalMultiplierApplied
-	| BookEventCreateBonusSnapshot;
+	| BookEventFinalMultiplierApplied;
 
 export type Bet = BetType<BookEvent>;
 export type BookEventOfType<T> = Extract<BookEvent, { type: T }>;
