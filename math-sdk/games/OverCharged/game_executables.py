@@ -228,19 +228,16 @@ class GameExecutables(Executables):
 
 
     def trigger_blue_skill(self):
-        """Consume meter and add 2-10 to global multiplier (L3 Skill - Priority 3)."""
+        """Consume meter and multiply global multiplier by 2-10 (L3 Skill - Priority 3)."""
         self.skill_meters["L3"] -= self.config.skill_thresholds["L3"]
         import random
         from game_events import emit_skill_activated_event
         from src.events.events import update_global_mult_event
-        
-        mult_add = random.randint(2, 10)
-        if self.global_multiplier == 1:
-            self.global_multiplier = mult_add
-        else:
-            self.global_multiplier += mult_add
-        
-        emit_skill_activated_event(self, "L3", {"multiplierAdded": mult_add, "newGlobalMultiplier": self.global_multiplier})
+
+        mult_factor = random.randint(2, 10)
+        self.global_multiplier *= mult_factor
+
+        emit_skill_activated_event(self, "L3", {"multiplierFactor": mult_factor, "newGlobalMultiplier": self.global_multiplier})
         update_global_mult_event(self)
         
 

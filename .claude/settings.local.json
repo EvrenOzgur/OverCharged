@@ -39,7 +39,10 @@
       "Bash(grep \",500000$\" \"/c/Development/OverCharged_Math/math-sdk/games/OverCharged/library/publish_files/lookUpTable_bonus_0.csv\")",
       "Read(//c/Development/OverCharged_Math/**)",
       "Read(//c/Development/OverCharged_Math/BEGIN{printf \"Base wincap: 1 in %.0f/n\", 1125899906836782 /**)",
-      "Read(//c/Development/OverCharged_Math/BEGIN{printf \"Bonus wincap: 1 in %.0f/n\", 1125899906837544 /**)"
+      "Read(//c/Development/OverCharged_Math/BEGIN{printf \"Bonus wincap: 1 in %.0f/n\", 1125899906837544 /**)",
+      "Bash(python3 -m json.tool)",
+      "Bash(python3 -c \"import json; f=open\\('/c/Development/OverCharged_Math/math-sdk/games/OverCharged/library/books/books_base.json'\\); data=json.load\\(f\\); print\\(json.dumps\\(data[0], indent=2\\)[:2000]\\)\")",
+      "Bash(wc -l /c/Development/OverCharged_Math/math-sdk/games/OverCharged/library/forces/*.json)"
     ]
   }
 }

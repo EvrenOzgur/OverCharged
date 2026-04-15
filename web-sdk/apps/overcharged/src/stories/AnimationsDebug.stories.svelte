@@ -127,8 +127,8 @@
 			extra = { positions: pos };
 		} else if (key === 'L3') {
 			const cur = context.stateGame.globalMultiplier;
-			const add = Math.floor(Math.random() * 9) + 2;
-			extra = { multiplierAdded: add, newGlobalMultiplier: cur === 1 ? add : cur + add };
+			const factor = Math.floor(Math.random() * 9) + 2;
+			extra = { multiplierFactor: factor, newGlobalMultiplier: cur * factor };
 		} else if (key === 'L4') {
 			const pos = [];
 			for (let r = 2; r <= 4; r++) for (let row = 3; row <= 5; row++) pos.push({ reel: r, row });
