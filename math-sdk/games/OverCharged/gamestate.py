@@ -9,6 +9,7 @@ class GameState(GameStateOverride):
         """Shared tumble + skill-resolution loop used by both base and free spins."""
         self.get_clusters_update_wins()
         self.emit_tumble_win_events()
+        self.activate_pending_multipliers()
 
         skills_active = False
         if self.win_data["totalWin"] == 0:
@@ -19,6 +20,7 @@ class GameState(GameStateOverride):
                 self.tumble_game_board()
                 self.get_clusters_update_wins()
                 self.emit_tumble_win_events()
+                self.activate_pending_multipliers()
 
             if self.win_data["totalWin"] == 0 and len(self.win_data.get("wins", [])) == 0:
                 skills_active = self.process_skills()

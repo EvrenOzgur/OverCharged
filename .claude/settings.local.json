@@ -46,7 +46,12 @@
       "Bash(\"../../venv/Scripts/python.exe\" run.py)",
       "Bash(\"../../venv/Scripts/python.exe\" -u run.py)",
       "Bash(python -c \"import sys,json; b=json.loads\\(sys.stdin.read\\(\\).split\\('\\\\n'\\)[0]\\); print\\('id:',b.get\\('id'\\),'payout:',b.get\\('payoutMultiplier'\\),'baseWin:',b.get\\('baseGameWins'\\),'freeWin:',b.get\\('freeGameWins'\\),'criteria:',b.get\\('criteria'\\),'events:',len\\(b.get\\('events',[]\\)\\)\\)\")",
-      "Bash(ls \"c:/Development/OverCharged_Math/math-sdk/\"*.log)"
+      "Bash(ls \"c:/Development/OverCharged_Math/math-sdk/\"*.log)",
+      "Bash(xargs wc:*)",
+      "Bash(../../venv/Scripts/python.exe run.py)",
+      "Bash(./venv/Scripts/python.exe -c ':*)",
+      "Bash(node import_books.cjs)",
+      "Bash(node -e ':*)"
     ]
   }
 }

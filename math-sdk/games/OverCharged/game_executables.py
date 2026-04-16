@@ -38,7 +38,18 @@ class GameExecutables(Executables):
                     symbol.assign_attribute({"m_resolved": True})
 
     def get_clusters_update_wins(self):
-        """Find clusters on board and update win manager."""
+        """Find clusters on board and update win manager.
+
+        Event ordering contract (WITH emit_tumble_win_events + activate_pending_multipliers):
+          1) get_clusters_update_wins — evaluates board, stashes pending multiplier activation
+          2) emit_tumble_win_events   — emits winInfo (explosion animation)
+          3) activate_pending_multipliers — emits multiplierSymbolActivated + updateGlobalMult
+
+        Rationale: players expect explosions to resolve before seeing the
+        global multiplier tick up. Math value is unchanged because win eval
+        uses base multiplier (1.0); global_multiplier is only consumed by
+        apply_final_multipliers() at the end of the tumble sequence.
+        """
 
         # 0. Apply M spawn-rate filter before any multiplier logic runs
         self._apply_m_spawn_filter()
@@ -49,14 +60,14 @@ class GameExecutables(Executables):
             for row_idx, symbol in enumerate(reel):
                 if symbol.name == "M":
                     multiplier_candidates.append({
-                        "reel": reel_idx, 
-                        "row": row_idx, 
+                        "reel": reel_idx,
+                        "row": row_idx,
                         "symbol": symbol
                     })
 
         # 2. Find symbol clusters
         clusters = Cluster.get_clusters(self.board, "wild")
-        
+
         # 3. Determine if any cluster is a paying win
         is_any_win = False
         for sym, clist in clusters.items():
@@ -66,54 +77,26 @@ class GameExecutables(Executables):
                     break
             if is_any_win: break
 
-        # 4. If we have a win, ACTIVATE multipliers first!
-        if is_any_win and multiplier_candidates:
-            activated_symbols = []
-            multiplier_added = 0
-            
-            for item in multiplier_candidates:
-                symbol = item["symbol"]
-                self._assign_multiplier_value(symbol)
+        # 4. Assign multiplier values to all M symbols (needed for cluster
+        #    evaluation via multiplier_key and for persistent visuals).
+        #    No events emitted here — this is silent state.
+        for item in multiplier_candidates:
+            self._assign_multiplier_value(item["symbol"])
 
-                # Activate if not yet processed
-                if not hasattr(symbol, "processed_multiplier"):
-                    val = symbol.get_attribute("multiplier")
-                    if val > 0:
-                        multiplier_added += val
-                        symbol.processed_multiplier = True
-                        activated_symbols.append({
-                            "reel": item["reel"], 
-                            "row": item["row"] + 1, 
-                            "value": val
-                        })
-            
-            if multiplier_added > 0:
-                if self.global_multiplier == 1:
-                    self.global_multiplier = multiplier_added
-                else:
-                    self.global_multiplier += multiplier_added
-                # Emit events so UI slot updates FIRST
-                emit_multiplier_symbol_activated_event(self, activated_symbols)
-                update_global_mult_event(self)
-        else:
-            # Persistent visual value assignment for M symbols even without a win
-            for item in multiplier_candidates:
-                self._assign_multiplier_value(item["symbol"])
-
-        # 5. Evaluate wins using ONLY BASE MULTIPLIER (1.0) during tumble
-        # Final multiplication happens at the end of the tumble sequence
+        # 5. Evaluate wins using ONLY BASE MULTIPLIER (1.0) during tumble.
+        #    Final multiplication happens at the end of the tumble sequence.
         return_data = {"totalWin": 0, "wins": []}
         self.board, self.win_data, total_win = Cluster.evaluate_clusters(
             config=self.config,
             board=self.board,
             clusters=clusters,
-            global_multiplier=1.0, # Always base win during tumble
+            global_multiplier=1.0,  # Always base win during tumble
             multiplier_key="multiplier",
             return_data=return_data,
         )
         self.accumulated_base_win += total_win
-        self.win_data["totalWin"] = total_win # Tracking raw win for this stage
-        
+        self.win_data["totalWin"] = total_win  # Tracking raw win for this stage
+
         # 6. Track Skill Meters
         if hasattr(self, "skill_meters"):
             for win in self.win_data.get("wins", []):
@@ -121,7 +104,7 @@ class GameExecutables(Executables):
                 if sym in self.skill_meters:
                     val = win.get("clusterSize", 0)
                     self.skill_meters[sym] += val
-            
+
             # Emit Meter Update
             from game_events import emit_skill_meters_update_event
             emit_skill_meters_update_event(self)
@@ -129,6 +112,58 @@ class GameExecutables(Executables):
         Cluster.record_cluster_wins(self)
         self.win_manager.update_spinwin(self.win_data["totalWin"])
         self.win_manager.tumble_win = self.win_data["totalWin"]
+
+        # 7. Stash pending multiplier activation — emitted later in the
+        #    tumble step so that winInfo is rendered first on the client.
+        self._pending_multiplier_activation = None
+        if is_any_win and multiplier_candidates:
+            activated_symbols = []
+            multiplier_added = 0
+
+            for item in multiplier_candidates:
+                symbol = item["symbol"]
+                if not hasattr(symbol, "processed_multiplier"):
+                    val = symbol.get_attribute("multiplier")
+                    if val > 0:
+                        multiplier_added += val
+                        symbol.processed_multiplier = True
+                        activated_symbols.append({
+                            "reel": item["reel"],
+                            "row": item["row"] + 1,
+                            "value": val
+                        })
+
+            if multiplier_added > 0:
+                self._pending_multiplier_activation = {
+                    "activated_symbols": activated_symbols,
+                    "multiplier_added": multiplier_added,
+                }
+
+    def activate_pending_multipliers(self):
+        """Emit multiplierSymbolActivated + updateGlobalMult if any are pending.
+
+        Must be called AFTER emit_tumble_win_events() so that winInfo
+        (explosion) resolves before the multiplier ticker animates. The
+        global_multiplier state is also mutated here — it is only read by
+        apply_final_multipliers() at the end of the tumble sequence, so
+        deferring the mutation has no effect on payouts.
+        """
+        pending = getattr(self, "_pending_multiplier_activation", None)
+        if not pending:
+            return
+
+        multiplier_added = pending["multiplier_added"]
+        activated_symbols = pending["activated_symbols"]
+
+        if self.global_multiplier == 1:
+            self.global_multiplier = multiplier_added
+        else:
+            self.global_multiplier += multiplier_added
+
+        emit_multiplier_symbol_activated_event(self, activated_symbols)
+        update_global_mult_event(self)
+
+        self._pending_multiplier_activation = None
 
     def apply_final_multipliers(self):
         """Calculate final total win by applying the global multiplier to accumulated base wins."""
@@ -214,6 +249,7 @@ class GameExecutables(Executables):
         # Manually jumpstart the win calculation to handle new board and loop again natively.
         self.get_clusters_update_wins()
         self.emit_tumble_win_events()
+        self.activate_pending_multipliers()
 
 
     def trigger_green_skill(self):
@@ -292,4 +328,5 @@ class GameExecutables(Executables):
         emit_skill_activated_event(self, "L4", {"positions": wilds_placed})
         self.get_clusters_update_wins()
         self.emit_tumble_win_events()
+        self.activate_pending_multipliers()
 
