@@ -279,12 +279,21 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 				.tumbleBoardCombined()
 				.map((tumbleReel) => tumbleReel.map((tumbleSymbol) => tumbleSymbol.rawSymbol)),
 		});
-		eventEmitter.broadcast({ type: 'tumbleBoardReset' });
-		eventEmitter.broadcast({ type: 'tumbleBoardHide' });
+		// Show static Board first, give it one frame to paint, then hide
+		// the TumbleBoard so the layers overlap instead of leaving a gap.
 		eventEmitter.broadcast({ type: 'boardShow' });
+		await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+		eventEmitter.broadcast({ type: 'tumbleBoardHide' });
+		eventEmitter.broadcast({ type: 'tumbleBoardReset' });
 	},
 	setWin: async (bookEvent: BookEventOfType<'setWin'>) => {
 		const winLevelData = winLevelMap[bookEvent.winLevel as WinLevel];
+
+		// Gate the Win overlay (count-up, big-win animation, PressToContinue,
+		// coin shower) to wins at or above 10x base bet. Math writes amount as
+		// bet-multiplier * 100, so 10x = 1000.
+		const WIN_OVERLAY_MIN_AMOUNT = 1000;
+		if (bookEvent.amount < WIN_OVERLAY_MIN_AMOUNT) return;
 
 		eventEmitter.broadcast({ type: 'winShow' });
 		winLevelSoundsPlay({ winLevelData });

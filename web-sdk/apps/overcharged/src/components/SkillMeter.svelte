@@ -36,22 +36,15 @@
 	const METER_WIDTH = SYMBOL_SIZE * 2;
 	const METER_HEIGHT = SYMBOL_SIZE * 0.4;
 
-	// Fill color mapping
-	const colorCodes = {
-		L1: 0x0000ff, // Blue
-		L2: 0x00ff00, // Green
-		L3: 0xff0000, // Red
-		L4: 0xffd700, // Yellow
-	} as Record<string, number>;
+	let meterColor = $derived(colorId);
 
-	let meterColor = $derived(colorCodes[meterName] ?? 0xffffff);
-
-	// Display labels
+	// Display labels — must match math skill colours (L1=Yellow Wilds,
+	// L2=Green Explode, L3=Blue Multiplier, L4=Red Mega Wild).
 	const nameLabels = {
-		L1: 'Blue Skill',
+		L1: 'Yellow Skill',
 		L2: 'Green Skill',
-		L3: 'Red Skill',
-		L4: 'Yellow Skill',
+		L3: 'Blue Skill',
+		L4: 'Red Skill',
 	} as Record<string, string>;
 
 	let label = $derived(nameLabels[meterName] ?? meterName);

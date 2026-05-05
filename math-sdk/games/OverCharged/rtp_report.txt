@@ -1,0 +1,156 @@
+================================================================================
+OverCharged RTP Attribution & What-If Analysis
+================================================================================
+
+[BASE]  spins=10000  cost=1.0× bet
+
+  Per-spin RTP decomposition (cost = 1.0× bet):
+    Total RTP (actual paid):             192.68 %
+    RTP without any global multiplier:    99.25 %
+    Multiplier amplification factor:       1.94×
+    Base-game raw win contribution:       89.39 %
+    Free-game raw win contribution:        9.86 %
+    Wincap contribution:                  50.00 %  (1 spins)
+
+  Cluster contribution by symbol × tier (raw bet-mult, no global mult):
+    symbol tier      sum_x   pct_of_raw
+    H4   t2      1480.00       14.91%
+    H1   t2      1375.00       13.85%
+    H2   t2      1140.00       11.49%
+    H1   t1       995.00       10.03%
+    H3   t2       992.00       10.00%
+    H4   t1       805.00        8.11%
+    H2   t1       744.00        7.50%
+    H3   t1       683.80        6.89%
+    L1   t2       298.50        3.01%
+    H4   t3       240.00        2.42%
+    L2   t2       235.20        2.37%
+    L1   t1       234.00        2.36%
+    L3   t2       149.60        1.51%
+    L2   t1       126.40        1.27%
+    H1   t3        80.00        0.81%
+    L3   t1        69.80        0.70%
+    H3   t3        56.00        0.56%
+    L4   t2        44.50        0.45%
+    L1   t3        44.00        0.44%
+    H2   t3        40.00        0.40%
+
+  Cluster contribution by size:
+    size=5   sum_x=  3674.20  (37.02%)
+    size=6   sum_x=  3990.60  (40.21%)
+    size=7   sum_x=  1273.10  (12.83%)
+    size=8   sum_x=   451.10  ( 4.55%)
+    size=9   sum_x=   253.00  ( 2.55%)
+    size=10  sum_x=   162.20  ( 1.63%)
+    size=11  sum_x=    55.50  ( 0.56%)
+    size=12  sum_x=    38.80  ( 0.39%)
+    size=13  sum_x=    26.00  ( 0.26%)
+
+  Multiplier stats:
+    avg M activations per spin:    0.134
+    avg M total value per spin:    0.400
+    max-globalMult histogram (top 10): [(1, 8766), (2, 694), (3, 308), (5, 104), (8, 49), (4, 30), (10, 21), (6, 6), (15, 6), (7, 4)]
+
+  Skill fires (totals across 10000 spins):
+    l1_fires       36  (0.0036 per spin)
+    l2_fires        6  (0.0006 per spin)
+    l3_fires        2  (0.0002 per spin)
+    l4_fires        1  (0.0001 per spin)
+
+  What-if scenarios for base:
+  current config (sanity)                                 RTP =  153.04 %
+  paytable × 0.50 (halve all payouts)                     RTP =   76.52 %
+  paytable × 0.40                                         RTP =   61.22 %
+  paytable × 0.30                                         RTP =   45.91 %
+  paytable × 0.25                                         RTP =   38.26 %
+  M values × 0.50 (halve every M value)                   RTP =  118.83 %
+  M values × 0.30                                         RTP =  106.18 %
+  drop M values > 100 (cap big multipliers)               RTP =  153.04 %
+  drop M values > 50                                      RTP =  153.04 %
+  drop M values > 20                                      RTP =  153.04 %
+  drop M values > 10                                      RTP =  151.19 %
+  L3 (multiplicative) disabled                            RTP =  128.37 %
+  paytable × 0.5 + M × 0.5                                RTP =   59.41 %
+  paytable × 0.5 + L3 disabled                            RTP =   64.19 %
+  paytable × 0.4 + drop M > 20                            RTP =   61.22 %
+  paytable × 0.5 + drop M > 50 + L3 off                   RTP =   64.19 %
+
+[BONUS]  spins=10000  cost=100.0× bet
+
+  Per-spin RTP decomposition (cost = 100.0× bet):
+    Total RTP (actual paid):             290.29 %
+    RTP without any global multiplier:    34.18 %
+    Multiplier amplification factor:       8.49×
+    Base-game raw win contribution:        1.11 %
+    Free-game raw win contribution:       33.07 %
+    Wincap contribution:                  97.00 %  (194 spins)
+
+  Cluster contribution by symbol × tier (raw bet-mult, no global mult):
+    symbol tier      sum_x   pct_of_raw
+    H1   t2     54925.00       16.07%
+    H2   t2     35725.00       10.45%
+    H4   t2     33607.50        9.83%
+    H1   t1     32540.00        9.52%
+    H3   t2     31494.40        9.22%
+    H2   t1     20072.00        5.87%
+    H3   t1     17569.50        5.14%
+    H4   t1     16229.00        4.75%
+    H1   t3     12100.00        3.54%
+    H4   t3      9633.60        2.82%
+    H3   t3      8108.80        2.37%
+    H2   t3      7464.00        2.18%
+    L1   t2      7249.50        2.12%
+    L2   t2      7141.20        2.09%
+    H1   t4      5568.00        1.63%
+    H2   t4      5248.00        1.54%
+    H3   t4      5208.00        1.52%
+    H4   t4      4944.00        1.45%
+    L1   t1      4600.20        1.35%
+    L3   t2      3852.00        1.13%
+
+  Cluster contribution by size:
+    size=5   sum_x= 96387.50  (28.20%)
+    size=6   sum_x=107767.60  (31.53%)
+    size=7   sum_x= 47450.90  (13.88%)
+    size=8   sum_x= 21122.10  ( 6.18%)
+    size=9   sum_x= 16525.50  ( 4.84%)
+    size=10  sum_x= 13716.00  ( 4.01%)
+    size=11  sum_x=  9658.20  ( 2.83%)
+    size=12  sum_x=  5943.20  ( 1.74%)
+    size=13  sum_x= 11500.00  ( 3.36%)
+    size=14  sum_x=  5948.00  ( 1.74%)
+    size=15  sum_x=  2598.00  ( 0.76%)
+    size=16  sum_x=  1697.00  ( 0.50%)
+    size=17  sum_x=   915.00  ( 0.27%)
+    size=18  sum_x=   272.00  ( 0.08%)
+    size=19  sum_x=   160.00  ( 0.05%)
+    size=20  sum_x=    96.00  ( 0.03%)
+
+  Multiplier stats:
+    avg M activations per spin:    2.289
+    avg M total value per spin:    7.376
+    max-globalMult histogram (top 10): [(2, 1288), (1, 1079), (4, 937), (5, 845), (7, 699), (3, 599), (6, 579), (8, 516), (10, 512), (9, 400)]
+
+  Skill fires (totals across 10000 spins):
+    l1_fires     6424  (0.6424 per spin)
+    l2_fires     2483  (0.2483 per spin)
+    l3_fires     1378  (0.1378 per spin)
+    l4_fires      609  (0.0609 per spin)
+
+  What-if scenarios for bonus:
+  current config (sanity)                                 RTP =  116.38 %
+  paytable × 0.50 (halve all payouts)                     RTP =   63.33 %
+  paytable × 0.40                                         RTP =   51.74 %
+  paytable × 0.30                                         RTP =   39.97 %
+  paytable × 0.25                                         RTP =   33.87 %
+  M values × 0.50 (halve every M value)                   RTP =   77.35 %
+  M values × 0.30                                         RTP =   63.71 %
+  drop M values > 100 (cap big multipliers)               RTP =  116.05 %
+  drop M values > 50                                      RTP =  115.35 %
+  drop M values > 20                                      RTP =  115.01 %
+  drop M values > 10                                      RTP =  109.95 %
+  L3 (multiplicative) disabled                            RTP =   67.01 %
+  paytable × 0.5 + M × 0.5                                RTP =   41.06 %
+  paytable × 0.5 + L3 disabled                            RTP =   33.50 %
+  paytable × 0.4 + drop M > 20                            RTP =   51.19 %
+  paytable × 0.5 + drop M > 50 + L3 off                   RTP =   32.99 %

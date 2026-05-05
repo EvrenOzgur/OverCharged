@@ -16,8 +16,8 @@ export default {
 	highSymbols: {
 		type: 'spine',
 		src: {
-			atlas: '/OverChargedAssets/high_symbols/high-symbols.atlas',
-			skeleton: '/OverChargedAssets/high_symbols/high-symbols.json',
+			atlas: './OverChargedAssets/high_symbols/high-symbols.atlas',
+			skeleton: './OverChargedAssets/high_symbols/high-symbols.json',
 			scale: 2,
 		},
 		preload: true,
@@ -25,8 +25,8 @@ export default {
 	lowSymbols: {
 		type: 'spine',
 		src: {
-			atlas: '/OverChargedAssets/low_symbols/low-symbols.atlas',
-			skeleton: '/OverChargedAssets/low_symbols/low-symbols.json',
+			atlas: './OverChargedAssets/low_symbols/low-symbols.atlas',
+			skeleton: './OverChargedAssets/low_symbols/low-symbols.json',
 			scale: 2,
 		},
 		preload: true,
@@ -34,8 +34,8 @@ export default {
 	specialSymbols: {
 		type: 'spine',
 		src: {
-			atlas: '/OverChargedAssets/special_symbols/special-symbols.atlas',
-			skeleton: '/OverChargedAssets/special_symbols/special-symbols.json',
+			atlas: './OverChargedAssets/special_symbols/special-symbols.atlas',
+			skeleton: './OverChargedAssets/special_symbols/special-symbols.json',
 			scale: 2,
 		},
 		preload: true,
@@ -43,8 +43,8 @@ export default {
 	bgCharacters: {
 		type: 'spine',
 		src: {
-			atlas: '/OverChargedAssets/bg_characters_machine/bg_characters.atlas',
-			skeleton: '/OverChargedAssets/bg_characters_machine/bg_characters.json',
+			atlas: './OverChargedAssets/bg_characters_machine/bg_characters.atlas',
+			skeleton: './OverChargedAssets/bg_characters_machine/bg_characters.json',
 			scale: 2,
 		},
 		preload: true,
@@ -65,21 +65,27 @@ export default {
 			scale: 2,
 		},
 	},
+	// BitmapFonts must be served as static files. Using `new URL(..., import.meta.url)`
+	// makes Vite hash the .xml and .png separately, which breaks the
+	// `<page file="...">` reference inside the .xml — the runtime then loads
+	// the page texture against the un-hashed name, gets a 404, and PixiJS
+	// silently registers an empty font. Result: BitmapText with `fontFamily: 'gold'`
+	// renders nothing (e.g. M-symbol "X2" labels disappear).
 	goldFont: {
 		type: 'font',
-		src: new URL('../../assets/fonts/goldFont/mm_gold.xml', import.meta.url).href,
+		src: './assets/fonts/goldFont/mm_gold.xml',
 	},
 	goldBlur: {
 		type: 'font',
-		src: new URL('../../assets/fonts/goldBlur/miningfont_gold_blur.xml', import.meta.url).href,
+		src: './assets/fonts/goldBlur/miningfont_gold_blur.xml',
 	},
 	silverFont: {
 		type: 'font',
-		src: new URL('../../assets/fonts/silverFont/mm_silver.xml', import.meta.url).href,
+		src: './assets/fonts/silverFont/mm_silver.xml',
 	},
 	purpleFont: {
 		type: 'font',
-		src: new URL('../../assets/fonts/purpleFont/mm_purple.xml', import.meta.url).href,
+		src: './assets/fonts/purpleFont/mm_purple.xml',
 	},
 	bigwin: {
 		type: 'spine',

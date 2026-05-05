@@ -60,7 +60,17 @@
 
 	context.eventEmitter.subscribeOnMount({
 		globalMultiplierShow: () => (show = true),
-		globalMultiplierHide: () => (show = false),
+		globalMultiplierHide: () => {
+			show = false;
+			// Reset internal animation state so the panel doesn't flash the
+			// previous spin's multiplier when re-shown. Without this the next
+			// `globalMultiplierShow` would render `previousMultiplier` (a Tween
+			// stuck at the prior value) before the reset animation kicks in,
+			// making the player think a stale 2×/3× multiplier is still active.
+			previousMultiplierValue = 1;
+			previousMultiplier.set(1, { duration: 0 });
+			animationName = 'static';
+		},
 		globalMultiplierUpdate: async (emitterEvent) => {
 			if (emitterEvent.multiplier === 1 && previousMultiplierValue !== 1) {
 				animationName = 'reset';

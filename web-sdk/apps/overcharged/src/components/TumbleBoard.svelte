@@ -17,7 +17,7 @@
 <script lang="ts">
 	import _ from 'lodash';
 	import { Tween } from 'svelte/motion';
-	import { backOut } from 'svelte/easing';
+	import { quadOut } from 'svelte/easing';
 
 	import { BoardContext } from 'components-shared';
 	import { waitForResolve } from 'utils-shared/wait';
@@ -120,23 +120,18 @@
 
 								await tumbleSymbol.symbolY.set(targetY, {
 									duration: bounceDuration,
-									easing: backOut,
+									// quadOut decelerates toward target without overshooting.
+									// backOut overshot bottom row past SymbolWrap's inFrame
+									// limit, briefly unmounting the symbol → flicker.
+									easing: quadOut,
 								});
 
 								if (symbolIndex > 0 && symbolIndex < tumbleReel.length - 1) {
-									tumbleSymbol.symbolState = 'land';
+									// Land animation disabled. The symbol is already in 'static'
+									// state (default from createTumbleSymbol), so DON'T reassign —
+									// any $state write triggers reactivity and re-mounts the Spine
+									// instance, producing a per-symbol flicker as each tween settles.
 									context.stateGameDerived.onSymbolLand({ rawSymbol: tumbleSymbol.rawSymbol });
-									
-									// Safeguard: Timeout after 2 seconds for land animation
-									await Promise.race([
-										waitForResolve((resolve) => {
-											tumbleSymbol.oncomplete = () => {
-												tumbleSymbol.symbolState = 'static';
-												resolve();
-											};
-										}),
-										new Promise((resolve) => setTimeout(resolve, 2000))
-									]);
 								}
 							}
 						});
@@ -158,6 +153,7 @@
 
 	<BoardContext animate={true}>
 		<BoardContainer>
+			<BoardMask />
 			<TumbleBoardBase />
 		</BoardContainer>
 	</BoardContext>

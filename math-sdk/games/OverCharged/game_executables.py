@@ -51,8 +51,8 @@ class GameExecutables(Executables):
         apply_final_multipliers() at the end of the tumble sequence.
         """
 
-        # 0. Apply M spawn-rate filter before any multiplier logic runs
-        self._apply_m_spawn_filter()
+        # 0. M spawn-rate filter already applied by draw_board / tumble_game_board
+        #    overrides, so the board here already reflects survivors only.
 
         # 1. Capture multiplier symbol candidates BEFORE any board modification
         multiplier_candidates = []
@@ -115,8 +115,13 @@ class GameExecutables(Executables):
 
         # 7. Stash pending multiplier activation — emitted later in the
         #    tumble step so that winInfo is rendered first on the client.
+        #    Every unprocessed M on the board accumulates into global_multiplier,
+        #    regardless of whether this particular tumble produced a win. The
+        #    final payout only applies the multiplier when accumulated_base_win
+        #    is non-zero (see apply_final_multipliers), so M's that land without
+        #    any spin wins still have no effect.
         self._pending_multiplier_activation = None
-        if is_any_win and multiplier_candidates:
+        if multiplier_candidates:
             activated_symbols = []
             multiplier_added = 0
 

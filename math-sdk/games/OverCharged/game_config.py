@@ -30,9 +30,9 @@ class GameConfig(Config):
         # Skill System Configurations
         self.skill_thresholds = {
             "L1": 10, # Adds 2-7 Wilds
-            "L2": 20, # Explodes all low-tier symbols
-            "L3": 25, # Multiplies global multiplier by 2-5
-            "L4": 30, # Drops 3x3 Mega Wild
+            "L2": 16, # Explodes all low-tier symbols
+            "L3": 22, # Multiplies global multiplier by 2-3
+            "L4": 25, # Drops 3x3 Mega Wild
         }
 
         # Multiplier symbol (M) weighted value pool — higher values are rarer.
@@ -51,7 +51,7 @@ class GameConfig(Config):
             500: 0.01,
         }
         # L3 blue skill random factor range (multiplicative)
-        self.l3_factor_range = [2, 5]
+        self.l3_factor_range = [2, 3]
         # Probability that an M symbol on the board remains active.
         # Failing the roll converts the M into a random low-tier symbol.
         self.m_spawn_rate = 0.25
@@ -67,20 +67,20 @@ class GameConfig(Config):
         pay_group = {
             (t1, "H1"): 5.0,
             (t2, "H1"): 12.5,
-            (t3, "H1"): 25.0,
-            (t4, "H1"): 60.0,
+            (t3, "H1"): 20.0,
+            (t4, "H1"): 48.0,
             (t1, "H2"): 2.0,
             (t2, "H2"): 5.0,
-            (t3, "H2"): 10.0,
-            (t4, "H2"): 40.0,
+            (t3, "H2"): 8.0,
+            (t4, "H2"): 32.0,
             (t1, "H3"): 1.3,
             (t2, "H3"): 3.2,
-            (t3, "H3"): 7.0,
-            (t4, "H3"): 30.0,
+            (t3, "H3"): 5.6,
+            (t4, "H3"): 24.0,
             (t1, "H4"): 1.0,
             (t2, "H4"): 2.5,
-            (t3, "H4"): 6.0,
-            (t4, "H4"): 20.0,
+            (t3, "H4"): 4.8,
+            (t4, "H4"): 16.0,
             (t1, "L1"): 0.6,
             (t2, "L1"): 1.5,
             (t3, "L1"): 4.0,
@@ -101,7 +101,7 @@ class GameConfig(Config):
         self.paytable = self.convert_range_table(pay_group)
 
         self.include_padding = True
-        self.special_symbols = {"wild": ["W"], "scatter": ["S"], "is_multiplier": ["M"]}
+        self.special_symbols = {"wild": ["W"], "scatter": ["S"], "is_multiplier": ["M"], "multiplier": ["M"]}
 
         self.freespin_triggers = {
             self.basegame_type: {3: 7, 4: 10, 5: 12, 6: 15, 7: 18, 8: 20},
@@ -130,7 +130,7 @@ class GameConfig(Config):
                 distributions=[
                     Distribution(
                         criteria="freegame",
-                        quota=0.1,
+                        quota=0.003,
                         conditions={
                             "reel_weights": {
                                 self.basegame_type: {"BR0": 1},
@@ -143,7 +143,7 @@ class GameConfig(Config):
                     ),
                     Distribution(
                         criteria="0",
-                        quota=0.4,
+                        quota=0.7,
                         win_criteria=0.0,
                         conditions={
                             "reel_weights": {self.basegame_type: {"BR0": 1}},
@@ -153,7 +153,7 @@ class GameConfig(Config):
                     ),
                     Distribution(
                         criteria="basegame",
-                        quota=0.5,
+                        quota=0.297,
                         conditions={
                             "reel_weights": {self.basegame_type: {"BR0": 1}},
                             "force_wincap": False,
