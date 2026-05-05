@@ -37,24 +37,29 @@ class GameConfig(Config):
 
         # Multiplier symbol (M) weighted value pool — higher values are rarer.
         # Weights are relative; they are normalised at sample time.
+        # 2026-05-05 RTP rebalance: high-value M weights reduced (50/100/250/500
+        # were inflating bonus-mode tail and producing 3888×/972× outliers).
         self.multiplier_weights = {
-            2: 60,
-            3: 25,
-            5: 8,
-            8: 4,
-            10: 2,
-            15: 0.5,
-            20: 0.25,
-            50: 0.1,
-            100: 0.05,
-            250: 0.025,
-            500: 0.01,
+            2: 70,
+            3: 22,
+            5: 6,
+            8: 1.5,
+            10: 0.4,
+            15: 0.06,
+            20: 0.03,
+            50: 0.01,
+            100: 0.005,
+            250: 0.001,
+            500: 0.0001,
         }
         # L3 blue skill random factor range (multiplicative)
-        self.l3_factor_range = [2, 3]
+        # 2026-05-05: tightened to fixed ×2 to suppress runaway multiplicative
+        # compounding in bonus mode (was [2,3] → 8.49× amplification).
+        self.l3_factor_range = [2, 2]
         # Probability that an M symbol on the board remains active.
         # Failing the roll converts the M into a random low-tier symbol.
-        self.m_spawn_rate = 0.25
+        # 2026-05-05: reduced from 0.25 to 0.18 to lower per-spin M density.
+        self.m_spawn_rate = 0.18
         
         self.construct_paths()
 
@@ -63,40 +68,48 @@ class GameConfig(Config):
         # Optionally include variable number of rows per reel
         self.num_rows = [8] * self.num_reels
         # Board and Symbol Properties
+        # 2026-05-05 RTP rebalance: paytable scaled by 0.50 across the board.
+        # Pre-scale: 99% (no-mult) base / 34% (no-mult) bonus → 192% / 290% paid.
+        # Multiplier amplification (1.94× base / 8.49× bonus) was the dominant
+        # factor; halving the paytable drops the raw closer to 50% / 17% so the
+        # optimizer has less scaling to do and large outliers carry less weight.
+        # Note: 0.50 chosen over 0.55 to keep paytable values at 2-decimal precision
+        # (cents-bazlı integer) — math-sdk's running-win accumulator was throwing
+        # `Base + Free game payout mismatch!` on 3-decimal values like 0.715/1.375.
         t1, t2, t3, t4 = (5, 5), (6, 8), (9, 12), (13, 36)
         pay_group = {
-            (t1, "H1"): 5.0,
-            (t2, "H1"): 12.5,
-            (t3, "H1"): 20.0,
-            (t4, "H1"): 48.0,
-            (t1, "H2"): 2.0,
-            (t2, "H2"): 5.0,
-            (t3, "H2"): 8.0,
-            (t4, "H2"): 32.0,
-            (t1, "H3"): 1.3,
-            (t2, "H3"): 3.2,
-            (t3, "H3"): 5.6,
-            (t4, "H3"): 24.0,
-            (t1, "H4"): 1.0,
-            (t2, "H4"): 2.5,
-            (t3, "H4"): 4.8,
-            (t4, "H4"): 16.0,
-            (t1, "L1"): 0.6,
-            (t2, "L1"): 1.5,
-            (t3, "L1"): 4.0,
-            (t4, "L1"): 10.0,
-            (t1, "L2"): 0.4,
-            (t2, "L2"): 1.2,
-            (t3, "L2"): 3.5,
-            (t4, "L2"): 8.0,
-            (t1, "L3"): 0.2,
-            (t2, "L3"): 0.8,
-            (t3, "L3"): 2.5,
-            (t4, "L3"): 5.0,
-            (t1, "L4"): 0.1,
-            (t2, "L4"): 0.5,
-            (t3, "L4"): 1.5,
-            (t4, "L4"): 4.0,
+            (t1, "H1"): 2.5,
+            (t2, "H1"): 6.25,
+            (t3, "H1"): 10.0,
+            (t4, "H1"): 24.0,
+            (t1, "H2"): 1.0,
+            (t2, "H2"): 2.5,
+            (t3, "H2"): 4.0,
+            (t4, "H2"): 16.0,
+            (t1, "H3"): 0.65,
+            (t2, "H3"): 1.6,
+            (t3, "H3"): 2.8,
+            (t4, "H3"): 12.0,
+            (t1, "H4"): 0.5,
+            (t2, "H4"): 1.25,
+            (t3, "H4"): 2.4,
+            (t4, "H4"): 8.0,
+            (t1, "L1"): 0.3,
+            (t2, "L1"): 0.75,
+            (t3, "L1"): 2.0,
+            (t4, "L1"): 5.0,
+            (t1, "L2"): 0.2,
+            (t2, "L2"): 0.6,
+            (t3, "L2"): 1.75,
+            (t4, "L2"): 4.0,
+            (t1, "L3"): 0.1,
+            (t2, "L3"): 0.4,
+            (t3, "L3"): 1.25,
+            (t4, "L3"): 2.5,
+            (t1, "L4"): 0.05,
+            (t2, "L4"): 0.25,
+            (t3, "L4"): 0.75,
+            (t4, "L4"): 2.0,
         }
         self.paytable = self.convert_range_table(pay_group)
 

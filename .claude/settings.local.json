@@ -101,7 +101,9 @@
       "Bash(tasklist /FI \"IMAGENAME eq python.exe\" /FO CSV)",
       "Bash(python analyze_books.py)",
       "Bash(python rtp_analysis.py)",
-      "Bash(tee rtp_report.txt)"
+      "Bash(tee rtp_report.txt)",
+      "Bash(cp library/lookup_tables/lookUpTable_base.csv library/publish_files/lookUpTable_base_0.csv)",
+      "Bash(cp library/lookup_tables/lookUpTable_bonus.csv library/publish_files/lookUpTable_bonus_0.csv)"
     ]
   }
 }
