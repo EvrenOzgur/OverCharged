@@ -16,7 +16,6 @@
 <script lang="ts">
 	import _ from 'lodash';
 	import { waitForResolve } from 'utils-shared/wait';
-	import { BoardContext } from 'components-shared';
 
 	import { getContext } from '../game/context';
 	import BoardContainer from './BoardContainer.svelte';
@@ -76,17 +75,8 @@
 </script>
 
 {#if show}
-	<BoardContext animate={false}>
-		<BoardContainer>
-			<BoardMask />
-			<BoardBase />
-		</BoardContainer>
-	</BoardContext>
-
-	<BoardContext animate={true}>
-		<BoardContainer>
-			<BoardMask />
-			<BoardBase />
-		</BoardContainer>
-	</BoardContext>
+	<BoardContainer>
+		<BoardMask />
+		<BoardBase />
+	</BoardContainer>
 {/if}

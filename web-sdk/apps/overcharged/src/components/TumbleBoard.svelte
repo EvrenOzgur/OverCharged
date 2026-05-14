@@ -19,7 +19,6 @@
 	import { Tween } from 'svelte/motion';
 	import { quadOut } from 'svelte/easing';
 
-	import { BoardContext } from 'components-shared';
 	import { waitForResolve } from 'utils-shared/wait';
 
 	import TumbleBoardBase from './TumbleBoardBase.svelte';
@@ -144,17 +143,8 @@
 </script>
 
 {#if show}
-	<BoardContext animate={false}>
-		<BoardContainer>
-			<BoardMask />
-			<TumbleBoardBase />
-		</BoardContainer>
-	</BoardContext>
-
-	<BoardContext animate={true}>
-		<BoardContainer>
-			<BoardMask />
-			<TumbleBoardBase />
-		</BoardContainer>
-	</BoardContext>
+	<BoardContainer>
+		<BoardMask />
+		<TumbleBoardBase />
+	</BoardContainer>
 {/if}
