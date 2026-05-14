@@ -8,13 +8,13 @@
 	      short hold
 	      repeat
 	  • On hover-out: cancels the running loop and tweens scale back to 1.0.
-	  • Disabled buttons get the same loop but at half amplitude, so the user
-	    still feels the cursor target is alive without implying it's actionable.
 
-	The component tracks hover both via a `hovered` prop (passed in from a
-	parent <Button>'s snippet) AND via its own Pixi pointer listeners — this
-	is intentional: the wrapping <Button> may suppress its `hovered` prop
-	while `disabled=true`, but the user still wants visual feedback on those.
+	Hover state comes EXCLUSIVELY from the parent <Button>'s `hovered` prop.
+	This container is intentionally non-interactive (no eventMode, no pointer
+	listeners) — making it interactive turned it into a hit-test target that
+	competed with the parent Button's onpointerup → onpress() bubbling, which
+	broke clicks. Disabled buttons therefore won't animate, but they're
+	non-actionable anyway (Button shows the not-allowed cursor).
 
 	When the Spine animation arrives, drop a SpineTrack into the children and
 	flip its animationName based on `isHovering` — the punch wrapper keeps the
@@ -50,20 +50,14 @@
 	const settleMs = $derived(props.settleMs ?? 280);
 	const holdMs = $derived(props.holdMs ?? 220);
 
-	// Disabled buttons use half the amplitude so feedback feels muted.
-	const effectivePeak = $derived(
-		props.disabled ? 1 + (hoverScale - 1) * 0.5 : hoverScale,
-	);
-
-	let localHover = $state(false);
-	const isHovering = $derived(localHover || !!props.hovered);
+	const isHovering = $derived(!!props.hovered && !props.disabled);
 
 	const scale = new Tween(1, { duration: 200, easing: cubicOut });
 
 	$effect(() => {
 		// Read reactives so this effect re-runs when they change.
 		const active = isHovering;
-		const peak = effectivePeak;
+		const peak = hoverScale;
 		const pop = popMs;
 		const settle = settleMs;
 		const hold = holdMs;
@@ -101,9 +95,6 @@
 	y={props.y}
 	anchor={props.anchor}
 	scale={{ x: scale.current, y: scale.current }}
-	eventMode="static"
-	onpointerover={() => (localHover = true)}
-	onpointerout={() => (localHover = false)}
 >
 	{@render props.children()}
 </Container>
