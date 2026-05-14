@@ -52,6 +52,12 @@ const animateSymbols = async ({
 
 export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContext> = {
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
+		console.log('[REPLAY-DEBUG] reveal handler entered', {
+			gameType: bookEvent.gameType,
+			boardLen: bookEvent.board?.length,
+			firstReel: bookEvent.board?.[0]?.length,
+			rawEvent: bookEvent,
+		});
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
 
 		// Immediate reset of meters and multiplier for base game spins to improve UX

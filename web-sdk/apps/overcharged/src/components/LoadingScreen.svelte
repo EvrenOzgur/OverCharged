@@ -2,6 +2,7 @@
 	import { SpineProvider, SpineTrack, Container, Sprite } from 'pixi-svelte';
 	import { FadeContainer, LoadingProgress } from 'components-pixi';
 	import { MainContainer } from 'components-layout';
+	import { stateUrlDerived } from 'state-shared';
 
 	import { getContext } from '../game/context';
 	import TransitionAnimation from './TransitionAnimation.svelte';
@@ -15,6 +16,38 @@
 	const context = getContext();
 
 	let loadingType = $state<'start' | 'transition'>('start');
+
+	// In replay mode, skip the "Press Anywhere to Continue" gate — the user
+	// has already interacted by clicking "Start Replay" in the overlay; making
+	// them click again would be an extra friction step. Once assets finish
+	// loading, auto-advance to the transition state so the round can play out.
+	// IMPORTANT: must be `$derived` (not a const) — Stake's iframe shell may
+	// finish parsing URL params after the component mounts, so a one-shot
+	// read at setup time can return false even though `?replay=true` is set.
+	const isReplay = $derived(stateUrlDerived.isReplayMode());
+	let bypassed = $state(false);
+	$effect(() => {
+		console.log('[REPLAY-DEBUG] LoadingScreen state', {
+			isReplay,
+			loaded: context.stateApp.loaded,
+			loadingType,
+			bypassed,
+		});
+		if (isReplay && context.stateApp.loaded && !bypassed) {
+			// Replay mode: skip BOTH the "Press Anywhere" gate AND the
+			// TransitionAnimation spine. The transition's `complete` event
+			// can fail to fire under Stake's iframe shell (asset timing /
+			// Spine eventListener edge cases), leaving showLoadingScreen
+			// stuck at `true` so the Pixi Board never renders even though
+			// the book events processed correctly behind the scenes.
+			// Calling `onloaded()` directly hands control to the game
+			// canvas immediately — the user already pressed "Start Replay"
+			// in the overlay, so an extra fade is unnecessary.
+			console.log('[REPLAY-DEBUG] LoadingScreen → direct onloaded() (replay bypass)');
+			bypassed = true;
+			props.onloaded();
+		}
+	});
 </script>
 
 <!-- logo and loading progress -->

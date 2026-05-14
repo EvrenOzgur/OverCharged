@@ -3,6 +3,7 @@
 	import { Button, type ButtonProps } from 'components-pixi';
 	import { stateModal, stateBet, stateBetDerived, stateConfig } from 'state-shared';
 
+	import HoverAnimContainer from './HoverAnimContainer.svelte';
 	import UiSprite from './UiSprite.svelte';
 	import { UI_BASE_FONT_SIZE, UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
 	import { getContext } from 'components-ui-pixi/src/context';
@@ -63,71 +64,68 @@
 			pressed,
 		})}
 
-		<!-- Background: sprite / spine / default UiSprite -->
-		{#if bgType === 'sprite' && bgSpriteKey}
-			<Sprite
-				key={bgSpriteKey}
-				{...center}
-				anchor={0.5}
-				width={sizes.width}
-				height={sizes.height}
-			/>
-		{:else if bgType === 'spine' && bgSpineKey}
-			<SpineProvider
-				key={bgSpineKey}
-				{...center}
-				anchor={0.5}
-				width={sizes.width}
-				height={sizes.height}
-			>
-				{#if bgSpineAnim}
-					<SpineTrack trackIndex={0} animationName={bgSpineAnim} loop={bgSpineLoop} />
-				{/if}
-			</SpineProvider>
-		{:else if bgType !== 'color' && (!bgSpriteKey && !bgSpineKey)}
-			<UiSprite
-				key="buyBonus"
-				{...center}
-				anchor={0.5}
-				width={sizes.width}
-				height={sizes.height}
-				backgroundColor={0xff9f14}
-			/>
-		{:else}
-			<UiSprite
-				key="buyBonus"
-				{...center}
-				anchor={0.5}
-				width={sizes.width}
-				height={sizes.height}
-				{...disabled
-					? {
-							backgroundColor: 0xaaaaaa,
-						}
-					: {}}
-				{...active
-					? {
-							borderWidth: 10,
-							borderColor: 0xffffff,
-						}
-					: {}}
-			/>
-		{/if}
+		<HoverAnimContainer {...center} {hovered} {disabled} hoverScale={1.08}>
+			<!-- Background: sprite / spine / default UiSprite -->
+			{#if bgType === 'sprite' && bgSpriteKey}
+				<Sprite
+					key={bgSpriteKey}
+					anchor={0.5}
+					width={sizes.width}
+					height={sizes.height}
+				/>
+			{:else if bgType === 'spine' && bgSpineKey}
+				<SpineProvider
+					key={bgSpineKey}
+					anchor={0.5}
+					width={sizes.width}
+					height={sizes.height}
+				>
+					{#if bgSpineAnim}
+						<SpineTrack trackIndex={0} animationName={bgSpineAnim} loop={bgSpineLoop} />
+					{/if}
+				</SpineProvider>
+			{:else if bgType !== 'color' && (!bgSpriteKey && !bgSpineKey)}
+				<UiSprite
+					key="buyBonus"
+					anchor={0.5}
+					width={sizes.width}
+					height={sizes.height}
+					backgroundColor={0xff9f14}
+				/>
+			{:else}
+				<UiSprite
+					key="buyBonus"
+					anchor={0.5}
+					width={sizes.width}
+					height={sizes.height}
+					{...disabled
+						? {
+								backgroundColor: 0xaaaaaa,
+							}
+						: {}}
+					{...active
+						? {
+								borderWidth: 10,
+								borderColor: 0xffffff,
+							}
+						: {}}
+				/>
+			{/if}
 
-		<Text
-			{...center}
-			anchor={0.5}
-			text={textOverride || (state === 'active' ? i18nDerived.disable() : i18nDerived.buyBonus())}
-			style={{
-				align: 'center',
-				wordWrap: true,
-				wordWrapWidth: 200,
-				fontFamily: 'proxima-nova',
-				fontWeight: '600',
-				fontSize: UI_BASE_FONT_SIZE * 0.9 * fontMult,
-				fill: textColor,
-			}}
-		/>
+			<Text
+				anchor={0.5}
+				text={textOverride || (state === 'active' ? i18nDerived.disable() : i18nDerived.buyBonus())}
+				style={{
+					align: 'center',
+					wordWrap: true,
+					wordWrapWidth: 200,
+					fontFamily: 'proxima-nova',
+					fontWeight: '600',
+					fontSize: UI_BASE_FONT_SIZE * 0.9 * fontMult,
+					fill: textColor,
+				}}
+			/>
+		</HoverAnimContainer>
 	{/snippet}
 </Button>
 {/if}

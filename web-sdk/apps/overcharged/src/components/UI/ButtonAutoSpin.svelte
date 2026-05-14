@@ -30,8 +30,17 @@
 	};
 </script>
 
-<UiButton {...props} {sizes} {active} {onpress} {disabled} icon="autoSpin" {styleOverrides}>
-	<Container x={sizes.width * 0.5} y={sizes.height * 0.5}>
+<UiButton
+	{...props}
+	{sizes}
+	{active}
+	{onpress}
+	{disabled}
+	icon="autoSpin"
+	{styleOverrides}
+	hoverScale={1.08}
+>
+	<Container x={0} y={0}>
 		<ButtonBetAutoSpinsCounter />
 	</Container>
 </UiButton>

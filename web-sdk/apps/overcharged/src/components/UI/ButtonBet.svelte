@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { Container, Text, Sprite, SpineProvider, SpineTrack } from 'pixi-svelte';
+	import { Text, Sprite, SpineProvider, SpineTrack } from 'pixi-svelte';
 	import { Button, type ButtonProps } from 'components-pixi';
 	import { OnHotkey } from 'components-shared';
 	import { stateBetDerived } from 'state-shared';
 
+	import HoverAnimContainer from './HoverAnimContainer.svelte';
 	import UiSprite from './UiSprite.svelte';
 	import ButtonBetProvider from './ButtonBetProvider.svelte';
 	import { UI_BASE_FONT_SIZE, UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
@@ -29,7 +30,7 @@
 		<OnHotkey hotkey="Space" {disabled} {onpress} />
 		<Button {...props} {sizes} {onpress} {disabled}>
 			{#snippet children({ center, hovered })}
-				<Container {...center}>
+				<HoverAnimContainer {...center} {hovered} {disabled} hoverScale={1.08}>
 					<!-- Background: sprite / spine / default UiSprite -->
 					{#if bgType === 'sprite' && bgSpriteKey}
 						<Sprite
@@ -86,7 +87,7 @@
 							fill: textColor,
 						}}
 					/>
-				</Container>
+				</HoverAnimContainer>
 			{/snippet}
 		</Button>
 	{/snippet}

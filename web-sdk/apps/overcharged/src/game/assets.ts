@@ -1,16 +1,27 @@
+// All asset paths are runtime-relative (`./assets/...` or `./OverChargedAssets/...`).
+// Reasoning: when Stake serves the game from a sub-path on its CDN
+// (e.g. `…/overcharged00/v7/`) `import.meta.url`-resolved Vite-hashed URLs
+// can fall through to the platform's scratch/draft API and 403 on un-promoted
+// files. Static paths under `static/assets/...` are copied 1:1 by SvelteKit's
+// adapter-static and resolve consistently against the iframe's base URL,
+// so they survive Stake's deploy/promote pipeline cleanly.
+//
+// XML/Atlas page references (e.g. `<page file="mm_gold.png">`) are resolved
+// by Pixi loaders against the manifest's directory, so keeping these paths
+// flat makes the texture lookups deterministic.
 export default {
 	loader: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/loader/loader.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/loader/loader.json', import.meta.url).href,
+			atlas: './assets/spines/loader/loader.atlas',
+			skeleton: './assets/spines/loader/loader.json',
 			scale: 2,
 		},
 		preload: true,
 	},
 	pressToContinueText: {
 		type: 'sprites',
-		src: new URL('../../assets/sprites/pressToContinueText/MM_pressanywhere.json', import.meta.url).href,
+		src: './assets/sprites/pressToContinueText/MM_pressanywhere.json',
 		preload: true,
 	},
 	highSymbols: {
@@ -51,26 +62,20 @@ export default {
 	},
 	reelsFrame: {
 		type: 'sprites',
-		src: new URL('../../assets/sprites/reelsFrame/reels_frame.json', import.meta.url).href,
+		src: './assets/sprites/reelsFrame/reels_frame.json',
 	},
 	payFrame: {
 		type: 'sprite',
-		src: new URL('../../assets/sprites/payFrame/payFrame.png', import.meta.url).href,
+		src: './assets/sprites/payFrame/payFrame.png',
 	},
 	anticipation: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/anticipation/anticipation.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/anticipation/anticipation.json', import.meta.url).href,
+			atlas: './assets/spines/anticipation/anticipation.atlas',
+			skeleton: './assets/spines/anticipation/anticipation.json',
 			scale: 2,
 		},
 	},
-	// BitmapFonts must be served as static files. Using `new URL(..., import.meta.url)`
-	// makes Vite hash the .xml and .png separately, which breaks the
-	// `<page file="...">` reference inside the .xml — the runtime then loads
-	// the page texture against the un-hashed name, gets a 404, and PixiJS
-	// silently registers an empty font. Result: BitmapText with `fontFamily: 'gold'`
-	// renders nothing (e.g. M-symbol "X2" labels disappear).
 	goldFont: {
 		type: 'font',
 		src: './assets/fonts/goldFont/mm_gold.xml',
@@ -90,125 +95,107 @@ export default {
 	bigwin: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/bigwin/big_wins.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/bigwin/mm_bigwin.json', import.meta.url).href,
+			atlas: './assets/spines/bigwin/big_wins.atlas',
+			skeleton: './assets/spines/bigwin/mm_bigwin.json',
 			scale: 2,
 		},
 	},
 	globalMultiplier: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/globalMultiplier/multiframe.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/globalMultiplier/multiframe.json', import.meta.url).href,
+			atlas: './assets/spines/globalMultiplier/multiframe.atlas',
+			skeleton: './assets/spines/globalMultiplier/multiframe.json',
 			scale: 2,
 		},
 	},
 	fsIntro: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/fsIntro/fs_screen.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/fsIntro/fs_screen.json', import.meta.url).href,
+			atlas: './assets/spines/fsIntro/fs_screen.atlas',
+			skeleton: './assets/spines/fsIntro/fs_screen.json',
 			scale: 2,
 		},
 	},
 	fsIntroNumber: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/fsIntro/fs_screen.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/fsIntro/fs_screen_number.json', import.meta.url).href,
+			atlas: './assets/spines/fsIntro/fs_screen.atlas',
+			skeleton: './assets/spines/fsIntro/fs_screen_number.json',
 			scale: 2,
 		},
 	},
 	fsOutroNumber: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/fsIntro/fs_screen.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/fsIntro/fs_total_number.json', import.meta.url).href,
+			atlas: './assets/spines/fsIntro/fs_screen.atlas',
+			skeleton: './assets/spines/fsIntro/fs_total_number.json',
 			scale: 2,
 		},
-	},
-	foregroundAnimation: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/foregroundAnimation/mm_bg.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/foregroundAnimation/mm_bg.json', import.meta.url).href,
-			scale: 2,
-		},
-		preload: true,
-	},
-	foregroundFeatureAnimation: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/foregroundFeatureAnimation/mm_bg_feature.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/foregroundFeatureAnimation/mm_bg_feature.json', import.meta.url).href,
-			scale: 2,
-		},
-		preload: true,
 	},
 	tumble_multiplier: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/tumbleWin/tumble_win.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/tumbleWin/tumble_multiplier.json', import.meta.url).href,
+			atlas: './assets/spines/tumbleWin/tumble_win.atlas',
+			skeleton: './assets/spines/tumbleWin/tumble_multiplier.json',
 			scale: 2,
 		},
 	},
 	tumble_win: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/tumbleWin/tumble_win.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/tumbleWin/tumble_win.json', import.meta.url).href,
+			atlas: './assets/spines/tumbleWin/tumble_win.atlas',
+			skeleton: './assets/spines/tumbleWin/tumble_win.json',
 			scale: 2,
 		},
 	},
 	reelhouse: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/reelhouse/reelhouse_glow.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/reelhouse/reelhouse_glow.json', import.meta.url).href,
+			atlas: './assets/spines/reelhouse/reelhouse_glow.atlas',
+			skeleton: './assets/spines/reelhouse/reelhouse_glow.json',
 			scale: 2,
 		},
 	},
 	progressBar: {
 		type: 'sprites',
-		src: new URL('../../assets/sprites/progressBar/progressBar.json', import.meta.url).href,
+		src: './assets/sprites/progressBar/progressBar.json',
 		preload: true,
 	},
 	freeSpins: {
 		type: 'sprites',
-		src: new URL('../../assets/sprites/freeSpins/freeSpins.json', import.meta.url).href,
+		src: './assets/sprites/freeSpins/freeSpins.json',
 	},
 	winSmall: {
 		type: 'sprites',
-		src: new URL('../../assets/sprites/winSmall/MM_Localisation_winsmall.json', import.meta.url).href,
+		src: './assets/sprites/winSmall/MM_Localisation_winsmall.json',
 	},
 	clusterWin: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/clusterWin/clusterpay.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/clusterWin/clusterpay.json', import.meta.url).href,
+			atlas: './assets/spines/clusterWin/clusterpay.atlas',
+			skeleton: './assets/spines/clusterWin/clusterpay.json',
 			scale: 2,
 		},
 	},
 	transition: {
 		type: 'spine',
 		src: {
-			atlas: new URL('../../assets/spines/transition/transition.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/transition/transition.json', import.meta.url).href,
+			atlas: './assets/spines/transition/transition.atlas',
+			skeleton: './assets/spines/transition/transition.json',
 			scale: 2,
 		},
 	},
 	symbolsStatic: {
 		type: 'sprites',
-		src: new URL('../../assets/sprites/symbolsStatic/symbolsStatic.json', import.meta.url).href,
+		src: './assets/sprites/symbolsStatic/symbolsStatic.json',
 	},
 	coins: {
 		type: 'spriteSheet',
-		src: new URL('../../assets/sprites/coin/SD2_Coin.json', import.meta.url).href,
+		src: './assets/sprites/coin/SD2_Coin.json',
 	},
 	sound: {
 		type: 'audio',
-		src: new URL('../../assets/audio/sounds.json', import.meta.url).href,
+		src: './assets/audio/sounds.json',
 		preload: true,
 	},
 } as const;

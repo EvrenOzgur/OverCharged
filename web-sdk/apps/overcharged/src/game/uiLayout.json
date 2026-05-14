@@ -262,8 +262,30 @@
       "responsiveScale": 1
     },
     {
+      "id": "bgEnvironment",
+      "name": "Environment (Layer 1)",
+      "type": "spine",
+      "color": "#000000",
+      "spriteKey": "",
+      "spineKey": "",
+      "spineAnims": [],
+      "idleAnimation": "",
+      "gameTypeAnimations": {
+        "basegame": "",
+        "freegame": ""
+      },
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "alpha": 1,
+      "visible": false,
+      "useResponsiveLayout": true,
+      "responsiveScale": 0.5
+    },
+    {
       "id": "bgCharacters",
-      "name": "BG Characters",
+      "name": "BG Characters (Layer 2)",
       "type": "spine",
       "color": "#000000",
       "spriteKey": "",
@@ -280,12 +302,43 @@
           "loop": true
         }
       ],
+      "gameTypeAnimations": {
+        "basegame": "bg_idle",
+        "freegame": "bg_idle"
+      },
       "x": 0,
       "y": 0,
       "scaleX": 1,
       "scaleY": 1,
       "alpha": 1,
       "visible": true,
+      "useResponsiveLayout": true,
+      "responsiveScale": 0.5
+    },
+    {
+      "id": "bgSkillEffects",
+      "name": "Skill / Trigger Effects (Layer 3)",
+      "type": "spine",
+      "color": "#000000",
+      "spriteKey": "",
+      "spineKey": "",
+      "spineAnims": [],
+      "idleAnimation": "idle",
+      "triggers": {
+        "skillActivated.L1": { "animation": "yellow_burst", "loop": false, "trackIndex": 0, "returnToIdle": true },
+        "skillActivated.L2": { "animation": "green_explode", "loop": false, "trackIndex": 0, "returnToIdle": true },
+        "skillActivated.L3": { "animation": "blue_lightning", "loop": false, "trackIndex": 0, "returnToIdle": true },
+        "skillActivated.L4": { "animation": "red_megawild", "loop": false, "trackIndex": 0, "returnToIdle": true },
+        "multiplierSymbolActivated": { "animation": "mult_glow", "loop": false, "trackIndex": 1, "returnToIdle": true },
+        "freeSpinTrigger": { "animation": "fs_celebration", "loop": false, "trackIndex": 0, "returnToIdle": true },
+        "wincap": { "animation": "wincap_burst", "loop": false, "trackIndex": 0, "returnToIdle": true }
+      },
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "alpha": 1,
+      "visible": false,
       "useResponsiveLayout": true,
       "responsiveScale": 0.5
     }

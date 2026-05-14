@@ -1,58 +1,39 @@
+<!--
+	Background renderer — data-driven from `uiLayoutConfig.bgLayers`.
+
+	Layer architecture (z-order, alttan üste):
+	  ─ Layer 0 "base"            : solid color bg (siyah zemin)
+	  ─ Layer 1 "bgEnvironment"   : statik environment / mekan (henüz asset yok)
+	  ─ Layer 2 "bgCharacters"    : ana karakter spine + idle animasyon
+	  ─ Layer 3 "bgSkillEffects"  : trigger animasyonları (henüz asset yok)
+
+	Yeni bir asset bağlamak için:
+	  1. assets.ts'e spine entry ekle (key tercih: snake_case veya camelCase).
+	  2. uiLayout.json'da ilgili layer'a `spineKey` yaz, animation isimlerini
+	     idleAnimation / gameTypeAnimations / triggers map'inde belirt.
+	  3. `visible: true` yap.
+
+	Trigger key formatı (uiLayout.json `triggers`):
+	  "<eventType>"           → "freeSpinTrigger", "wincap", "multiplierSymbolActivated"
+	  "<eventType>.<subType>" → "skillActivated.L1", "skillActivated.L2", ...
+
+	Trigger config alanları:
+	  animation     (string)  — Spine animation name to play.
+	  loop          (bool)    — Trigger animasyonu loop'lasın mı (default false).
+	  trackIndex    (int)     — Hangi spine track'inde oynasın (default 0).
+	                            Birden fazla trigger aynı track'i kullanırsa
+	                            son tetiklenen baskındır.
+	  returnToIdle  (bool)    — Animation complete'ından sonra baseline'a
+	                            (gameTypeAnimations veya spineAnims) dönsün mü
+	                            (default true).
+-->
 <script lang="ts">
-	import { Rectangle, Sprite, SpineProvider, SpineTrack } from 'pixi-svelte';
+	import { uiLayoutConfig } from '../game/uiLayoutConfig.svelte';
+	import BackgroundLayer from './BackgroundLayer.svelte';
 
-	import { getContext } from '../game/context';
-	import { uiLayoutConfig, hexToPixi } from '../game/uiLayoutConfig.svelte';
-
-	const context = getContext();
-	const backgroundProps = $derived(
-		context.stateLayoutDerived.normalBackgroundLayout({ scale: 0.5 }),
-	);
-	const canvasSizes = $derived(context.stateLayoutDerived.canvasSizes());
 	const layers = $derived(uiLayoutConfig.bgLayers);
-
-	function responsiveProps(layer: typeof layers[0]) {
-		if (layer.useResponsiveLayout) {
-			return context.stateLayoutDerived.normalBackgroundLayout({ scale: layer.responsiveScale });
-		}
-		return { x: layer.x, y: layer.y };
-	}
 </script>
 
 {#each layers as layer, i (layer.id)}
-	{#if layer.visible}
-		{#if layer.type === 'color'}
-			<Rectangle
-				width={canvasSizes.width}
-				height={canvasSizes.height}
-				backgroundColor={hexToPixi(layer.color)}
-				alpha={layer.alpha}
-				zIndex={-100 + i}
-			/>
-		{:else if layer.type === 'sprite' && layer.spriteKey}
-			<Sprite
-				key={layer.spriteKey}
-				{...responsiveProps(layer)}
-				scale={{ x: layer.scaleX, y: layer.scaleY }}
-				alpha={layer.alpha}
-				zIndex={-100 + i}
-			/>
-		{:else if layer.type === 'spine' && layer.spineKey}
-			<SpineProvider
-				asset={layer.spineKey}
-				{...responsiveProps(layer)}
-				scale={{ x: layer.scaleX, y: layer.scaleY }}
-				alpha={layer.alpha}
-				zIndex={-100 + i}
-			>
-				{#each layer.spineAnims as anim (anim.trackIndex)}
-					<SpineTrack
-						trackIndex={anim.trackIndex}
-						animationName={anim.animationName}
-						loop={anim.loop}
-					/>
-				{/each}
-			</SpineProvider>
-		{/if}
-	{/if}
+	<BackgroundLayer {layer} zIndex={-100 + i} />
 {/each}

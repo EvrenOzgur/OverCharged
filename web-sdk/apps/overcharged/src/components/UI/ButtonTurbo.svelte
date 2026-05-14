@@ -25,4 +25,13 @@
 	});
 </script>
 
-<UiButton {...props} {sizes} {active} {onpress} {disabled} icon="turbo" {styleOverrides} />
+<UiButton
+	{...props}
+	{sizes}
+	{active}
+	{onpress}
+	{disabled}
+	icon="turbo"
+	{styleOverrides}
+	hoverScale={1.08}
+/>

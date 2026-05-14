@@ -18,4 +18,4 @@
 	};
 </script>
 
-<UiButton {...props} {sizes} {onpress} icon="menu" {styleOverrides} />
+<UiButton {...props} {sizes} {onpress} icon="menu" {styleOverrides} hoverScale={1.08} />

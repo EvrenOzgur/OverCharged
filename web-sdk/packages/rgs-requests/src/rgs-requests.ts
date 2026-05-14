@@ -1,4 +1,5 @@
 import { API_AMOUNT_MULTIPLIER } from 'constants-shared/bet';
+import { fetcher } from 'utils-fetcher';
 import { rgsFetcher } from 'rgs-fetcher';
 
 export * from './types';
@@ -74,6 +75,39 @@ export const requestForceResult = async (options: {
 	});
 
 	return data;
+};
+
+/**
+ * Bet Replay (Stake compliance — required for new game approval).
+ *
+ * Calls the auth-free `GET {rgs_url}/bet/replay/{game}/{version}/{mode}/{event}`
+ * endpoint and returns the historical round payload (payoutMultiplier,
+ * costMultiplier, state[]). No sessionID/auth needed — works in iframes
+ * without an active player session.
+ *
+ * See `stateUrlDerived.isReplayMode()` and `stateUrlDerived.replayParams()`
+ * for the canonical way to gate this in an app.
+ */
+export type ReplayResponse = {
+	payoutMultiplier: number;
+	costMultiplier: number;
+	state: any[]; // book events stream — typed by the consumer (e.g. BookEvent[])
+};
+
+export const requestReplay = async (options: {
+	rgsUrl: string;
+	game: string;
+	version: string;
+	mode: string;
+	event: string;
+}): Promise<ReplayResponse> => {
+	const endpoint = `https://${options.rgsUrl}/bet/replay/${options.game}/${options.version}/${options.mode}/${options.event}`;
+	const response = await fetcher({ method: 'GET', endpoint });
+	if (response.status !== 200) {
+		console.error('[requestReplay] non-200', response.status, endpoint);
+	}
+	const data = await response.json();
+	return data as ReplayResponse;
 };
 
 export const requestBet = async (options: {

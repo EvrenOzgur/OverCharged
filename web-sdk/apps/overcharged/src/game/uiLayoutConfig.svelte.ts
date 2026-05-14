@@ -55,6 +55,24 @@ export type SpineAnimTrack = {
 
 export type BgLayerType = 'color' | 'sprite' | 'spine';
 
+/**
+ * One-shot animation triggered by a runtime event (skill activation,
+ * multiplier landing, free-spin entry, etc.). Played on `trackIndex`
+ * (default 0) on top of the layer's normal `spineAnims`. When the
+ * animation completes (or after `holdMs`), the track returns to
+ * `idleAnimation` if `returnToIdle !== false`.
+ */
+export type BgLayerTrigger = {
+	/** Spine animation name to play */
+	animation: string;
+	/** Whether the trigger animation itself should loop */
+	loop?: boolean;
+	/** Spine track to play it on (default 0, share-safe with spineAnims) */
+	trackIndex?: number;
+	/** After complete, snap back to idleAnimation? (default true) */
+	returnToIdle?: boolean;
+};
+
 export type BgLayer = {
 	id: string;
 	name: string;
@@ -65,8 +83,34 @@ export type BgLayer = {
 	spriteKey: string;
 	/** Asset key when type='spine' */
 	spineKey: string;
-	/** Multiple animation tracks for spine */
+	/** Multiple animation tracks for spine. These play continuously and are
+	 *  the layer's "static" baseline. Trigger animations override track N
+	 *  temporarily. */
 	spineAnims: SpineAnimTrack[];
+	/**
+	 * Optional fallback animation to return to after a one-shot trigger
+	 * completes. If unset, the layer reverts to whatever spineAnims defines
+	 * for the trigger's track.
+	 */
+	idleAnimation?: string;
+	/**
+	 * Optional per-gametype animation override on track 0. When `stateGame.gameType`
+	 * matches a key, that animation replaces track 0's spineAnims entry.
+	 */
+	gameTypeAnimations?: {
+		basegame?: string;
+		freegame?: string;
+	};
+	/**
+	 * Map from event-key → trigger config.
+	 * Key format: "<eventType>" or "<eventType>.<subType>".
+	 *   - "skillActivated.L1"           → fires when skillActivated.skillType === 'L1'
+	 *   - "skillActivated.L4"           → fires for L4
+	 *   - "multiplierSymbolActivated"   → fires for any M activation
+	 *   - "freeSpinTrigger"             → fires once on FS entry
+	 *   - "wincap"                      → fires on wincap event
+	 */
+	triggers?: Record<string, BgLayerTrigger>;
 	x: number;
 	y: number;
 	scaleX: number;

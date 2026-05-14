@@ -36,8 +36,19 @@
 	import Transition from './Transition.svelte';
 	import I18nTest from './I18nTest.svelte';
 	import type { BookEventSkillActivated } from '../game/typesBookEvent';
+	import { stateUrlDerived } from 'state-shared';
 
 	const context = getContext();
+	const isReplayMode = $derived(stateUrlDerived.isReplayMode());
+	// In replay mode skip the LoadingScreen gate, but only AFTER assets are
+	// ready — otherwise Pixi children mount before their atlases are loaded
+	// and the canvas stays black. When `stateApp.loaded` flips to `true` the
+	// Pixi tree mounts in the same frame. (Live mode keeps the original gate.)
+	const shouldShowLoadingScreen = $derived(
+		isReplayMode
+			? !context.stateApp.loaded
+			: context.stateLayout.showLoadingScreen,
+	);
 
 	async function handleSkillActivated(event: BookEventSkillActivated) {
 		const { skillType, skillMeters, positions } = event;
@@ -130,7 +141,7 @@
 
 	<Background />
 
-	{#if context.stateLayout.showLoadingScreen}
+	{#if shouldShowLoadingScreen}
 		<LoadingScreen onloaded={() => (context.stateLayout.showLoadingScreen = false)} />
 	{:else}
 		<ResumeBet />
@@ -195,7 +206,7 @@
 
 		<OverchargedUI>
 			{#snippet gameName()}
-				<UiGameName name="Mining Mayhem" />
+				<UiGameName name={config.gameName} />
 			{/snippet}
 			{#snippet logo()}
 				<Text

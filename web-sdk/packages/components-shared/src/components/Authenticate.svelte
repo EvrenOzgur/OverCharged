@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, type Snippet } from 'svelte';
 
-	import { requestAuthenticate } from 'rgs-requests';
+	import { requestAuthenticate, requestReplay } from 'rgs-requests';
 	import { stateUrlDerived, stateBet, stateConfig, stateModal } from 'state-shared';
 	import { API_AMOUNT_MULTIPLIER, MOST_USED_BET_INDEXES } from 'constants-shared/bet';
 
@@ -10,6 +10,73 @@
 	const props: Props = $props();
 
 	let authenticated = $state(false);
+
+	/**
+	 * Replay mode bootstrap (Stake Bet Replay compliance).
+	 *
+	 * When `?replay=true&game=&version=&mode=&event=&...` is on the URL,
+	 * skip /wallet/authenticate (no session, no balance debit) and load
+	 * the historical round via the auth-free /bet/replay endpoint.
+	 *
+	 * The optional `currency` and `amount` params let the UI render the
+	 * intended bet display without a real wager.
+	 */
+	const bootstrapReplay = async () => {
+		const params = stateUrlDerived.replayParams();
+		console.log('[REPLAY-DEBUG] bootstrapReplay START', {
+			rgsUrl: stateUrlDerived.rgsUrl(),
+			params,
+			fullEndpoint: `https://${stateUrlDerived.rgsUrl()}/bet/replay/${params.game}/${params.version}/${params.mode}/${params.event}`,
+		});
+		try {
+			const data = await requestReplay({
+				rgsUrl: stateUrlDerived.rgsUrl(),
+				game: params.game,
+				version: params.version,
+				mode: params.mode,
+				event: params.event,
+			});
+			console.log('[REPLAY-DEBUG] requestReplay RESPONSE', {
+				dataKeys: data ? Object.keys(data) : null,
+				stateLength: (data as any)?.state?.length,
+				stateFirstEvent: (data as any)?.state?.[0],
+				payoutMultiplier: (data as any)?.payoutMultiplier,
+				costMultiplier: (data as any)?.costMultiplier,
+				rawData: data,
+			});
+
+			// Stake docs: optional currency/amount are display-only. Default
+			// social→XSC, non-social→USD; default amount = 1 (= 1_000_000 micro).
+			const currency = params.currency || (stateUrlDerived.social() ? 'XSC' : 'USD');
+			const amount = params.amount > 0 ? params.amount / API_AMOUNT_MULTIPLIER : 1;
+
+			stateBet.currency = currency;
+			stateBet.balanceAmount = 0;
+			stateBet.betAmount = amount;
+			stateBet.wageredBetAmount = amount;
+			stateBet.activeBetModeKey = params.mode;
+
+			// Inject the replay round so the existing `playBookEvents` plumbing
+			// can render it identically to a live round.
+			stateBet.lastBet = {
+				betID: 0,
+				amount: amount * API_AMOUNT_MULTIPLIER,
+				payout: data.payoutMultiplier * amount * API_AMOUNT_MULTIPLIER,
+				payoutMultiplier: data.payoutMultiplier,
+				active: true,
+				state: data.state,
+				mode: params.mode,
+				event: null,
+			} as any;
+			console.log('[REPLAY-DEBUG] stateBet.lastBet AFTER inject', {
+				lastBet: $state.snapshot?.(stateBet.lastBet) ?? stateBet.lastBet,
+				stateLength: stateBet.lastBet?.state?.length,
+			});
+		} catch (error) {
+			console.error('[REPLAY-DEBUG] replay fetch FAILED', error);
+			stateModal.modal = { name: 'error', error };
+		}
+	};
 
 	const authenticate = async () => {
 		try {
@@ -113,7 +180,18 @@
 	};
 
 	onMount(async () => {
-		await authenticate();
+		const replayDetected = stateUrlDerived.isReplayMode();
+		console.log('[REPLAY-DEBUG] Authenticate onMount', {
+			isReplayMode: replayDetected,
+			rgsUrl: stateUrlDerived.rgsUrl(),
+			replayParams: stateUrlDerived.replayParams(),
+			rawSearch: typeof window !== 'undefined' ? window.location.search : '(no window)',
+		});
+		if (replayDetected) {
+			await bootstrapReplay();
+		} else {
+			await authenticate();
+		}
 		authenticated = true;
 	});
 </script>
