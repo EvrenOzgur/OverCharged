@@ -13,6 +13,9 @@ import type { EmitterEventSound } from '../components/Sound.svelte';
 import type { EmitterEventMultiplierGrid } from '../components/MultiplierGrid.svelte';
 import type { EmitterEventTransition } from '../components/Transition.svelte';
 import type { EmitterEventSkillMetersUpdate } from '../components/SkillMeter.svelte';
+import type { EmitterEventSkillActivatedDisplay } from '../components/SkillActivatedOverlay.svelte';
+import type { EmitterEventScreenShake } from '../components/ScreenShake.svelte';
+import type { EmitterEventSkillPreHighlight } from '../components/SkillPreHighlight.svelte';
 import type { BookEventSkillActivated } from './typesBookEvent';
 
 export type EmitterEventGame =
@@ -30,4 +33,7 @@ export type EmitterEventGame =
 	| EmitterEventMultiplierGrid
 	| EmitterEventTransition
 	| EmitterEventSkillMetersUpdate
+	| EmitterEventSkillActivatedDisplay
+	| EmitterEventScreenShake
+	| EmitterEventSkillPreHighlight
 	| BookEventSkillActivated;

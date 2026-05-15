@@ -35,7 +35,11 @@
 	import FreeSpinOutro from './FreeSpinOutro.svelte';
 	import Transition from './Transition.svelte';
 	import I18nTest from './I18nTest.svelte';
+	import SkillActivatedOverlay from './SkillActivatedOverlay.svelte';
+	import ScreenShake from './ScreenShake.svelte';
+	import SkillPreHighlight from './SkillPreHighlight.svelte';
 	import type { BookEventSkillActivated } from '../game/typesBookEvent';
+	import { SKILL_DATA, type SkillKey } from '../game/skillData';
 	import { stateUrlDerived } from 'state-shared';
 
 	const context = getContext();
@@ -63,6 +67,37 @@
 		}
 
 		if (!skillType || skillType === 'UPDATE') return;
+
+		// Skill drama orkestrasyonu (asset-free):
+		//   1. Pre-highlight  →  300ms cells preview in skill color
+		//   2. Activated banner + screen shake (paralel, banner async devam eder)
+		//   3. Actual on-board animation (Wild dönüşümü / patlama / multiplier)
+		// Banner ekran ortasında ~1.5s gözükür ama akışı tutmaz — board
+		// animasyonu paralel başlar, ikisi üst üste şov verir.
+		const meta = SKILL_DATA[skillType as SkillKey];
+
+		if (positions?.length && meta) {
+			await context.eventEmitter.broadcastAsync({
+				type: 'skillPreHighlight',
+				positions: positions.map((p) => ({ reel: p.reel, row: p.row })),
+				color: meta.color,
+				holdMs: 250,
+			});
+		}
+
+		if (meta) {
+			context.eventEmitter.broadcast({
+				type: 'skillActivatedDisplay',
+				skillKey: skillType as SkillKey,
+			});
+			// L4 has the biggest visual impact → heaviest shake.
+			const shakeIntensity = skillType === 'L4' ? 10 : skillType === 'L2' ? 7 : 5;
+			context.eventEmitter.broadcast({
+				type: 'screenShake',
+				intensity: shakeIntensity,
+				duration: 280,
+			});
+		}
 
 		if (skillType === 'L1') {
 			// Verilen pozisyonlardaki sembolleri Wild yap, ardından parlama animasyonu
@@ -152,57 +187,64 @@
 		-->
 		<Sound />
 
-		<MainContainer>
-			<BoardFrame />
-		</MainContainer>
+		<!--
+			Game-area MainContainers are wrapped in ScreenShake so big-win /
+			skill-activation events can rattle the board without moving the
+			OverchargedUI chrome (buttons stay stable for clean input).
+		-->
+		<ScreenShake>
+			<MainContainer>
+				<BoardFrame />
+			</MainContainer>
 
+			<MainContainer>
+				<Board />
+				<Anticipations />
+				<TumbleWinAmount />
+				<GlobalMultiplier />
+			</MainContainer>
 
-
-		<MainContainer>
-			<Board />
-			<Anticipations />
-			<TumbleWinAmount />
-			<GlobalMultiplier />
-		</MainContainer>
-
-		<MainContainer>
-			<TumbleBoard />
-			<ClusterWinAmounts />
-			<BoardContainer>
-				<SkillMeter
-					x={-SYMBOL_SIZE * 5}
-					y={SYMBOL_SIZE * 1}
-					meterName="L1"
-					currentValue={context.stateGame.skillMeters.L1}
-					targetValue={config.skillThresholds.L1}
-					colorId={0xffd700}
-				/>
-				<SkillMeter
-					x={-SYMBOL_SIZE * 5}
-					y={SYMBOL_SIZE * 2}
-					meterName="L2"
-					currentValue={context.stateGame.skillMeters.L2}
-					targetValue={config.skillThresholds.L2}
-					colorId={0x00ff00}
-				/>
-				<SkillMeter
-					x={-SYMBOL_SIZE * 5}
-					y={SYMBOL_SIZE * 3}
-					meterName="L3"
-					currentValue={context.stateGame.skillMeters.L3}
-					targetValue={config.skillThresholds.L3}
-					colorId={0x0000ff}
-				/>
-				<SkillMeter
-					x={-SYMBOL_SIZE * 5}
-					y={SYMBOL_SIZE * 4}
-					meterName="L4"
-					currentValue={context.stateGame.skillMeters.L4}
-					targetValue={config.skillThresholds.L4}
-					colorId={0xff0000}
-				/>
-			</BoardContainer>
-		</MainContainer>
+			<MainContainer>
+				<TumbleBoard />
+				<ClusterWinAmounts />
+				<!-- Pre-highlight overlay sits over the board, under SkillMeter. -->
+				<SkillPreHighlight />
+				<BoardContainer>
+					<SkillMeter
+						x={-SYMBOL_SIZE * 5}
+						y={SYMBOL_SIZE * 1}
+						meterName="L1"
+						currentValue={context.stateGame.skillMeters.L1}
+						targetValue={config.skillThresholds.L1}
+						colorId={SKILL_DATA.L1.color}
+					/>
+					<SkillMeter
+						x={-SYMBOL_SIZE * 5}
+						y={SYMBOL_SIZE * 2}
+						meterName="L2"
+						currentValue={context.stateGame.skillMeters.L2}
+						targetValue={config.skillThresholds.L2}
+						colorId={SKILL_DATA.L2.color}
+					/>
+					<SkillMeter
+						x={-SYMBOL_SIZE * 5}
+						y={SYMBOL_SIZE * 3}
+						meterName="L3"
+						currentValue={context.stateGame.skillMeters.L3}
+						targetValue={config.skillThresholds.L3}
+						colorId={SKILL_DATA.L3.color}
+					/>
+					<SkillMeter
+						x={-SYMBOL_SIZE * 5}
+						y={SYMBOL_SIZE * 4}
+						meterName="L4"
+						currentValue={context.stateGame.skillMeters.L4}
+						targetValue={config.skillThresholds.L4}
+						colorId={SKILL_DATA.L4.color}
+					/>
+				</BoardContainer>
+			</MainContainer>
+		</ScreenShake>
 
 		<OverchargedUI>
 			{#snippet gameName()}
@@ -228,6 +270,12 @@
 			<FreeSpinCounter />
 		{/if}
 		<FreeSpinOutro />
+		<!--
+			SkillActivatedOverlay mounts AFTER UI so its fullscreen banner draws
+			on top of every other layer (buttons, win text, etc.) during the
+			~1.5s drama window.
+		-->
+		<SkillActivatedOverlay />
 		<Transition />
 
 	{/if}

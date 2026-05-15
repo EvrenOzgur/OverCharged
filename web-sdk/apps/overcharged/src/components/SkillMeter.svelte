@@ -11,6 +11,7 @@
 	import { cubicOut, cubicIn, backOut } from 'svelte/easing';
 	import { getContext } from '../game/context';
 	import { SYMBOL_SIZE } from '../game/constants';
+	import { SKILL_DATA, drawSkillIcon, type SkillKey } from '../game/skillData';
 
 	let {
 		x,
@@ -57,16 +58,17 @@
 
 	let meterColor = $derived(colorId);
 
-	// Display labels — must match math skill colours (L1=Yellow Wilds,
-	// L2=Green Explode, L3=Blue Multiplier, L4=Red Mega Wild).
-	const nameLabels = {
-		L1: 'Yellow Skill',
-		L2: 'Green Skill',
-		L3: 'Blue Skill',
-		L4: 'Red Skill',
-	} as Record<string, string>;
-
-	let label = $derived(nameLabels[meterName] ?? meterName);
+	// Per-skill metadata lives in src/game/skillData.ts so SkillMeter and the
+	// SkillActivatedOverlay stay in lockstep (same name, color, icon kind).
+	const skill = $derived(
+		SKILL_DATA[meterName as SkillKey] ?? {
+			name: meterName,
+			description: '',
+			kind: 'bolt' as const,
+			color: colorId,
+		},
+	);
+	let label = $derived(skill.name);
 
 	// ─── Spine handling ──────────────────────────────────────────────────────
 	// Only render Spine when the asset has actually loaded; otherwise fall back
@@ -113,7 +115,9 @@
 	// When Spine takes over these still update but nothing reads them.
 
 	// Smooth fill bar — replaces the raw progressPercentage in the draw.
-	const fillTween = new Tween(progressPercentage, { duration: 280, easing: cubicOut });
+	// Init at 0; $effect below syncs to progressPercentage on first render
+	// (avoids the "state referenced in own scope" warning).
+	const fillTween = new Tween(0, { duration: 280, easing: cubicOut });
 	$effect(() => {
 		fillTween.set(progressPercentage);
 	});
@@ -153,12 +157,83 @@
 			cancelled = true;
 		};
 	});
+
+	// READY state: when the meter is full and waiting to fire, the whole meter
+	// gets a slow scale punch loop + an outer glow halo that pulses in/out.
+	const isReady = $derived(progressPercentage >= 1);
+	const readyScale = new Tween(1, { duration: 200, easing: cubicOut });
+	const readyGlow = new Tween(0, { duration: 300, easing: cubicOut });
+	$effect(() => {
+		if (!isReady) {
+			readyScale.set(1, { duration: 180, easing: cubicOut });
+			readyGlow.set(0, { duration: 180, easing: cubicOut });
+			return;
+		}
+		let cancelled = false;
+		(async () => {
+			// Run two concurrent loops: one for scale, one for glow.
+			(async () => {
+				while (!cancelled) {
+					await readyScale.set(1.06, { duration: 350, easing: backOut });
+					if (cancelled) break;
+					await readyScale.set(1, { duration: 450, easing: cubicIn });
+				}
+			})();
+			while (!cancelled) {
+				await readyGlow.set(1, { duration: 500, easing: cubicOut });
+				if (cancelled) break;
+				await readyGlow.set(0.4, { duration: 500, easing: cubicIn });
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
+	});
+
+	// ─── Halo drawing helper (icon lives in shared skillData.ts) ─────────────
+	function drawHalo(g: any, color: number, alpha: number) {
+		g.clear();
+		if (alpha <= 0) return;
+		// Concentric soft halo around the bar
+		g.lineStyle(0);
+		const pad = 14;
+		const w = METER_WIDTH + pad * 2;
+		const h = METER_HEIGHT + pad * 2;
+		// Outer faint band
+		g.beginFill(color, alpha * 0.18);
+		g.drawRoundedRect(-pad, -METER_HEIGHT / 2 - pad, w, h, 12);
+		g.endFill();
+		// Inner tighter band
+		g.beginFill(color, alpha * 0.28);
+		g.drawRoundedRect(-pad / 2, -METER_HEIGHT / 2 - pad / 2, METER_WIDTH + pad, METER_HEIGHT + pad, 8);
+		g.endFill();
+	}
 </script>
 
-<Container {x} {y}>
+<!--
+	Pivot at (METER_WIDTH/2, 0) so the readyScale pulse centers horizontally
+	without shifting the bar left. Position is offset by METER_WIDTH/2 to
+	compensate (pivot anchor lands at the originally-requested x).
+-->
+<Container
+	x={x + METER_WIDTH / 2}
+	{y}
+	scale={{ x: readyScale.current, y: readyScale.current }}
+	pivot={{ x: METER_WIDTH / 2, y: 0 }}
+>
+	<!-- READY-state halo (only visible when meter is full) -->
+	<Graphics draw={(g) => drawHalo(g, meterColor, readyGlow.current)} />
+
+	<!-- Icon (left of label, drawn with Graphics) -->
+	<Graphics
+		x={14}
+		y={-22}
+		draw={(g) => drawSkillIcon(g, skill.kind, meterColor)}
+	/>
+
 	<!-- Label indicating which skill it is -->
 	<Text
-		x={METER_WIDTH / 2}
+		x={METER_WIDTH / 2 + 8}
 		y={-10}
 		anchor={{ x: 0.5, y: 1 }}
 		text={label}
@@ -172,6 +247,26 @@
 			dropShadowColor: 0x000000,
 		}}
 	/>
+
+	<!-- READY badge above the meter when full -->
+	{#if isReady}
+		<Text
+			x={METER_WIDTH - 4}
+			y={-METER_HEIGHT / 2 - 4}
+			anchor={{ x: 1, y: 1 }}
+			text="READY!"
+			style={{
+				fill: 0xffffff,
+				fontFamily: 'proxima-nova',
+				fontSize: REM * 0.65,
+				fontWeight: 'bold',
+				dropShadow: true,
+				dropShadowDistance: 2,
+				dropShadowColor: meterColor,
+				dropShadowBlur: 4,
+			}}
+		/>
+	{/if}
 
 	{#if spineValid}
 		<!-- Spine-driven visual. Asset key + skin + active animation are all
