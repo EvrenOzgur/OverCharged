@@ -111,8 +111,8 @@ def write_web_sdk_config(gamestate):
 
 if __name__ == "__main__":
 
-    num_threads = 1
-    rust_threads = 1
+    num_threads = 8
+    rust_threads = 8
     batching_size = 50000
     compression = True
     profiling = False

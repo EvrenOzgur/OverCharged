@@ -29,12 +29,51 @@
 		};
 	});
 
+	// STAKE-DEBUG: log every actor event dispatched from the UI / lifecycle.
+	// Default ON in test/QA; flip off with localStorage.STAKE_DEBUG = '0'.
+	const isDebug = () => {
+		if (typeof window === 'undefined') return false;
+		try {
+			const ls = window.localStorage?.getItem('STAKE_DEBUG');
+			if (ls === '1') return true;
+			if (ls === '0') return false;
+		} catch {
+			// noop
+		}
+		const w = window as { __STAKE_DEBUG?: boolean };
+		if (w.__STAKE_DEBUG === true) return true;
+		if (w.__STAKE_DEBUG === false) return false;
+		try {
+			const p = new URLSearchParams(window.location.search).get('debug');
+			if (p === '1') return true;
+			if (p === '0') return false;
+		} catch {
+			// noop
+		}
+		return true;
+	};
+	const dbg = (msg: string) => {
+		if (isDebug()) console.log('[STAKE-DEBUG]', msg);
+	};
+
 	context.eventEmitter.subscribeOnMount({
 		// Connect every actor with app.eventEmitter to avoid call actor directly
-		bet: () => gameActor.send({ type: 'BET' }),
-		autoBet: () => gameActor.send({ type: 'AUTO_BET' }),
-		resumeBet: () => gameActor.send({ type: 'RESUME_BET' }),
-		forceResult: () => gameActor.send({ type: 'FORCE_RESULT' }),
+		bet: () => {
+			dbg('UI emitted BET → gameActor (this is the click → /wallet/play start)');
+			gameActor.send({ type: 'BET' });
+		},
+		autoBet: () => {
+			dbg('UI emitted AUTO_BET → gameActor');
+			gameActor.send({ type: 'AUTO_BET' });
+		},
+		resumeBet: () => {
+			dbg('UI emitted RESUME_BET → gameActor');
+			gameActor.send({ type: 'RESUME_BET' });
+		},
+		forceResult: () => {
+			dbg('UI emitted FORCE_RESULT → gameActor');
+			gameActor.send({ type: 'FORCE_RESULT' });
+		},
 	});
 </script>
 

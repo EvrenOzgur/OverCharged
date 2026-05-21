@@ -26,7 +26,7 @@
 
 <DropdownToggle
 	{open}
-	disabled={stateBetDerived.activeBetMode().type === 'activate'}
+	disabled={stateBetDerived.activeBetMode()?.type === 'activate'}
 	onchange={(value) => {
 		open = value;
 		eventEmitter.broadcast({ type: 'soundPressGeneral' });

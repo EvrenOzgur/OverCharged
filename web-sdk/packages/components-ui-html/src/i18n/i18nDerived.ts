@@ -1,10 +1,23 @@
-import { stateI18nDerived } from 'state-shared';
+import { stateI18nDerived, stateUrlDerived } from 'state-shared';
 
+// Stake.US (social casino) compliance: certain words are restricted in the
+// social variant — notably "bet". Helpers below switch wording based on the
+// ?social=true URL param. Keep the underlying translate() keys unchanged so
+// the catalogue stays stable; only the surface text differs.
 export const i18nDerived = {
-	bet: () => stateI18nDerived.translate('BET'),
+	bet: () =>
+		stateUrlDerived.social()
+			? stateI18nDerived.translate('SPIN')
+			: stateI18nDerived.translate('BET'),
 	max: () => stateI18nDerived.translate('MAX'),
-	betMenu: () => stateI18nDerived.translate('BET MENU'),
-	selectYourBet: () => stateI18nDerived.translate('SELECT YOUR BET'),
+	betMenu: () =>
+		stateUrlDerived.social()
+			? stateI18nDerived.translate('STAKE MENU')
+			: stateI18nDerived.translate('BET MENU'),
+	selectYourBet: () =>
+		stateUrlDerived.social()
+			? stateI18nDerived.translate('SELECT YOUR STAKE')
+			: stateI18nDerived.translate('SELECT YOUR BET'),
 	confirm: () => stateI18nDerived.translate('CONFIRM'),
 	masterVolume: () => stateI18nDerived.translate('MASTER VOLUME'),
 	musicVolume: () => stateI18nDerived.translate('MUSIC VOLUME'),
@@ -17,7 +30,14 @@ export const i18nDerived = {
 	startAutoplay: () => stateI18nDerived.translate('START AUTOPLAY'),
 	notification: () => stateI18nDerived.translate('NOTIFICATION'),
 	autoSpinsStopInfo: () => stateI18nDerived.translate('AUTO PLAY HAS STOPPED DUE TO'),
-	insufficientFunds: () => stateI18nDerived.translate('INSUFFICIENT FUNDS TO PLACE THIS BET. PLEASE ADD FUNDS TO YOUR ACCOUNT OR LOWER THE BET LEVEL.'),
+	insufficientFunds: () =>
+		stateUrlDerived.social()
+			? stateI18nDerived.translate(
+					'INSUFFICIENT BALANCE FOR THIS SPIN. PLEASE TOP UP OR LOWER YOUR STAKE.',
+			  )
+			: stateI18nDerived.translate(
+					'INSUFFICIENT FUNDS TO PLACE THIS BET. PLEASE ADD FUNDS TO YOUR ACCOUNT OR LOWER THE BET LEVEL.',
+			  ),
 	lossLimitReached: () => stateI18nDerived.translate('LOSS LIMIT REACHED'),
 	singleWinLimitReached: () => stateI18nDerived.translate('SINGLE WIN LIMIT REACHED'),
 	settings: () => stateI18nDerived.translate('SETTINGS'),

@@ -16,6 +16,7 @@
 	is active. The Game canvas underneath is fully visible so animations play.
 -->
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { stateBet, stateUrlDerived } from 'state-shared';
 	import { getContext } from '../game/context';
 	import { playBookEvents } from '../game/utils';
@@ -30,52 +31,93 @@
 	// state and the playback would be ignored.
 	const ready = $derived(context.stateApp?.loaded === true);
 
+	// [REPLAY-DEBUG] always-on logging. Replay sessions are rare and intentional,
+	// so we don't gate behind a toggle — they help diagnose Stake replay-link
+	// regressions (auth bypass, event load, playback) at a glance.
+	onMount(() => {
+		console.log('[REPLAY-DEBUG] ReplayOverlay mounted', {
+			isReplayMode: stateUrlDerived.isReplayMode(),
+			params,
+			lastBetExists: !!stateBet.lastBet,
+			stateLength: (stateBet.lastBet as { state?: unknown[] })?.state?.length,
+			currency: stateBet.currency,
+			betAmount: stateBet.betAmount,
+		});
+	});
+
+	$effect(() => {
+		console.log('[REPLAY-DEBUG] phase change →', phase);
+	});
+
+	$effect(() => {
+		console.log('[REPLAY-DEBUG] ready =', ready, 'stateApp.loaded=', context.stateApp?.loaded);
+	});
+
 	async function startReplay() {
 		const events = stateBet.lastBet?.state;
 		// Expose to DevTools for manual inspection (`__replay` in console).
-		(globalThis as any).__replay = {
+		(globalThis as { __replay?: unknown }).__replay = {
 			lastBet: stateBet.lastBet,
 			events,
 			firstEvent: events?.[0],
-			eventTypes: events?.map?.((e: any) => e?.type),
+			eventTypes: events?.map?.((e: { type: string }) => e?.type),
 		};
 		console.log('[REPLAY-DEBUG] Start Replay clicked', {
-			lastBetExists: !!stateBet.lastBet,
-			stateExists: !!events,
-			stateLength: events?.length,
-			eventTypes: events?.map?.((e: any) => e?.type),
-			firstEvent: events?.[0],
-			lastEvent: events?.[(events?.length ?? 1) - 1],
-			lastBetSnapshot: stateBet.lastBet,
+			eventCount: events?.length ?? 0,
+			mode: (stateBet.lastBet as { mode?: string })?.mode ?? params.mode,
+			payoutMultiplier: (stateBet.lastBet as { payoutMultiplier?: number })?.payoutMultiplier,
+			costMultiplier: (stateBet.lastBet as { costMultiplier?: number })?.costMultiplier,
+			eventTypes: events?.slice?.(0, 10).map?.((e: { type: string }) => e?.type),
 		});
 		if (!events?.length) {
 			console.warn('[REPLAY-DEBUG] startReplay aborted — no state in lastBet');
 			return;
 		}
-		stateBet.activeBetModeKey = (stateBet.lastBet as any)?.mode ?? params.mode;
+		// Keep the activeBetModeKey in the canonical uppercase form. Math SDK
+		// emits lowercase mode strings, but the betModeMeta registry is keyed
+		// uppercase, and downstream `mode === 'BONUS'` comparators expect it.
+		stateBet.activeBetModeKey = (
+			(stateBet.lastBet as { mode?: string })?.mode ??
+			params.mode ??
+			'BASE'
+		).toUpperCase();
 		phase = 'playing';
+		const t0 = performance.now();
 		try {
 			// Bypass `resumeBet` → gameActor entirely. The resumeBet machine
 			// triggers `requestEndRound` after playback (live-spin cleanup),
 			// which 400s in replay mode (no sessionID). Calling playBookEvents
 			// directly drives the renderer through bookEventHandlerMap with no
 			// /wallet/* side effects.
-			console.log('[REPLAY-DEBUG] playing book events directly (length=' + events.length + ')');
-			await playBookEvents(events as any);
-			console.log('[REPLAY-DEBUG] playback complete');
+			await playBookEvents(events as never);
+			const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+			console.log(`[REPLAY-DEBUG] playback DONE in ${elapsed}s`);
 		} catch (err) {
-			console.error('[REPLAY-DEBUG] playback failed', err);
+			console.error('[REPLAY-DEBUG] playback FAILED', err);
 		} finally {
 			phase = 'finished';
 		}
 	}
 
 	function playAgain() {
+		console.log('[REPLAY-DEBUG] Play Again clicked');
 		// Re-run from the top by replaying the same event stream.
 		void startReplay();
 	}
 
-	const currency = $derived(params.currency || (stateUrlDerived.social() ? 'XSC' : 'USD'));
+	const rawCurrency = $derived(params.currency || (stateUrlDerived.social() ? 'XSC' : 'USD'));
+	// Social-mode display: XSC → SC, XGC → GC (no $ sign anywhere on screen).
+	const currency = $derived(
+		rawCurrency === 'XSC' ? 'SC' : rawCurrency === 'XGC' ? 'GC' : rawCurrency,
+	);
+	// Mode label: math uses 'BASE'/'BONUS' keys. In social mode "BONUS" is OK
+	// (not a restricted word) but the buy-bonus path implies "buy" — show
+	// "FEATURE" instead. Non-social keeps the original label.
+	const modeLabel = $derived.by(() => {
+		const m = (params.mode ?? '').toUpperCase();
+		if (stateUrlDerived.social() && m === 'BONUS') return 'FEATURE';
+		return m;
+	});
 	const displayAmount = $derived(stateBet.betAmount.toFixed(2));
 	const costMultiplier = $derived(
 		(stateBet.lastBet as any)?.payoutMultiplier !== undefined
@@ -90,13 +132,13 @@
 	<div class="replay-overlay">
 		<div class="replay-panel">
 			{#if phase === 'ready'}
-				<div class="replay-title">Bet Replay</div>
+				<div class="replay-title">{stateUrlDerived.social() ? 'Spin Replay' : 'Bet Replay'}</div>
 				<div class="replay-row">
 					<span class="replay-label">Mode</span>
-					<span class="replay-value">{params.mode}</span>
+					<span class="replay-value">{modeLabel}</span>
 				</div>
 				<div class="replay-row">
-					<span class="replay-label">Bet</span>
+					<span class="replay-label">{stateUrlDerived.social() ? 'Stake' : 'Bet'}</span>
 					<span class="replay-value">{currency} {displayAmount}</span>
 				</div>
 				{#if Number(costMultiplier) !== 1}

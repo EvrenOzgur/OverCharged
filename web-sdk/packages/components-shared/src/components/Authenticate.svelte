@@ -54,18 +54,35 @@
 			stateBet.balanceAmount = 0;
 			stateBet.betAmount = amount;
 			stateBet.wageredBetAmount = amount;
-			stateBet.activeBetModeKey = params.mode;
+			// Math SDK BetMode names are lowercase ("base"/"bonus"), but the
+			// default betModeMeta registry keys are uppercase. activeBetMode()
+			// already does case-insensitive lookup, but storing the canonical
+			// uppercase form keeps downstream comparators (e.g. `mode === 'BONUS'`)
+			// working unchanged.
+			stateBet.activeBetModeKey = (params.mode || 'BASE').toUpperCase();
+			// Replay has no /wallet/authenticate, so minBet/maxBet stay at their
+			// schema defaults. Set sane bounds derived from the display amount
+			// so any UI that clamps against them does not zero the bet out.
+			stateConfig.minBet = 0;
+			stateConfig.maxBet = Infinity;
 
 			// Inject the replay round so the existing `playBookEvents` plumbing
-			// can render it identically to a live round.
+			// can render it identically to a live round. `active: false` is
+			// CRITICAL — when true, the gameActor primary machine auto-detects
+			// an active round on RENDERED and triggers onPlayGame(lastBet)
+			// without any UI interaction, causing the replay events to fire
+			// automatically (sometimes twice, once via auto-resume and once
+			// via the ReplayOverlay's Start Replay button). With active=false,
+			// the actor takes the `onResumeGameInactive` branch (just settles
+			// the last board) and waits for the user to click Start Replay.
 			stateBet.lastBet = {
 				betID: 0,
 				amount: amount * API_AMOUNT_MULTIPLIER,
 				payout: data.payoutMultiplier * amount * API_AMOUNT_MULTIPLIER,
 				payoutMultiplier: data.payoutMultiplier,
-				active: true,
+				active: false,
 				state: data.state,
-				mode: params.mode,
+				mode: (params.mode || 'BASE').toUpperCase(),
 				event: null,
 			} as any;
 			console.log('[REPLAY-DEBUG] stateBet.lastBet AFTER inject', {

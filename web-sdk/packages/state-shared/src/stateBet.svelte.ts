@@ -56,13 +56,23 @@ const updateIsTurbo = (value: boolean, options: { persistent: boolean }) => {
 	stateBet.isTurbo = value;
 };
 
-const activeBetMode = () => stateMeta.betModeMeta?.[stateBet.activeBetModeKey] || null;
+// Defensive case-insensitive lookup. Math SDK BetMode names are lowercase
+// ("base", "bonus") while DEFAULT_BET_MODE_META uses uppercase keys ("BASE",
+// "BONUS", ...). Stake's bet-replay URL passes the math key as-is, so a
+// strict lookup misses and returns null — which then crashes downstream
+// readers like betCostMultiplier(). Try the exact key, then upper / lower.
+const activeBetMode = () => {
+	const meta = stateMeta.betModeMeta;
+	if (!meta) return null;
+	const key = stateBet.activeBetModeKey;
+	return meta[key] || meta[key?.toUpperCase?.()] || meta[key?.toLowerCase?.()] || null;
+};
 const isContinuousBet = () => stateBet.autoSpinsCounter > 1 || stateBet.isSpaceHold;
 const timeScale = () => (stateBet.isTurbo ? 2 : 1);
-const betCostMultiplier = () =>
-	stateBetDerived.activeBetMode().type === 'activate'
-		? stateBetDerived.activeBetMode().costMultiplier
-		: 1;
+const betCostMultiplier = () => {
+	const m = stateBetDerived.activeBetMode();
+	return m?.type === 'activate' ? m.costMultiplier : 1;
+};
 const betCost = () => stateBet.betAmount * betCostMultiplier();
 const isBetCostAvailable = () => betCost() > 0 && betCost() <= stateBet.balanceAmount;
 const hasAutoBetCounter = () => stateBet.autoSpinsCounter !== 0;

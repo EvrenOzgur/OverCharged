@@ -3,7 +3,7 @@
 
 	import { Popup } from 'components-shared';
 	import { zIndex } from 'constants-shared/zIndex';
-	import { stateModal } from 'state-shared';
+	import { stateModal, stateUrlDerived } from 'state-shared';
 
 	type Props = {
 		children: Snippet;
@@ -11,8 +11,21 @@
 
 	const props: Props = $props();
 
-	// Spritesheet: /assets/sprites/symbolsStatic/symbolsStatic.webp (386×1645)
-	const SHEET_URL = '/assets/sprites/symbolsStatic/symbolsStatic.webp';
+	// Stake.US (social casino) compliance: certain words are restricted.
+	// "bet" → "stake", "BET" → "SPIN" (UI), "BUY BONUS" → hidden anyway, etc.
+	// Selected by ?social=true URL param (mirrored to stateUrlDerived.social).
+	const isSocial = $derived(stateUrlDerived.social());
+	// Cluster-pay multiplier wording. "× bet" implies wagering — use "× stake"
+	// in social mode (Stake's own brand, considered non-bet wording).
+	const xUnit = $derived(isSocial ? 'stake' : 'bet');
+	const XUnit = $derived(isSocial ? 'STAKE' : 'BET');
+
+	// Spritesheet: ./assets/sprites/symbolsStatic/symbolsStatic.webp (386×1645)
+	// Relative URL — Stake CDN serves the game under a subpath
+	// (e.g. /overcharged00/v2/...). An absolute `/assets/...` would resolve to
+	// the CDN root and 404. Same fix pattern as app.html font urls and
+	// assets.ts spine src (see stake_engine_setup memory).
+	const SHEET_URL = './assets/sprites/symbolsStatic/symbolsStatic.webp';
 	const SHEET_W = 386;
 	const SHEET_H = 1645;
 	const ICON_H = 44;
@@ -63,68 +76,143 @@
 				<p>Spin an 8×8 grid. Win by landing <strong>5 or more matching symbols</strong> connected horizontally or vertically (Cluster Pays). Winning symbols are removed and new symbols fall from above — cascades continue until no new wins occur.</p>
 			</section>
 
-			<h3 class="rules-subtitle">SYMBOLS</h3>
+			<h3 class="rules-subtitle">PAYTABLE (× {XUnit})</h3>
+			<section class="rules-section rules-info">
+				<div class="paytable-header">
+					<span class="paytable-sym">Symbol</span>
+					<span>5</span>
+					<span>6-8</span>
+					<span>9-12</span>
+					<span>13+</span>
+				</div>
+				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('H1')}></span></span><span>2.5×</span><span>6.3×</span><span>10×</span><span>24×</span></div>
+				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('H2')}></span></span><span>1.0×</span><span>2.5×</span><span>4×</span><span>16×</span></div>
+				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('H3')}></span></span><span>0.7×</span><span>1.6×</span><span>2.8×</span><span>12×</span></div>
+				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('H4')}></span></span><span>0.5×</span><span>1.3×</span><span>2.4×</span><span>8×</span></div>
+				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('L1')}></span></span><span>0.3×</span><span>0.8×</span><span>2.0×</span><span>5×</span></div>
+				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('L2')}></span></span><span>0.2×</span><span>0.6×</span><span>1.8×</span><span>4×</span></div>
+				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('L3')}></span></span><span>0.1×</span><span>0.4×</span><span>1.3×</span><span>2.5×</span></div>
+				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('L4')}></span></span><span>0.1×</span><span>0.3×</span><span>0.8×</span><span>2.0×</span></div>
+			</section>
+
+			<h3 class="rules-subtitle">SPECIAL SYMBOLS</h3>
 			<section class="rules-section">
 				<div class="rules-row">
 					<span style={symbolStyle('W')}></span>
-					<span class="rules-desc"><strong class="rules-label-inline">WILD</strong> — Substitutes for all regular symbols. Carries a multiplier value (×2, ×3, ×5, ×10) applied to wins it completes.</span>
+					<span class="rules-desc"><strong class="rules-label-inline">WILD</strong> — Substitutes for all regular symbols (excluding Scatter and Multiplier).</span>
 				</div>
 				<div class="rules-row">
 					<span class="multiplier-icon">M</span>
-					<span class="rules-desc"><strong class="rules-label-inline">MULTIPLIER</strong> — Adds its value to the Global Multiplier. Does not form winning clusters on its own.</span>
+					<span class="rules-desc"><strong class="rules-label-inline">MULTIPLIER</strong> — Carries a value (×2, ×3, ×5, ×8). When part of a winning cluster, the value is added to the Global Multiplier. Does not form winning clusters on its own.</span>
 				</div>
 				<div class="rules-row">
 					<span style={symbolStyle('S')}></span>
-					<span class="rules-desc"><strong class="rules-label-inline">SCATTER</strong> — 4 or more Scatters anywhere on the grid trigger Free Spins.</span>
+					<span class="rules-desc"><strong class="rules-label-inline">SCATTER</strong> — 3 or more Scatters anywhere on the grid trigger Free Spins.</span>
 				</div>
+			</section>
+
+			<h3 class="rules-subtitle">FREE SPINS</h3>
+			<section class="rules-section">
+				<p>Free Spins are triggered when 3 or more Scatter symbols land anywhere on the grid in a single spin.</p>
+				<div class="rules-info" style="margin-top:0.5rem">
+					<div class="rules-info-row"><span>3 Scatters</span><span>+7 Free Spins</span></div>
+					<div class="rules-info-row"><span>4 Scatters</span><span>+10 Free Spins</span></div>
+					<div class="rules-info-row"><span>5 Scatters</span><span>+12 Free Spins</span></div>
+					<div class="rules-info-row"><span>6 Scatters</span><span>+15 Free Spins</span></div>
+					<div class="rules-info-row"><span>7 Scatters</span><span>+18 Free Spins</span></div>
+					<div class="rules-info-row"><span>8+ Scatters</span><span>+20 Free Spins</span></div>
+				</div>
+				<p style="margin-top:0.6rem"><strong>Retrigger:</strong> Landing 3 or more Scatters during the Free Spin feature awards additional spins per the same table above. The Global Multiplier is retained throughout the entire feature (including retriggers).</p>
 			</section>
 
 			<h3 class="rules-subtitle">SKILL METERS</h3>
 			<section class="rules-section">
-				<p>Each spin fills one of four Skill Meters. When a meter is full it activates its effect, then resets.</p>
+				<p>Each spin fills one of four Skill Meters by symbols of the same colour landing in winning clusters. When a meter reaches its threshold the effect activates and the meter resets.</p>
 				<div class="rules-row">
 					<span style={symbolStyle('L1')}></span>
-					<span class="rules-desc"><strong class="rules-label-inline" style="color:#ffd700">L1 (10)</strong> — Selected low-tier symbols are converted to Wild.</span>
+					<span class="rules-desc"><strong class="rules-label-inline" style="color:#ffd700">WILD STRIKE — fills at 10</strong>: Selected low-tier symbols on the grid are converted to Wild.</span>
 				</div>
 				<div class="rules-row">
 					<span style={symbolStyle('L2')}></span>
-					<span class="rules-desc"><strong class="rules-label-inline" style="color:#00cc44">L2 (20)</strong> — Low-tier symbols in winning positions explode, triggering an extra cascade.</span>
+					<span class="rules-desc"><strong class="rules-label-inline" style="color:#00cc44">OVERLOAD — fills at 16</strong>: All low-tier symbols on the grid explode, triggering an extra cascade.</span>
 				</div>
 				<div class="rules-row">
 					<span style={symbolStyle('L3')}></span>
-					<span class="rules-desc"><strong class="rules-label-inline" style="color:#4488ff">L3 (15)</strong> — The Global Multiplier is increased by the math-determined value.</span>
+					<span class="rules-desc"><strong class="rules-label-inline" style="color:#4488ff">POWER SURGE — fills at 22</strong>: The Global Multiplier is increased by ×2.</span>
 				</div>
 				<div class="rules-row">
 					<span style={symbolStyle('L4')}></span>
-					<span class="rules-desc"><strong class="rules-label-inline" style="color:#ff4444">L4 (30)</strong> — A 3×3 block of symbols is converted to Wild.</span>
+					<span class="rules-desc"><strong class="rules-label-inline" style="color:#ff4444">MEGA BOLT — fills at 25</strong>: A 3×3 block of symbols is converted to Wild.</span>
 				</div>
 			</section>
 
 			<h3 class="rules-subtitle">GLOBAL MULTIPLIER</h3>
 			<section class="rules-section">
-				<p>The Global Multiplier starts at ×1 and increases through Multiplier symbols and the L3 Skill. It is applied to all cluster wins in the same round. During Free Spins the multiplier carries over and continues to grow.</p>
+				<p>The Global Multiplier starts at ×1 and increases through Multiplier (M) symbols landing in winning clusters and via the Power Surge skill. It is applied to all cluster wins in the same round. During the Free Spin feature the Global Multiplier carries across all spins (including retriggers) and continues to grow.</p>
 			</section>
 
-			<h3 class="rules-subtitle">FREE SPINS</h3>
+			<h3 class="rules-subtitle">GAME CONTROLS</h3>
 			<section class="rules-section">
-				<p>Landing 4 or more Scatter symbols triggers Free Spins. The number of free spins awarded depends on the number of Scatters. Additional Scatters during Free Spins retrigger more spins. The Global Multiplier is retained throughout the feature.</p>
+				<div class="rules-info">
+					{#if isSocial}
+						<div class="rules-info-row"><span><strong>SPIN</strong></span><span>Plays a single round at the selected stake amount. Spacebar also triggers SPIN.</span></div>
+						<div class="rules-info-row"><span><strong>TURBO</strong></span><span>Toggle faster spin animations. State persists across rounds.</span></div>
+						<div class="rules-info-row"><span><strong>AUTO SPIN</strong></span><span>Opens the autoplay configuration. Choose number of rounds, optional loss limit and single-win limit, then press START AUTOPLAY to begin. Click again during autoplay to stop.</span></div>
+						<div class="rules-info-row"><span><strong>STAKE ± </strong></span><span>Decrease / increase the current stake amount through the available stake levels.</span></div>
+						<div class="rules-info-row"><span><strong>MENU</strong></span><span>Opens the side drawer with INFO (this dialog), PAYTABLE, SETTINGS, SOUND ON/OFF, and EXIT.</span></div>
+						<div class="rules-info-row"><span><strong>SETTINGS</strong></span><span>Adjust master volume, music, SFX, and turbo/quick spin preferences.</span></div>
+						<div class="rules-info-row"><span><strong>SOUND ON/OFF</strong></span><span>Mute or unmute all game audio.</span></div>
+						<div class="rules-info-row"><span><strong>SPACE (hold)</strong></span><span>Hold the spacebar to repeatedly spin until released (quick-spin mode).</span></div>
+					{:else}
+						<div class="rules-info-row"><span><strong>BET</strong></span><span>Place a single spin at the selected bet amount. Spacebar also triggers BET.</span></div>
+						<div class="rules-info-row"><span><strong>TURBO</strong></span><span>Toggle faster spin animations. State persists across rounds.</span></div>
+						<div class="rules-info-row"><span><strong>AUTO SPIN</strong></span><span>Opens the autoplay configuration. Choose number of rounds, optional loss limit and single-win limit, then press START AUTOPLAY to begin. Click again during autoplay to stop.</span></div>
+						<div class="rules-info-row"><span><strong>BUY BONUS</strong></span><span>Opens the bonus purchase menu. Select a bonus mode and confirm in the dialog to enter the feature directly. Availability may be restricted by jurisdiction.</span></div>
+						<div class="rules-info-row"><span><strong>BET ± </strong></span><span>Decrease / increase the current bet amount through the available bet levels.</span></div>
+						<div class="rules-info-row"><span><strong>MENU</strong></span><span>Opens the side drawer with INFO (this dialog), PAYTABLE, SETTINGS, SOUND ON/OFF, and EXIT.</span></div>
+						<div class="rules-info-row"><span><strong>SETTINGS</strong></span><span>Adjust master volume, music, SFX, and turbo/quick spin preferences.</span></div>
+						<div class="rules-info-row"><span><strong>SOUND ON/OFF</strong></span><span>Mute or unmute all game audio.</span></div>
+						<div class="rules-info-row"><span><strong>SPACE (hold)</strong></span><span>Hold the spacebar to repeatedly bet until released (quick-bet mode).</span></div>
+					{/if}
+				</div>
 			</section>
 
-			<h3 class="rules-subtitle">BUY BONUS</h3>
+			<h3 class="rules-subtitle">GAME MODES</h3>
 			<section class="rules-section">
-				<p>Purchase direct entry to the Free Spins feature for <strong>200× your current bet</strong>. Feature availability subject to jurisdiction.</p>
+				{#if isSocial}
+					<div class="mode-block">
+						<strong>BASE</strong>
+						<span class="rules-desc">Standard play. Cost: the player's selected stake amount. RTP 97.00%. Maximum win 5,000× stake.</span>
+					</div>
+					<!-- Bonus mode hidden entirely in social mode (ButtonBuyBonus is also hidden via jurisdiction.disabledBuyFeature). -->
+				{:else}
+					<div class="mode-block">
+						<strong>BASE</strong>
+						<span class="rules-desc">Standard play. Cost: the player's selected bet amount. RTP 97.00%. Maximum win 5,000× bet.</span>
+					</div>
+					<div class="mode-block">
+						<strong>BUY BONUS</strong>
+						<span class="rules-desc">Direct entry to the Free Spin feature. Cost: 200× the player's selected bet amount. RTP 97.00%. Maximum win 5,000× bet. Availability may be restricted by jurisdiction.</span>
+					</div>
+				{/if}
 			</section>
 
 			<h3 class="rules-subtitle">GAME INFORMATION</h3>
 			<section class="rules-section rules-info">
-				<div class="rules-info-row"><span>RTP</span><span>97.00%</span></div>
-				<div class="rules-info-row"><span>Maximum Win</span><span>5,000× bet</span></div>
-				<div class="rules-info-row"><span>Reels</span><span>8×8 (Cluster Pays)</span></div>
-				<div class="rules-info-row"><span>Min. Win Cluster</span><span>5 symbols</span></div>
+				<div class="rules-info-row"><span>RTP (Base)</span><span>97.00%</span></div>
+				{#if !isSocial}
+					<div class="rules-info-row"><span>RTP (Buy Bonus)</span><span>97.00%</span></div>
+				{/if}
+				<div class="rules-info-row"><span>Maximum Win</span><span>5,000× {xUnit}</span></div>
+				<div class="rules-info-row"><span>Maximum Win Hit Rate</span><span>1 in 500,000</span></div>
+				<div class="rules-info-row"><span>Hit Rate of Non-Zero Wins</span><span>1 in 3.4</span></div>
+				<div class="rules-info-row"><span>Reels</span><span>8 × 8 (Cluster Pays)</span></div>
+				<div class="rules-info-row"><span>Minimum Win Cluster</span><span>5 connected symbols</span></div>
+				<div class="rules-info-row"><span>Provider</span><span>Stake Engine</span></div>
 			</section>
 
 			<section class="rules-disclaimer">
-				<p>This game is provided by Stake Engine. Any malfunction voids all pays and plays. The theoretical Return to Player (RTP) for this game is <strong>97.00%</strong>. Maximum win is <strong>5,000× your bet</strong>. Please gamble responsibly. If you have concerns about your gambling, visit <strong>begambleaware.org</strong>.</p>
+				<p>Malfunction voids all wins and plays. A consistent internet connection is required. In the event of a disconnection, reload the game to finish any uncompleted rounds. The expected return is calculated over many plays. The game display is not representative of any physical device and is for illustrative purposes only. Winnings are settled according to the amount received from the Remote Game Server and not from events within the web browser. TM and © 2026 Stake Engine.</p>
 			</section>
 
 			<div class="rules-version">
@@ -225,6 +313,40 @@
 		font-size: 0.8rem;
 		span:first-child { color: #aaaaaa; }
 		span:last-child { color: #ffffff; font-weight: 600; }
+	}
+
+	.paytable-header,
+	.paytable-row {
+		display: grid;
+		grid-template-columns: 60px repeat(4, 1fr);
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.78rem;
+	}
+
+	.paytable-header {
+		color: #aaaaaa;
+		font-weight: 600;
+		border-bottom: 1px solid #333;
+		padding-bottom: 0.35rem;
+		margin-bottom: 0.1rem;
+		span { text-align: center; }
+	}
+
+	.paytable-row {
+		span { text-align: center; color: #ffffff; }
+		.paytable-sym { display: flex; justify-content: center; }
+	}
+
+	.mode-block {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: 0.5rem 0.75rem;
+		background: rgba(255, 255, 255, 0.04);
+		border-left: 3px solid #ffd700;
+		border-radius: 4px;
+		strong { color: #ffd700; font-size: 0.9rem; letter-spacing: 0.06em; }
 	}
 
 	.rules-disclaimer {

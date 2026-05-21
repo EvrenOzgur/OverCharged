@@ -46,11 +46,15 @@
 					const { type, src } = context.stateApp.assets![key];
 					const loadSrc =
 						type === 'spine' ? Object.values(src).filter((item) => typeof item === 'string') : src;
-					
+
 					const rawAsset = await PIXI.Assets.load<RawAsset>(loadSrc, onProgress);
 					const processed = getProcessed({ key, rawAsset, type, src });
-					
-					if (!processed || Object.keys(processed).length === 0) {
+
+					// `font` assets intentionally return undefined from getProcessed —
+					// Pixi installs BitmapFonts into its global registry on load,
+					// so they don't need an entry in our loadedAssets map. Treat
+					// that case as success and skip the "empty" warning.
+					if (type !== 'font' && (!processed || Object.keys(processed).length === 0)) {
 						console.error(`Asset processed empty or null for key: "${key}"`);
 					}
 

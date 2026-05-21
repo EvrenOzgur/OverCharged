@@ -73,42 +73,49 @@ class GameConfig(Config):
         # Multiplier amplification (1.94× base / 8.49× bonus) was the dominant
         # factor; halving the paytable drops the raw closer to 50% / 17% so the
         # optimizer has less scaling to do and large outliers carry less weight.
-        # Note: 0.50 chosen over 0.55 to keep paytable values at 2-decimal precision
-        # (cents-bazlı integer) — math-sdk's running-win accumulator was throwing
-        # `Base + Free game payout mismatch!` on 3-decimal values like 0.715/1.375.
+        # Note: All paytable values are multiples of 0.10 (=10 cents).
+        # Stake's rgs_verification.verify_lookup_format asserts payoutMultiplier
+        # in the publish lookup table is divisible by 10 — otherwise the
+        # bet × payout multiplication wouldn't land on clean cents in every
+        # currency. Previously the 0.5× scale produced .05/.25/.75 endings
+        # that only passed the check because M-symbol multipliers happened to
+        # round most wins back to multiples of 10. After the M-activation fix
+        # (only activate when total_win > 0) those "lucky" multiplications
+        # stopped covering for non-aligned base values, so 7 entries were
+        # nudged ±0.05 to the nearest 0.10.
         t1, t2, t3, t4 = (5, 5), (6, 8), (9, 12), (13, 36)
         pay_group = {
             (t1, "H1"): 2.5,
-            (t2, "H1"): 6.25,
+            (t2, "H1"): 6.3,   # was 6.25
             (t3, "H1"): 10.0,
             (t4, "H1"): 24.0,
             (t1, "H2"): 1.0,
             (t2, "H2"): 2.5,
             (t3, "H2"): 4.0,
             (t4, "H2"): 16.0,
-            (t1, "H3"): 0.65,
+            (t1, "H3"): 0.7,   # was 0.65
             (t2, "H3"): 1.6,
             (t3, "H3"): 2.8,
             (t4, "H3"): 12.0,
             (t1, "H4"): 0.5,
-            (t2, "H4"): 1.25,
+            (t2, "H4"): 1.3,   # was 1.25
             (t3, "H4"): 2.4,
             (t4, "H4"): 8.0,
             (t1, "L1"): 0.3,
-            (t2, "L1"): 0.75,
+            (t2, "L1"): 0.8,   # was 0.75
             (t3, "L1"): 2.0,
             (t4, "L1"): 5.0,
             (t1, "L2"): 0.2,
             (t2, "L2"): 0.6,
-            (t3, "L2"): 1.75,
+            (t3, "L2"): 1.8,   # was 1.75
             (t4, "L2"): 4.0,
             (t1, "L3"): 0.1,
             (t2, "L3"): 0.4,
-            (t3, "L3"): 1.25,
+            (t3, "L3"): 1.3,   # was 1.25
             (t4, "L3"): 2.5,
-            (t1, "L4"): 0.05,
-            (t2, "L4"): 0.25,
-            (t3, "L4"): 0.75,
+            (t1, "L4"): 0.1,   # was 0.05
+            (t2, "L4"): 0.3,   # was 0.25
+            (t3, "L4"): 0.8,   # was 0.75
             (t4, "L4"): 2.0,
         }
         self.paytable = self.convert_range_table(pay_group)

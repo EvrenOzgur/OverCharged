@@ -32,10 +32,37 @@
 				font-display: swap;
 			}
 		</style>
-		<meta name="viewport" content="width=device-width" />
+		<!-- Mobile zoom guards (Stake compliance):
+		     - user-scalable=no + maximum/minimum-scale lock pinch zoom
+		     - body `touch-action: manipulation` disables the 300ms tap delay
+		       AND the legacy double-tap-to-zoom gesture. -->
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+		/>
+		<script>
+			// Silence @lingui/core "Uncompiled message detected!" warnings.
+			// We intentionally use a raw identity catalog (no .po compile step) —
+			// the warning fires on every translate() call from reactive UI labels,
+			// flooding the console. UI text renders correctly via fallback; the
+			// warning is purely about the missing .po pipeline.
+			(function () {
+				var origWarn = console.warn;
+				console.warn = function () {
+					if (
+						arguments.length > 0 &&
+						typeof arguments[0] === 'string' &&
+						arguments[0].indexOf('Uncompiled message detected') !== -1
+					) {
+						return;
+					}
+					return origWarn.apply(console, arguments);
+				};
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
-	<body style="margin: 0; padding: 0; overflow: hidden; background-color: black">
+	<body style="margin: 0; padding: 0; overflow: hidden; background-color: black; touch-action: manipulation; -webkit-user-select: none; user-select: none;">
 		<div>%sveltekit.body%</div>
 	</body>
 </html>

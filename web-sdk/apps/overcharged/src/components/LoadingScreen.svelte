@@ -27,12 +27,6 @@
 	const isReplay = $derived(stateUrlDerived.isReplayMode());
 	let bypassed = $state(false);
 	$effect(() => {
-		console.log('[REPLAY-DEBUG] LoadingScreen state', {
-			isReplay,
-			loaded: context.stateApp.loaded,
-			loadingType,
-			bypassed,
-		});
 		if (isReplay && context.stateApp.loaded && !bypassed) {
 			// Replay mode: skip BOTH the "Press Anywhere" gate AND the
 			// TransitionAnimation spine. The transition's `complete` event
@@ -43,7 +37,6 @@
 			// Calling `onloaded()` directly hands control to the game
 			// canvas immediately — the user already pressed "Start Replay"
 			// in the overlay, so an extra fade is unnecessary.
-			console.log('[REPLAY-DEBUG] LoadingScreen → direct onloaded() (replay bypass)');
 			bypassed = true;
 			props.onloaded();
 		}

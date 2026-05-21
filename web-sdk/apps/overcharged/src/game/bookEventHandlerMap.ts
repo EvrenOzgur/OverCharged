@@ -52,12 +52,6 @@ const animateSymbols = async ({
 
 export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContext> = {
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
-		console.log('[REPLAY-DEBUG] reveal handler entered', {
-			gameType: bookEvent.gameType,
-			boardLen: bookEvent.board?.length,
-			firstReel: bookEvent.board?.[0]?.length,
-			rawEvent: bookEvent,
-		});
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
 
 		// Immediate reset of meters and multiplier for base game spins to improve UX
@@ -198,9 +192,12 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'freeSpinIntroHide' });
 		eventEmitter.broadcast({ type: 'boardFrameGlowShow' });
 		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
+		// Retrigger does NOT reset the math global multiplier — preserve the
+		// current value so the display doesn't dip to 1× and snap back.
+		// Multiplier within a free-spin session only stays the same or grows.
 		await eventEmitter.broadcastAsync({
 			type: 'globalMultiplierUpdate',
-			multiplier: 1, // resets when multiplier === 1
+			multiplier: stateGame.globalMultiplier,
 		});
 		eventEmitter.broadcast({ type: 'freeSpinCounterShow' });
 		eventEmitter.broadcast({

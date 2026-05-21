@@ -24,6 +24,7 @@
 	import OverchargedUI from './UI/OverchargedUI.svelte';
 	import Board from './Board.svelte';
 	import Anticipations from './Anticipations.svelte';
+	import ScatterTriggerHint from './ScatterTriggerHint.svelte';
 	import ClusterWinAmounts from './ClusterWinAmounts.svelte';
 	import SkillMeter from './SkillMeter.svelte';
 	import TumbleBoard from './TumbleBoard.svelte';
@@ -55,8 +56,22 @@
 	);
 
 	async function handleSkillActivated(event: BookEventSkillActivated) {
-		const { skillType, skillMeters, positions } = event;
+		const { skillType, skillMeters, positions: visiblePositions } = event;
 		const eventAny = event as any;
+
+		// Math output uses two row frames inconsistently:
+		//   - winInfo / tumbleBoard: padded frame   (row 0 = top padding, row 1 = first visible)
+		//   - skillActivated:        visible frame  (row 0 = first visible)
+		// Frontend conventions:
+		//   - symbols[i] array        → padded frame (i=0 is padding, i=1 is first visible)
+		//   - getSymbolY(row)         → visible frame (row=0 returns center of first visible)
+		// So skill positions need +1 ONLY when used to index into symbols[] or when
+		// broadcast to boardWithAnimateSymbols (Board.svelte's handler indexes
+		// symbols[position.row]). preHighlight uses getSymbolY directly → visible frame.
+		// TODO: Fix at math side by emitting skill positions in padded frame (add +1
+		// in game_events.py:emit_skill_activated_event like win_info_event does).
+		// When that lands, drop this workaround and pass visiblePositions everywhere.
+		const paddedPositions = visiblePositions?.map((p) => ({ ...p, row: p.row + 1 }));
 
 		// Meterleri her zaman güncelle
 		if (skillMeters) {
@@ -69,17 +84,15 @@
 		if (!skillType || skillType === 'UPDATE') return;
 
 		// Skill drama orkestrasyonu (asset-free):
-		//   1. Pre-highlight  →  300ms cells preview in skill color
+		//   1. Pre-highlight  →  300ms cells preview in skill color (visible frame)
 		//   2. Activated banner + screen shake (paralel, banner async devam eder)
-		//   3. Actual on-board animation (Wild dönüşümü / patlama / multiplier)
-		// Banner ekran ortasında ~1.5s gözükür ama akışı tutmaz — board
-		// animasyonu paralel başlar, ikisi üst üste şov verir.
+		//   3. Actual on-board animation (padded frame for symbols[] access)
 		const meta = SKILL_DATA[skillType as SkillKey];
 
-		if (positions?.length && meta) {
+		if (visiblePositions?.length && meta) {
 			await context.eventEmitter.broadcastAsync({
 				type: 'skillPreHighlight',
-				positions: positions.map((p) => ({ reel: p.reel, row: p.row })),
+				positions: visiblePositions.map((p) => ({ reel: p.reel, row: p.row })),
 				color: meta.color,
 				holdMs: 250,
 			});
@@ -101,8 +114,8 @@
 
 		if (skillType === 'L1') {
 			// Verilen pozisyonlardaki sembolleri Wild yap, ardından parlama animasyonu
-			if (positions?.length) {
-				positions.forEach((pos) => {
+			if (paddedPositions?.length) {
+				paddedPositions.forEach((pos) => {
 					const reel = context.stateGame.board[pos.reel];
 					if (reel?.reelState.symbols[pos.row]) {
 						reel.reelState.symbols[pos.row].rawSymbol = { name: 'W' };
@@ -110,16 +123,16 @@
 				});
 				await context.eventEmitter.broadcastAsync({
 					type: 'boardWithAnimateSymbols',
-					symbolPositions: positions.map((p) => ({ reel: p.reel, row: p.row })),
+					symbolPositions: paddedPositions.map((p) => ({ reel: p.reel, row: p.row })),
 					state: 'win',
 				});
 			}
 		} else if (skillType === 'L2') {
 			// Tüm patlayacak low-tier sembollerde patlama animasyonu
-			if (positions?.length) {
+			if (paddedPositions?.length) {
 				await context.eventEmitter.broadcastAsync({
 					type: 'boardWithAnimateSymbols',
-					symbolPositions: positions.map((p) => ({ reel: p.reel, row: p.row })),
+					symbolPositions: paddedPositions.map((p) => ({ reel: p.reel, row: p.row })),
 					state: 'explosion',
 				});
 			}
@@ -139,8 +152,8 @@
 			}
 		} else if (skillType === 'L4') {
 			// 3×3 bloktaki sembolleri Wild yap, ardından parlama animasyonu
-			if (positions?.length) {
-				positions.forEach((pos) => {
+			if (paddedPositions?.length) {
+				paddedPositions.forEach((pos) => {
 					const reel = context.stateGame.board[pos.reel];
 					if (reel?.reelState.symbols[pos.row]) {
 						reel.reelState.symbols[pos.row].rawSymbol = { name: 'W' };
@@ -148,7 +161,7 @@
 				});
 				await context.eventEmitter.broadcastAsync({
 					type: 'boardWithAnimateSymbols',
-					symbolPositions: positions.map((p) => ({ reel: p.reel, row: p.row })),
+					symbolPositions: paddedPositions.map((p) => ({ reel: p.reel, row: p.row })),
 					state: 'win',
 				});
 			}
@@ -200,6 +213,9 @@
 			<MainContainer>
 				<Board />
 				<Anticipations />
+				<!-- Fires a one-shot win animation on all scatters when the
+				     3rd lands during reveal — "freespin coming" confirmation. -->
+				<ScatterTriggerHint />
 				<TumbleWinAmount />
 				<GlobalMultiplier />
 			</MainContainer>

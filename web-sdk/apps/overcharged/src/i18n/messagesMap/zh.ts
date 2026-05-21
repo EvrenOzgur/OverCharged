@@ -42,6 +42,12 @@ export default {
 	'AUTO PLAY HAS STOPPED DUE TO': '自动旋转已停止，原因：',
 	'INSUFFICIENT FUNDS TO PLACE THIS BET. PLEASE ADD FUNDS TO YOUR ACCOUNT OR LOWER THE BET LEVEL.':
 		'余额不足，无法下此注。请向您的账户中存入资金或降低下注级别。',
+	// Social-casino variant (Stake.US) — uses non-betting terminology.
+	'INSUFFICIENT BALANCE FOR THIS SPIN. PLEASE TOP UP OR LOWER YOUR STAKE.':
+		'余额不足以进行此次旋转。请充值或降低您的下注金额。',
+	SPIN: '旋转',
+	'STAKE MENU': '下注菜单',
+	'SELECT YOUR STAKE': '选择您的下注',
 	'LOSS LIMIT REACHED': '已达到损失限额',
 	'SINGLE WIN LIMIT REACHED': '已达到单次赢取限额',
 

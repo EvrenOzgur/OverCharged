@@ -115,13 +115,18 @@ class GameExecutables(Executables):
 
         # 7. Stash pending multiplier activation — emitted later in the
         #    tumble step so that winInfo is rendered first on the client.
-        #    Every unprocessed M on the board accumulates into global_multiplier,
-        #    regardless of whether this particular tumble produced a win. The
-        #    final payout only applies the multiplier when accumulated_base_win
-        #    is non-zero (see apply_final_multipliers), so M's that land without
-        #    any spin wins still have no effect.
+        #    M activations are gated on `total_win > 0` so an M that lands
+        #    in a no-win tumble does NOT accumulate into global_multiplier.
+        #
+        #    Earlier behaviour activated M's regardless of the tumble's win.
+        #    The comment claimed "no effect" because apply_final_multipliers
+        #    only fires when accumulated_base_win > 0 — but global_multiplier
+        #    *persists across free spins* while accumulated_base_win resets
+        #    per spin (see update_freespin). So a no-win M still inflated
+        #    later spins' final multiplier. The player perceived this as a
+        #    "free" multiplier collection, which it effectively was.
         self._pending_multiplier_activation = None
-        if multiplier_candidates:
+        if multiplier_candidates and total_win > 0:
             activated_symbols = []
             multiplier_added = 0
 

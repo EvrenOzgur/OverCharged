@@ -11,8 +11,10 @@
 
 	const props: Props = $props();
 
-	// Spritesheet: /assets/sprites/symbolsStatic/symbolsStatic.webp (386×1645)
-	const SHEET_URL = '/assets/sprites/symbolsStatic/symbolsStatic.webp';
+	// Spritesheet: ./assets/sprites/symbolsStatic/symbolsStatic.webp (386×1645)
+	// Relative URL — Stake CDN serves the game under a subpath; absolute
+	// `/assets/...` would resolve to root and 404.
+	const SHEET_URL = './assets/sprites/symbolsStatic/symbolsStatic.webp';
 	const SHEET_W = 386;
 	const SHEET_H = 1645;
 	const ICON_H = 52;
