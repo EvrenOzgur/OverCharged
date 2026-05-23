@@ -5,6 +5,15 @@ import type { StorybookConfig } from '@storybook/sveltekit';
 import type { Plugin } from 'vite';
 import { main as baseConfig } from 'config-storybook';
 
+// Force Storybook into "chromatic mode" so utils-book/recordBookEvent short
+// circuits to a console.log instead of POSTing to https://${rgsUrl}/bet/event.
+// Without this, Stepper's Next button triggers ERR_NAME_NOT_RESOLVED on every
+// event (rgs_url is empty in Storybook). The package.json `storybook` script
+// is supposed to set this via `cross-env PUBLIC_CHROMATIC=true ...` but we
+// often launch via `npx storybook dev` directly, bypassing the script — so
+// setting it here covers both invocation paths on Windows + Unix.
+process.env.PUBLIC_CHROMATIC = 'true';
+
 // ESM-safe directory resolution
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const UI_LAYOUT_FILE = path.resolve(HERE, '../src/game/uiLayout.json');

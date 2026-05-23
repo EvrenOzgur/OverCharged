@@ -96,21 +96,27 @@
 	}
 
 	// Resize Pixi renderer + DOM when a resolution preset is active.
-	// Also track activeVariant so effect re-runs when layout component changes.
+	//
+	// IMPORTANT: read all reactive dependencies BEFORE any early return.
+	// If we early-return when `pixiApplication` is undefined, Svelte only
+	// tracks `pixiApplication` for this effect — subsequent dropdown changes
+	// to `editorState.activePreset` won't trigger a rerun, so the canvas
+	// silently stays at the default `resizeTo: window` size. Reading
+	// `getActivePreset()` and `activeVariant` up front guarantees they are
+	// recorded as dependencies on every cycle.
 	$effect(() => {
+		const preset = getActivePreset();
+		const _variant = editorState.activeVariant;
+		const _enabled = editorState.enabled;
 		const app = context.stateApp.pixiApplication;
 		if (!app) return;
-		const preset = getActivePreset();
-		const _variant = editorState.activeVariant; // track variant changes
 
-		if (editorState.enabled && preset) {
-			// Wait for DOM to settle after layout component swap, then apply
+		if (_enabled && preset) {
 			tick().then(() => {
 				applyPresetSize(preset.width, preset.height);
 			});
-			// Also apply immediately for instant feedback
 			applyPresetSize(preset.width, preset.height);
-		} else if (editorState.enabled) {
+		} else if (_enabled) {
 			tick().then(() => restoreFullscreen());
 			restoreFullscreen();
 		}
