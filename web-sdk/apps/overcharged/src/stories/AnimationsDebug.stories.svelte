@@ -87,11 +87,15 @@
 
 	type SkillKey = 'L1' | 'L2' | 'L3' | 'L4';
 
+	// Colors mirror low_symbols spine skin assigned to each math key in
+	// constants.ts SYMBOL_INFO_MAP (and SKILL_DATA in skillData.ts):
+	//   L1 → yellow (WILD STRIKE), L2 → green (OVERLOAD),
+	//   L3 → blue (POWER SURGE), L4 → red (MEGA BOLT).
 	const SKILLS = [
-		{ key: 'L1' as SkillKey, label: 'L1 — Yellow', target: config.skillThresholds.L1, color: '#ffd700', border: '#aa8800' },
-		{ key: 'L2' as SkillKey, label: 'L2 — Green',  target: config.skillThresholds.L2, color: '#66ff66', border: '#33aa33' },
-		{ key: 'L3' as SkillKey, label: 'L3 — Blue',   target: config.skillThresholds.L3, color: '#6699ff', border: '#3366bb' },
-		{ key: 'L4' as SkillKey, label: 'L4 — Red',    target: config.skillThresholds.L4, color: '#ff6666', border: '#aa3333' },
+		{ key: 'L1' as SkillKey, label: 'L1 — Yellow (Wild Strike)', target: config.skillThresholds.L1, color: '#ffd700', border: '#aa8800' },
+		{ key: 'L2' as SkillKey, label: 'L2 — Green (Overload)',     target: config.skillThresholds.L2, color: '#66ff66', border: '#33aa33' },
+		{ key: 'L3' as SkillKey, label: 'L3 — Blue (Power Surge)',   target: config.skillThresholds.L3, color: '#6699ff', border: '#3366bb' },
+		{ key: 'L4' as SkillKey, label: 'L4 — Red (Mega Bolt)',      target: config.skillThresholds.L4, color: '#ff6666', border: '#aa3333' },
 	];
 
 	let selectedSkill = $state<SkillKey>('L1');

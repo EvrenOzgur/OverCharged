@@ -74,6 +74,15 @@
 	// Per-track current animation state. Initialize from baselines.
 	let trackStates = $state<Map<number, TrackState>>(new Map());
 
+	// Tracks currently playing a non-looping trigger animation, keyed by track
+	// index → the trigger's TrackState. syncBaselines() reads from THIS map
+	// (NOT from trackStates) to preserve in-flight triggers across gameType
+	// edges. Important: this is a plain JS Map (not $state) so reads here are
+	// non-reactive — otherwise syncBaselines would form a feedback loop with
+	// its own `trackStates = next` write and Svelte 5 trips its infinite-effect
+	// guard.
+	const activeTriggerTracks = new Map<number, TrackState>();
+
 	function syncBaselines() {
 		const next = new Map<number, TrackState>();
 		const seenTracks = new Set<number>();
@@ -81,15 +90,23 @@
 		// Always have at least track 0
 		seenTracks.add(0);
 		for (const ti of seenTracks) {
+			const triggerState = activeTriggerTracks.get(ti);
+			if (triggerState) {
+				// Active trigger on this track — preserve it. onTrackComplete
+				// will swap to the (now gameType-aware) baseline when the
+				// transition animation finishes.
+				next.set(ti, triggerState);
+				continue;
+			}
 			next.set(ti, resolveBaseline(ti));
 		}
 		trackStates = next;
 	}
 	syncBaselines();
 
-	// React to gameType changes — re-resolve baselines
+	// React to gameType changes — re-resolve baselines (skipping tracks with
+	// an in-flight trigger; see activeTriggerTracks).
 	$effect(() => {
-		// Read gameType to subscribe to it
 		void context.stateGame.gameType;
 		syncBaselines();
 	});
@@ -99,15 +116,46 @@
 	// and override the track when the predicate matches.
 	const subs: Array<() => void> = [];
 
+	// [BG-ANIM-DEBUG] always-on logging for the character layer so transition
+	// timing issues (normal_to_hulk skipping, retrigger re-firing, etc.) are
+	// diagnosable in a Stake replay without a code change. Cheap — fires only
+	// on track state mutations, not every frame.
+	const dbgLayer = layer.id;
+	const dbg = (msg: string, extra?: Record<string, unknown>) => {
+		try {
+			console.log(`[BG-ANIM-DEBUG ${dbgLayer}] ${msg}`, extra ?? '');
+		} catch {
+			// noop
+		}
+	};
+
 	function applyTrigger(trackIndex: number, animationName: string, loop: boolean) {
+		const prev = trackStates.get(trackIndex);
+		dbg(`applyTrigger track=${trackIndex} anim=${animationName} loop=${loop}`, {
+			prevAnim: prev?.animationName,
+			effectiveGameType: effectiveGameType(),
+			sustainedGameType,
+		});
+		const nextState: TrackState = { animationName, loop };
+		// Mark this track as having an in-flight non-looping trigger so a
+		// gameType edge during the animation does not stomp it via
+		// syncBaselines(). Looping triggers (loop=true) don't need this guard
+		// because they don't have a "complete" boundary to defend.
+		if (!loop) activeTriggerTracks.set(trackIndex, nextState);
 		const next = new Map(trackStates);
-		next.set(trackIndex, { animationName, loop });
+		next.set(trackIndex, nextState);
 		trackStates = next;
 	}
 
 	function returnTrackToBaseline(trackIndex: number) {
+		const baseline = resolveBaseline(trackIndex);
+		dbg(`returnTrackToBaseline track=${trackIndex} → ${baseline.animationName}`, {
+			loop: baseline.loop,
+			effectiveGameType: effectiveGameType(),
+		});
+		activeTriggerTracks.delete(trackIndex);
 		const next = new Map(trackStates);
-		next.set(trackIndex, resolveBaseline(trackIndex));
+		next.set(trackIndex, baseline);
 		trackStates = next;
 	}
 

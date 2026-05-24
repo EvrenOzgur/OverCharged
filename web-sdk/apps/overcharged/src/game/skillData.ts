@@ -12,6 +12,17 @@ export type SkillMeta = {
 	color: number;
 };
 
+// Colors MUST match the low_symbols spine skin assigned to each math symbol
+// in constants.ts SYMBOL_INFO_MAP. The math layer counts cluster sizes per
+// symbol key (L1/L2/L3/L4 → skill_meters[key]); the player sees the symbol's
+// SKIN color. If a meter's bar color disagrees with the symbol skin, players
+// see "yellow symbol exploded → red bar filled" which reads as a bug.
+//
+// Skill → Name        → Skin   → Bar color
+//   L1  → WILD STRIKE  → yellow → 0xffd700
+//   L2  → OVERLOAD     → green  → 0x00ff00
+//   L3  → POWER SURGE  → blue   → 0x4488ff
+//   L4  → MEGA BOLT    → red    → 0xff4444
 export const SKILL_DATA: Record<SkillKey, SkillMeta> = {
 	L1: {
 		name: 'WILD STRIKE',
