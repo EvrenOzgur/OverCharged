@@ -306,6 +306,26 @@
         "basegame": "bg_idle",
         "freegame": "bg_idle"
       },
+      "gameTypeAnimationsByTrack": {
+        "1": {
+          "basegame": "normal_idle",
+          "freegame": "hulk_idle"
+        }
+      },
+      "gameTypeTransitions": {
+        "toBasegame": { "animation": "hulk_to_normal", "trackIndex": 1, "loop": false }
+      },
+      "bootstrapTriggers": [
+        { "animation": "hulk_to_normal", "trackIndex": 1, "loop": false, "returnToIdle": true }
+      ],
+      "idleAnimation": "normal_idle",
+      "triggers": {
+        "freeSpinIntroShow": { "animation": "normal_to_hulk", "loop": false, "trackIndex": 1, "returnToIdle": true, "sustainAsGameType": "freegame" },
+        "skillActivated.L1": { "animation": "yellow_mana_work", "animationFreegame": "hulk_mana_yellow", "loop": false, "trackIndex": 1, "returnToIdle": true },
+        "skillActivated.L2": { "animation": "green_mana_work", "animationFreegame": "hulk_mana_green", "loop": false, "trackIndex": 1, "returnToIdle": true },
+        "skillActivated.L3": { "animation": "blue_mana_work", "animationFreegame": "hulk_mana_blue", "loop": false, "trackIndex": 1, "returnToIdle": true },
+        "skillActivated.L4": { "animation": "red_mana_work", "animationFreegame": "hulk_mana_red", "loop": false, "trackIndex": 1, "returnToIdle": true }
+      },
       "x": 0,
       "y": 0,
       "scaleX": 1,
@@ -323,16 +343,7 @@
       "spriteKey": "",
       "spineKey": "",
       "spineAnims": [],
-      "idleAnimation": "idle",
-      "triggers": {
-        "skillActivated.L1": { "animation": "yellow_burst", "loop": false, "trackIndex": 0, "returnToIdle": true },
-        "skillActivated.L2": { "animation": "green_explode", "loop": false, "trackIndex": 0, "returnToIdle": true },
-        "skillActivated.L3": { "animation": "blue_lightning", "loop": false, "trackIndex": 0, "returnToIdle": true },
-        "skillActivated.L4": { "animation": "red_megawild", "loop": false, "trackIndex": 0, "returnToIdle": true },
-        "multiplierSymbolActivated": { "animation": "mult_glow", "loop": false, "trackIndex": 1, "returnToIdle": true },
-        "freeSpinTrigger": { "animation": "fs_celebration", "loop": false, "trackIndex": 0, "returnToIdle": true },
-        "wincap": { "animation": "wincap_burst", "loop": false, "trackIndex": 0, "returnToIdle": true }
-      },
+      "triggers": {},
       "x": 0,
       "y": 0,
       "scaleX": 1,

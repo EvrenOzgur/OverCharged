@@ -63,14 +63,35 @@ export type BgLayerType = 'color' | 'sprite' | 'spine';
  * `idleAnimation` if `returnToIdle !== false`.
  */
 export type BgLayerTrigger = {
-	/** Spine animation name to play */
+	/** Spine animation name to play (default / basegame) */
 	animation: string;
+	/** Override used when the layer's effective gameType is 'freegame'. Lets
+	 *  a single trigger play different animations during a bonus round (e.g.
+	 *  swap yellow_mana_work for hulk_mana_yellow). */
+	animationFreegame?: string;
 	/** Whether the trigger animation itself should loop */
 	loop?: boolean;
 	/** Spine track to play it on (default 0, share-safe with spineAnims) */
 	trackIndex?: number;
 	/** After complete, snap back to idleAnimation? (default true) */
 	returnToIdle?: boolean;
+	/**
+	 * When the trigger fires, force the layer's effective gameType to this
+	 * value until `stateGame.gameType` becomes 'basegame' (which clears it).
+	 * Use for early-transition events that fire BEFORE the real gameType
+	 * change — e.g. `freeSpinIntroShow` fires during the FS intro screen,
+	 * a few hundred ms before `stateGame.gameType` flips to 'freegame', so
+	 * the post-transition baseline (`hulk_idle`) must already be in effect
+	 * when `normal_to_hulk` completes.
+	 */
+	sustainAsGameType?: 'basegame' | 'freegame';
+};
+
+/** Animation to play when entering/leaving a gameType. */
+export type GameTypeTransition = {
+	animation: string;
+	trackIndex?: number;
+	loop?: boolean;
 };
 
 export type BgLayer = {
@@ -101,6 +122,31 @@ export type BgLayer = {
 		basegame?: string;
 		freegame?: string;
 	};
+	/**
+	 * Per-track gameType baseline override. Lets track 1+ also swap idle
+	 * animations on gameType change (e.g. normal_idle ↔ hulk_idle for the
+	 * character layer in bonus mode). Keys are track index as string.
+	 */
+	gameTypeAnimationsByTrack?: Record<string, { basegame?: string; freegame?: string }>;
+	/**
+	 * One-shot transition animations triggered on gameType change.
+	 * - `toFreegame`: plays once when basegame → freegame
+	 * - `toBasegame`: plays once when freegame → basegame
+	 * The track returns to its baseline (which by then reflects the NEW
+	 * gameType via gameTypeAnimationsByTrack) once the transition completes.
+	 */
+	gameTypeTransitions?: {
+		toFreegame?: GameTypeTransition;
+		toBasegame?: GameTypeTransition;
+	};
+	/**
+	 * Triggers fired once on mount. Useful for resetting a spine's setup-pose
+	 * visibility (e.g. play hulk_to_normal at startup so the hulk slots — which
+	 * are default-visible in the spine's setup pose — get hidden before any
+	 * idle animation runs). Each trigger plays once, then the track snaps
+	 * back to its baseline via onTrackComplete.
+	 */
+	bootstrapTriggers?: BgLayerTrigger[];
 	/**
 	 * Map from event-key → trigger config.
 	 * Key format: "<eventType>" or "<eventType>.<subType>".

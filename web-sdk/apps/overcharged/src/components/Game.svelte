@@ -73,12 +73,36 @@
 		// When that lands, drop this workaround and pass visiblePositions everywhere.
 		const paddedPositions = visiblePositions?.map((p) => ({ ...p, row: p.row + 1 }));
 
-		// Meterleri her zaman güncelle
+		// Meterleri güncelle.
+		//
+		// Math, aktive olan skill için sıfırlanmış değer DEĞİL, bu tumble'ın
+		// katkısını gönderiyor (ör. skillType=L1 → skillMeters.L1=1). Bunu
+		// doğrudan set edersek SkillMeter'ın fillTween'i FULL → %10 yönünde
+		// tween eder ve "boşalma" deneyimi kaybolur. Bunun yerine:
+		//   1. Aktive olan skill'i anında 0'a yazıyoruz → fillTween cubicOut
+		//      280ms ile FULL → 0 drain animasyonu oynar (skill banner ile
+		//      paralel, akış bloklanmıyor).
+		//   2. Drain tween süresi geçtikten sonra math'in verdiği gerçek
+		//      değere geri set ediyoruz (genelde 0 veya 1 — sonraki spin'in
+		//      başlangıç değeri). Bu da bir mini tween ile yumuşak yükselir.
+		// SkillMeter.svelte:120 — fillTween duration 280ms cubicOut.
 		if (skillMeters) {
-			context.stateGame.skillMeters.L1 = skillMeters.L1;
-			context.stateGame.skillMeters.L2 = skillMeters.L2;
-			context.stateGame.skillMeters.L3 = skillMeters.L3;
-			context.stateGame.skillMeters.L4 = skillMeters.L4;
+			const isActivation = skillType && skillType !== 'UPDATE';
+			const activatedKey = isActivation
+				? (skillType as 'L1' | 'L2' | 'L3' | 'L4')
+				: null;
+			for (const k of ['L1', 'L2', 'L3', 'L4'] as const) {
+				context.stateGame.skillMeters[k] =
+					k === activatedKey ? 0 : skillMeters[k];
+			}
+			if (activatedKey) {
+				const realValue = skillMeters[activatedKey];
+				// 320ms ≈ fillTween duration (280ms) + safety margin. Don't
+				// await — keep skill activation animation pipeline unblocked.
+				setTimeout(() => {
+					context.stateGame.skillMeters[activatedKey] = realValue;
+				}, 320);
+			}
 		}
 
 		if (!skillType || skillType === 'UPDATE') return;
