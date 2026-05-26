@@ -1,10 +1,31 @@
 import _ from 'lodash';
 
+import {
+	UI_BASE_SIZE as _SDK_UI_BASE_SIZE,
+	UI_BASE_FONT_SIZE as _SDK_UI_BASE_FONT_SIZE,
+} from 'components-ui-pixi/src/constants';
+
 import type { RawSymbol, SymbolState } from './types';
 
 export const SYMBOL_SIZE = 70;
 
 export const REEL_PADDING = 0.53;
+
+/**
+ * Multiplier applied to the shared SDK `UI_BASE_SIZE` (150) when sizing
+ * OverCharged's buttons. Bumped above 1 to make the Pragmatic-style
+ * buttons physically bigger than the base SDK default without having
+ * to touch the shared constant (which is consumed by other apps).
+ *
+ * Button files import `UI_BASE_SIZE` from THIS file (not the SDK one)
+ * to pick up the local override — the name is intentionally shadowed
+ * so the existing `UI_BASE_SIZE * 0.55` etc. tier expressions stay valid.
+ */
+export const BUTTON_SIZE_MULT = 1.3;
+export const UI_BASE_SIZE = _SDK_UI_BASE_SIZE * BUTTON_SIZE_MULT;
+// Font size is passed through unchanged — per-button `fontSize` in
+// uiLayout.json already handles label tuning where needed.
+export const UI_BASE_FONT_SIZE = _SDK_UI_BASE_FONT_SIZE;
 
 // initial board (padded top and bottom)
 export const INITIAL_BOARD: RawSymbol[][] = [

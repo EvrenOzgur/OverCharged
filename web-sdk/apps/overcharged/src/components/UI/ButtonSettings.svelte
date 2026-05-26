@@ -3,12 +3,13 @@
 	import { stateModal } from 'state-shared';
 
 	import UiButton from './UiButton.svelte';
-	import { UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
+	import { UI_BASE_SIZE } from '../../game/constants';
 	import { getContext } from 'components-ui-pixi/src/context';
 
 	const props: Partial<Omit<ButtonProps, 'children'>> = $props();
 	const context = getContext();
-	const sizes = { width: UI_BASE_SIZE * 1.3, height: UI_BASE_SIZE * 1.3 };
+	// Tertiary chrome icon — smallest hierarchy tier.
+	const sizes = { width: UI_BASE_SIZE * 0.55, height: UI_BASE_SIZE * 0.55 };
 
 	const onpress = () => {
 		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });

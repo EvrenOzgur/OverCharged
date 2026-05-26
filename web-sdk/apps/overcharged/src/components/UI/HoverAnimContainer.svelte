@@ -70,14 +70,11 @@
 
 		let cancelled = false;
 
+		// One-shot punch: pop up, settle back, then stay at rest.
 		(async () => {
-			while (!cancelled) {
-				await scale.set(peak, { duration: pop, easing: backOut });
-				if (cancelled) break;
-				await scale.set(1, { duration: settle, easing: cubicIn });
-				if (cancelled) break;
-				await sleep(hold);
-			}
+			await scale.set(peak, { duration: pop, easing: backOut });
+			if (cancelled) return;
+			await scale.set(1, { duration: settle, easing: cubicIn });
 		})();
 
 		return () => {

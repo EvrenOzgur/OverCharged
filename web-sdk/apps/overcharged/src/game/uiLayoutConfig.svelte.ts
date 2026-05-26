@@ -19,6 +19,11 @@ export type UiElementTransform = {
 
 export type BgType = 'color' | 'sprite' | 'spine';
 
+/** Hover-time visual effect a button can opt into. Single-select so the
+ *  layout editor can pick one via a dropdown. Layered effects (e.g. shine
+ *  + ring rotation) are independent and stay on regardless of this. */
+export type HoverEffect = 'none' | 'shine' | 'pulse' | 'glow';
+
 export type UiElementStyle = {
 	/** Override the element's display text (empty = use default i18n text) */
 	textOverride: string;
@@ -40,6 +45,28 @@ export type UiElementStyle = {
 	bgSpineAnim: string;
 	/** Whether the Spine animation should loop */
 	bgSpineLoop: boolean;
+
+	// ── Stake-style FX fields (consumed by ButtonFx / IconGraphics) ──
+	/** Programmatic icon tint (used by IconGraphics-based buttons like ButtonBet) */
+	iconColor?: string;
+	/** Draw an outer ring stroke around the button */
+	ringEnabled?: boolean;
+	ringColor?: string;
+	ringWidth?: number;
+	/** Slowly rotate the outer ring while the button is in its "active" state
+	 *  (e.g. spinning for ButtonBet). */
+	rotateRingOnSpin?: boolean;
+	/** Color for the multi-ring concentric glow halo */
+	glowColor?: string;
+	/** Which hover-only effect to play (single-select) */
+	hoverEffect?: HoverEffect;
+	/** Glow halo alpha during hover (0..1); used when hoverEffect === 'glow' */
+	hoverGlowIntensity?: number;
+	/** Glow halo alpha while button is active/spinning (0..1) */
+	activeGlowIntensity?: number;
+	/** AlphaFilter alpha applied uniformly to the CircularButtonBg.
+	 *  < 1 lets the game background show through the button (translucent). */
+	bgAlpha?: number;
 };
 
 export type UiElementConfig = UiElementTransform & {
@@ -234,6 +261,23 @@ export const BUTTON_STYLE_DEFAULTS: UiElementStyle = {
 	bgSpineKey: '',
 	bgSpineAnim: '',
 	bgSpineLoop: true,
+	// FX defaults (consumed by ButtonBet pilot; other buttons ignore unknown fields)
+	iconColor: '#ffffff',
+	// Pragmatic-style CircularButtonBg has its own bevelled rim — the
+	// external orbital ring is off by default; opt back in via layout editor.
+	ringEnabled: false,
+	// Silver/chrome metallic palette — neutral premium look that contrasts the
+	// game's grass green background without competing on hue. activeColor (lime)
+	// is intentionally distinct so an "active" button (e.g. AutoSpin ON) reads
+	// as a clear state change.
+	ringColor: '#B0BEC5',
+	ringWidth: 3,
+	rotateRingOnSpin: true,
+	glowColor: '#B0BEC5',
+	hoverEffect: 'shine',
+	hoverGlowIntensity: 0.6,
+	activeGlowIntensity: 0.55,
+	bgAlpha: 0.4,
 };
 
 export const LABEL_STYLE_DEFAULTS: UiElementStyle = {

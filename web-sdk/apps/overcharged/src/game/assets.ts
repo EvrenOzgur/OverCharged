@@ -198,4 +198,21 @@ export default {
 		src: './assets/audio/sounds.json',
 		preload: true,
 	},
+	// UI icons — Material Icons (Apache 2.0). White-filled SVGs at 192×192;
+	// tinted at the Sprite level so a single asset re-themes per button.
+	iconRefresh: { type: 'sprite', src: './OverChargedAssets/ui-icons/refresh.svg', preload: true },
+	iconStop: { type: 'sprite', src: './OverChargedAssets/ui-icons/stop.svg', preload: true },
+	iconAutoSpin: { type: 'sprite', src: './OverChargedAssets/ui-icons/autoSpin.svg', preload: true },
+	iconRepeat: { type: 'sprite', src: './OverChargedAssets/ui-icons/repeat.svg', preload: true },
+	iconTurbo: { type: 'sprite', src: './OverChargedAssets/ui-icons/turbo.svg', preload: true },
+	iconMenu: { type: 'sprite', src: './OverChargedAssets/ui-icons/menu.svg', preload: true },
+	iconMenuExit: { type: 'sprite', src: './OverChargedAssets/ui-icons/menuExit.svg', preload: true },
+	iconSettings: { type: 'sprite', src: './OverChargedAssets/ui-icons/settings.svg', preload: true },
+	iconPayTable: { type: 'sprite', src: './OverChargedAssets/ui-icons/payTable.svg', preload: true },
+	iconInfo: { type: 'sprite', src: './OverChargedAssets/ui-icons/info.svg', preload: true },
+	iconSoundOn: { type: 'sprite', src: './OverChargedAssets/ui-icons/soundOn.svg', preload: true },
+	iconSoundOff: { type: 'sprite', src: './OverChargedAssets/ui-icons/soundOff.svg', preload: true },
+	iconIncrease: { type: 'sprite', src: './OverChargedAssets/ui-icons/increase.svg', preload: true },
+	iconDecrease: { type: 'sprite', src: './OverChargedAssets/ui-icons/decrease.svg', preload: true },
+	iconBuyBonus: { type: 'sprite', src: './OverChargedAssets/ui-icons/buyBonus.svg', preload: true },
 } as const;

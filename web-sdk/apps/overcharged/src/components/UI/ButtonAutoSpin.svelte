@@ -5,13 +5,15 @@
 
 	import UiButton from './UiButton.svelte';
 	import { getContext } from 'components-ui-pixi/src/context';
-	import { UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
+	import { UI_BASE_SIZE } from '../../game/constants';
 	import ButtonBetAutoSpinsCounter from './ButtonBetAutoSpinsCounter.svelte';
 	import { getElementStyle } from '../../game/uiLayoutConfig.svelte';
 
 	const props: Partial<Omit<ButtonProps, 'children'>> = $props();
 	const context = getContext();
-	const sizes = { width: UI_BASE_SIZE, height: UI_BASE_SIZE };
+	// Primary aux action — sits between the giant Spin button and the
+	// tertiary icon row, so use a mid-hierarchy size.
+	const sizes = { width: UI_BASE_SIZE * 0.75, height: UI_BASE_SIZE * 0.75 };
 	const active = $derived(stateBetDerived.hasAutoBetCounter());
 	const styleOverrides = $derived(getElementStyle('buttonAutoSpin'));
 	const disabled = $derived.by(() => {
@@ -36,7 +38,7 @@
 	{active}
 	{onpress}
 	{disabled}
-	icon="autoSpin"
+	icon="repeat"
 	{styleOverrides}
 	hoverScale={1.08}
 >

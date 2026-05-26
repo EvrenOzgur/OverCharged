@@ -3,13 +3,14 @@
 	import { stateBet, stateBetDerived, stateConfig } from 'state-shared';
 
 	import UiButton from './UiButton.svelte';
-	import { UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
+	import { UI_BASE_SIZE } from '../../game/constants';
 	import { getContext } from 'components-ui-pixi/src/context';
 	import { getElementStyle } from '../../game/uiLayoutConfig.svelte';
 
 	const props: Partial<Omit<ButtonProps, 'children'>> = $props();
 	const context = getContext();
-	const sizes = { width: UI_BASE_SIZE, height: UI_BASE_SIZE };
+	// Primary aux action (peer of AutoSpin) — mid-hierarchy size.
+	const sizes = { width: UI_BASE_SIZE * 0.75, height: UI_BASE_SIZE * 0.75 };
 	const active = $derived(stateBet.isTurbo && !stateConfig.jurisdiction.disabledTurbo);
 	const disabled = $derived(stateBet.isSpaceHold || stateConfig.jurisdiction.disabledTurbo);
 	const styleOverrides = $derived(getElementStyle('buttonTurbo'));

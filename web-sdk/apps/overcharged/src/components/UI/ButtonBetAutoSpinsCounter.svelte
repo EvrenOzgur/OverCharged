@@ -3,7 +3,7 @@
 	import { stateBet } from 'state-shared';
 	import { WHITE } from 'constants-shared/colors';
 
-	import { UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
+	import { UI_BASE_SIZE } from '../../game/constants';
 
 	const fontSizeMultiplier = $derived.by(() => {
 		if (stateBet.autoSpinsCounter === Infinity) return 3;

@@ -6,7 +6,7 @@
 	import { Button, type ButtonProps } from 'components-pixi';
 
 	import UiSprite from './UiSprite.svelte';
-	import { UI_BASE_FONT_SIZE, UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
+	import { UI_BASE_FONT_SIZE, UI_BASE_SIZE } from '../../game/constants';
 	import { getContext } from 'components-ui-pixi/src/context';
 	import { Tween } from 'svelte/motion';
 

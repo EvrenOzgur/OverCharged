@@ -4,12 +4,13 @@
 
 	import UiButton from './UiButton.svelte';
 	import { getContext } from 'components-ui-pixi/src/context';
-	import { UI_BASE_SIZE } from 'components-ui-pixi/src/constants';
+	import { UI_BASE_SIZE } from '../../game/constants';
 	import { getElementStyle } from '../../game/uiLayoutConfig.svelte';
 
 	const props: Partial<Omit<ButtonProps, 'children'>> = $props();
 	const context = getContext();
-	const sizes = { width: UI_BASE_SIZE, height: UI_BASE_SIZE };
+	// Bet adjuster — tertiary, smallest tier.
+	const sizes = { width: UI_BASE_SIZE * 0.45, height: UI_BASE_SIZE * 0.45 };
 	const biggest = $derived(stateConfig.betAmountOptions[stateConfig.betAmountOptions.length - 1]);
 	const styleOverrides = $derived(getElementStyle('buttonIncrease'));
 	const disabled = $derived(!context.stateXstateDerived.isIdle() || stateBet.betAmount === biggest);

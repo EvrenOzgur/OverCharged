@@ -37,6 +37,7 @@
 	import Transition from './Transition.svelte';
 	import I18nTest from './I18nTest.svelte';
 	import SkillActivatedOverlay from './SkillActivatedOverlay.svelte';
+	import SkillVFX from './SkillVFX.svelte';
 	import ScreenShake from './ScreenShake.svelte';
 	import SkillPreHighlight from './SkillPreHighlight.svelte';
 	import type { BookEventSkillActivated } from '../game/typesBookEvent';
@@ -310,6 +311,11 @@
 			<FreeSpinCounter />
 		{/if}
 		<FreeSpinOutro />
+		<!--
+			SkillVFX renders BENEATH the banner so radial bursts, bolt rain
+			etc. fill the play area while the banner stays readable on top.
+		-->
+		<SkillVFX />
 		<!--
 			SkillActivatedOverlay mounts AFTER UI so its fullscreen banner draws
 			on top of every other layer (buttons, win text, etc.) during the
