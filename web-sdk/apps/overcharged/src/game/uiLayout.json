@@ -63,7 +63,17 @@
         "bgSpriteKey": "",
         "bgSpineKey": "",
         "bgSpineAnim": "",
-        "bgSpineLoop": true
+        "bgSpineLoop": true,
+        "iconColor": "#ffffff",
+        "ringEnabled": false,
+        "ringColor": "#B0BEC5",
+        "ringWidth": 3,
+        "rotateRingOnSpin": true,
+        "glowColor": "#B0BEC5",
+        "hoverEffect": "shine",
+        "hoverGlowIntensity": 0.6,
+        "activeGlowIntensity": 0.55,
+        "bgAlpha": 0.4
       }
     },
     "buttonMenu": {
@@ -85,17 +95,27 @@
         "bgSpriteKey": "",
         "bgSpineKey": "",
         "bgSpineAnim": "",
-        "bgSpineLoop": true
+        "bgSpineLoop": true,
+        "iconColor": "#ffffff",
+        "ringEnabled": false,
+        "ringColor": "#B0BEC5",
+        "ringWidth": 3,
+        "rotateRingOnSpin": true,
+        "glowColor": "#B0BEC5",
+        "hoverEffect": "shine",
+        "hoverGlowIntensity": 0.6,
+        "activeGlowIntensity": 0.55,
+        "bgAlpha": 0.4
       }
     },
     "amountBalance": {
-      "x": -36,
-      "y": -554,
-      "scale": 0.45,
+      "x": -25,
+      "y": -350,
+      "scale": 0.55,
       "rotation": 0,
       "style": {
         "textOverride": "",
-        "fontColor": "#ededed",
+        "fontColor": "#cfd8dc",
         "valueColor": "#ffffff",
         "fontSize": 1,
         "backgroundColor": "#1a1a1e",
@@ -103,17 +123,17 @@
         "activeColor": "#39ff14",
         "alpha": 1,
         "visible": true,
-        "bgType": "sprite",
-        "bgSpriteKey": "progressBar",
+        "bgType": "color",
+        "bgSpriteKey": "",
         "bgSpineKey": "",
         "bgSpineAnim": "",
         "bgSpineLoop": true
       }
     },
     "buttonDecrease": {
-      "x": -318,
-      "y": -253,
-      "scale": 0.55,
+      "x": -241,
+      "y": -257,
+      "scale": 0.8,
       "rotation": 0,
       "style": {
         "textOverride": "",
@@ -129,17 +149,27 @@
         "bgSpriteKey": "",
         "bgSpineKey": "",
         "bgSpineAnim": "",
-        "bgSpineLoop": true
+        "bgSpineLoop": true,
+        "iconColor": "#ffffff",
+        "ringEnabled": false,
+        "ringColor": "#B0BEC5",
+        "ringWidth": 3,
+        "rotateRingOnSpin": true,
+        "glowColor": "#B0BEC5",
+        "hoverEffect": "shine",
+        "hoverGlowIntensity": 0.6,
+        "activeGlowIntensity": 0.55,
+        "bgAlpha": 0.4
       }
     },
     "amountBet": {
-      "x": -17,
+      "x": -25,
       "y": -281,
-      "scale": 0.8,
+      "scale": 0.55,
       "rotation": 0,
       "style": {
         "textOverride": "",
-        "fontColor": "#999999",
+        "fontColor": "#cfd8dc",
         "valueColor": "#ffffff",
         "fontSize": 1,
         "backgroundColor": "#1a1a1e",
@@ -155,9 +185,9 @@
       }
     },
     "buttonIncrease": {
-      "x": 271,
-      "y": -247,
-      "scale": 0.55,
+      "x": 191,
+      "y": -257,
+      "scale": 0.8,
       "rotation": 0,
       "style": {
         "textOverride": "",
@@ -173,7 +203,17 @@
         "bgSpriteKey": "",
         "bgSpineKey": "",
         "bgSpineAnim": "",
-        "bgSpineLoop": true
+        "bgSpineLoop": true,
+        "iconColor": "#ffffff",
+        "ringEnabled": false,
+        "ringColor": "#B0BEC5",
+        "ringWidth": 3,
+        "rotateRingOnSpin": true,
+        "glowColor": "#B0BEC5",
+        "hoverEffect": "shine",
+        "hoverGlowIntensity": 0.6,
+        "activeGlowIntensity": 0.55,
+        "bgAlpha": 0.4
       }
     },
     "buttonAutoSpin": {
@@ -195,7 +235,17 @@
         "bgSpriteKey": "",
         "bgSpineKey": "",
         "bgSpineAnim": "",
-        "bgSpineLoop": true
+        "bgSpineLoop": true,
+        "iconColor": "#ffffff",
+        "ringEnabled": false,
+        "ringColor": "#B0BEC5",
+        "ringWidth": 3,
+        "rotateRingOnSpin": true,
+        "glowColor": "#B0BEC5",
+        "hoverEffect": "shine",
+        "hoverGlowIntensity": 0.6,
+        "activeGlowIntensity": 0.55,
+        "bgAlpha": 0.4
       }
     },
     "buttonBet": {
@@ -217,7 +267,17 @@
         "bgSpriteKey": "",
         "bgSpineKey": "",
         "bgSpineAnim": "",
-        "bgSpineLoop": true
+        "bgSpineLoop": true,
+        "iconColor": "#ffffff",
+        "ringEnabled": false,
+        "ringColor": "#B0BEC5",
+        "ringWidth": 3,
+        "rotateRingOnSpin": true,
+        "glowColor": "#B0BEC5",
+        "hoverEffect": "shine",
+        "hoverGlowIntensity": 0.6,
+        "activeGlowIntensity": 0.55,
+        "bgAlpha": 0.4
       }
     },
     "buttonTurbo": {
@@ -239,7 +299,17 @@
         "bgSpriteKey": "",
         "bgSpineKey": "",
         "bgSpineAnim": "",
-        "bgSpineLoop": true
+        "bgSpineLoop": true,
+        "iconColor": "#ffffff",
+        "ringEnabled": false,
+        "ringColor": "#B0BEC5",
+        "ringWidth": 3,
+        "rotateRingOnSpin": true,
+        "glowColor": "#B0BEC5",
+        "hoverEffect": "shine",
+        "hoverGlowIntensity": 0.6,
+        "activeGlowIntensity": 0.55,
+        "bgAlpha": 0.4
       }
     }
   },
@@ -313,18 +383,57 @@
         }
       },
       "gameTypeTransitions": {
-        "toBasegame": { "animation": "hulk_to_normal", "trackIndex": 1, "loop": false }
+        "toBasegame": {
+          "animation": "hulk_to_normal",
+          "trackIndex": 1,
+          "loop": false
+        }
       },
       "bootstrapTriggers": [
-        { "animation": "hulk_to_normal", "trackIndex": 1, "loop": false, "returnToIdle": true }
+        {
+          "animation": "hulk_to_normal",
+          "trackIndex": 1,
+          "loop": false,
+          "returnToIdle": true
+        }
       ],
       "idleAnimation": "normal_idle",
       "triggers": {
-        "freeSpinIntroShow": { "animation": "normal_to_hulk", "loop": false, "trackIndex": 1, "returnToIdle": true, "sustainAsGameType": "freegame" },
-        "skillActivated.L1": { "animation": "yellow_mana_work", "animationFreegame": "hulk_mana_yellow", "loop": false, "trackIndex": 1, "returnToIdle": true },
-        "skillActivated.L2": { "animation": "green_mana_work", "animationFreegame": "hulk_mana_green", "loop": false, "trackIndex": 1, "returnToIdle": true },
-        "skillActivated.L3": { "animation": "blue_mana_work", "animationFreegame": "hulk_mana_blue", "loop": false, "trackIndex": 1, "returnToIdle": true },
-        "skillActivated.L4": { "animation": "red_mana_work", "animationFreegame": "hulk_mana_red", "loop": false, "trackIndex": 1, "returnToIdle": true }
+        "freeSpinIntroShow": {
+          "animation": "normal_to_hulk",
+          "loop": false,
+          "trackIndex": 1,
+          "returnToIdle": true,
+          "sustainAsGameType": "freegame"
+        },
+        "skillActivated.L1": {
+          "animation": "yellow_mana_work",
+          "animationFreegame": "hulk_mana_yellow",
+          "loop": false,
+          "trackIndex": 1,
+          "returnToIdle": true
+        },
+        "skillActivated.L2": {
+          "animation": "green_mana_work",
+          "animationFreegame": "hulk_mana_green",
+          "loop": false,
+          "trackIndex": 1,
+          "returnToIdle": true
+        },
+        "skillActivated.L3": {
+          "animation": "blue_mana_work",
+          "animationFreegame": "hulk_mana_blue",
+          "loop": false,
+          "trackIndex": 1,
+          "returnToIdle": true
+        },
+        "skillActivated.L4": {
+          "animation": "red_mana_work",
+          "animationFreegame": "hulk_mana_red",
+          "loop": false,
+          "trackIndex": 1,
+          "returnToIdle": true
+        }
       },
       "x": 0,
       "y": 0,
@@ -333,7 +442,8 @@
       "alpha": 1,
       "visible": true,
       "useResponsiveLayout": true,
-      "responsiveScale": 0.5
+      "responsiveScale": 0.5,
+      "orientationSkin": true
     },
     {
       "id": "bgSkillEffects",
@@ -361,7 +471,8 @@
     "gridGapX": 0,
     "gridGapY": 0,
     "boardPaddingX": 0,
-    "boardPaddingY": 0
+    "boardPaddingY": 0,
+    "showBoardFrame": true
   },
   "presetConfigs": {
     "1200x675": {
@@ -1142,8 +1253,8 @@
         }
       },
       "buttonBuyBonus": {
-        "x": 50,
-        "y": -192,
+        "x": 12,
+        "y": 305,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1164,8 +1275,8 @@
         }
       },
       "buttonMenu": {
-        "x": 53,
-        "y": -6,
+        "x": 6,
+        "y": 361,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1186,8 +1297,8 @@
         }
       },
       "amountBalance": {
-        "x": -36,
-        "y": -554,
+        "x": -626,
+        "y": 577,
         "scale": 0.45,
         "rotation": 0,
         "style": {
@@ -1230,8 +1341,8 @@
         }
       },
       "amountBet": {
-        "x": -17,
-        "y": -281,
+        "x": -542,
+        "y": 461,
         "scale": 0.8,
         "rotation": 0,
         "style": {
@@ -1274,8 +1385,8 @@
         }
       },
       "buttonAutoSpin": {
-        "x": -226,
-        "y": -18,
+        "x": -88,
+        "y": 231,
         "scale": 0.85,
         "rotation": 0,
         "style": {
@@ -1296,8 +1407,8 @@
         }
       },
       "buttonBet": {
-        "x": -51,
-        "y": -25,
+        "x": 11,
+        "y": 220,
         "scale": 1.1,
         "rotation": 0,
         "style": {
@@ -1318,8 +1429,8 @@
         }
       },
       "buttonTurbo": {
-        "x": 126,
-        "y": -11,
+        "x": 124,
+        "y": 215,
         "scale": 0.85,
         "rotation": 0,
         "style": {
@@ -1630,8 +1741,8 @@
         }
       },
       "buttonBuyBonus": {
-        "x": 50,
-        "y": -192,
+        "x": 42,
+        "y": 418,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1652,8 +1763,8 @@
         }
       },
       "buttonMenu": {
-        "x": 53,
-        "y": -6,
+        "x": 24,
+        "y": 476,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1674,8 +1785,8 @@
         }
       },
       "amountBalance": {
-        "x": -36,
-        "y": -554,
+        "x": -527,
+        "y": 599,
         "scale": 0.45,
         "rotation": 0,
         "style": {
@@ -1718,8 +1829,8 @@
         }
       },
       "amountBet": {
-        "x": -17,
-        "y": -281,
+        "x": -452,
+        "y": 258,
         "scale": 0.8,
         "rotation": 0,
         "style": {
@@ -1762,8 +1873,8 @@
         }
       },
       "buttonAutoSpin": {
-        "x": -226,
-        "y": -18,
+        "x": -42,
+        "y": 367,
         "scale": 0.85,
         "rotation": 0,
         "style": {
@@ -1784,8 +1895,8 @@
         }
       },
       "buttonBet": {
-        "x": -51,
-        "y": -25,
+        "x": 46,
+        "y": 357,
         "scale": 1.1,
         "rotation": 0,
         "style": {
@@ -1806,8 +1917,8 @@
         }
       },
       "buttonTurbo": {
-        "x": 126,
-        "y": -11,
+        "x": 120,
+        "y": 376,
         "scale": 0.85,
         "rotation": 0,
         "style": {

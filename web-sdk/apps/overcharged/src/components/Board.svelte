@@ -53,13 +53,13 @@
 						}
 
 						reelSymbol.symbolState = state;
-						
+
 						// Safety timeout: 2000ms max wait for animation complete
 						await Promise.race([
 							waitForResolve((resolve) => (reelSymbol.oncomplete = resolve)),
 							new Promise((resolve) => setTimeout(resolve, 2000))
 						]);
-						
+
 						if (state === 'win') {
 							reelSymbol.symbolState = 'postWinStatic';
 						}
@@ -68,6 +68,15 @@
 			};
 
 			await Promise.all(getPromises());
+		},
+		skipAnimation: () => {
+			// Resolve every in-flight symbol oncomplete so the cluster-win
+			// boardWithAnimateSymbols Promise.all completes immediately.
+			for (const reel of context.stateGame.board) {
+				for (const sym of reel.reelState.symbols) {
+					if (sym.oncomplete) sym.oncomplete();
+				}
+			}
 		},
 	});
 

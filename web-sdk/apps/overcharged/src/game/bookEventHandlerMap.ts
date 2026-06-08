@@ -11,6 +11,37 @@ import { SKILL_L3_ASSETS } from './skillAssets';
 import type { BookEvent, BookEventOfType, BookEventContext } from './typesBookEvent';
 import type { Position, SymbolState } from './types';
 
+// ─── skipAnimation-interruptible timeout ──────────────────────────────
+// `setTimeout` waits used in this handler map can now be short-circuited
+// by a global `skipAnimation` broadcast (Space key). We keep a list of
+// pending resolvers; on each skipAnimation broadcast they all fire and
+// the awaiting `await` returns immediately.
+const skipResolvers: Array<() => void> = [];
+
+eventEmitter.subscribe({
+	skipAnimation: () => {
+		// Snapshot + clear so newly registered waits (e.g. chained after the
+		// resolved one) don't get accidentally cancelled by this same broadcast.
+		const drained = skipResolvers.splice(0, skipResolvers.length);
+		for (const resolve of drained) resolve();
+	},
+});
+
+function waitForSkipOrTimeout(ms: number): Promise<void> {
+	return new Promise<void>((resolve) => {
+		const timer = setTimeout(() => {
+			const idx = skipResolvers.indexOf(skipResolve);
+			if (idx >= 0) skipResolvers.splice(idx, 1);
+			resolve();
+		}, ms);
+		const skipResolve = () => {
+			clearTimeout(timer);
+			resolve();
+		};
+		skipResolvers.push(skipResolve);
+	});
+}
+
 const winLevelSoundsPlay = ({ winLevelData }: { winLevelData: WinLevelData }) => {
 	if (winLevelData?.alias === 'max') eventEmitter.broadcastAsync({ type: 'uiHide' });
 	if (winLevelData?.sound?.sfx) {
@@ -155,7 +186,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// FS spin. Retriggers keep their meters (see `freeSpinRetrigger`).
 		stateGame.skillMeters = { L1: 0, L2: 0, L3: 0, L4: 0 };
 		eventEmitter.broadcast({ type: 'freeSpinIntroHide' });
-		eventEmitter.broadcast({ type: 'boardFrameGlowShow' });
 		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
 		await eventEmitter.broadcastAsync({
 			type: 'globalMultiplierUpdate',
@@ -190,7 +220,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		});
 		stateGame.gameType = 'freegame';
 		eventEmitter.broadcast({ type: 'freeSpinIntroHide' });
-		eventEmitter.broadcast({ type: 'boardFrameGlowShow' });
 		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
 		// Retrigger does NOT reset the math global multiplier — preserve the
 		// current value so the display doesn't dip to 1× and snap back.
@@ -245,7 +274,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 
 		await eventEmitter.broadcastAsync({ type: 'uiHide' });
 		stateGame.gameType = 'basegame';
-		eventEmitter.broadcast({ type: 'boardFrameGlowHide' });
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
 		eventEmitter.broadcast({ type: 'freeSpinOutroShow' });
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_youwon_panel' });
@@ -352,14 +380,12 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			return;
 		}
 
-		// Otherwise, wait for animation with a safeguard
+		// Otherwise, wait for animation with a safeguard. skipAnimation
+		// (Space) short-circuits the 5s safeguard so the user doesn't sit
+		// through it when the actual animation handler fast-forwards.
 		await Promise.race([
 			eventEmitter.broadcastAsync(bookEvent),
-			new Promise((resolve) => {
-				setTimeout(() => {
-					resolve(null);
-				}, 5000);
-			}),
+			waitForSkipOrTimeout(5000),
 		]);
 	},
 	finalMultiplierApplied: async (bookEvent: BookEventOfType<'finalMultiplierApplied'>) => {
@@ -385,8 +411,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			animate: true,
 		});
 
-		// 5. Short wait for player to "feel" the win
-		await new Promise((resolve) => setTimeout(resolve, 800));
+		// 5. Short wait for player to "feel" the win — skippable via Space.
+		await waitForSkipOrTimeout(800);
 	},
 	// customised
 	createBonusSnapshot: async (bookEvent: BookEventOfType<'createBonusSnapshot'>) => {

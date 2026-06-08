@@ -27,6 +27,11 @@
 			await Promise.all(gerPromises());
 			wins = [];
 		},
+		skipAnimation: () => {
+			// Resolve every in-flight win count-up so Promise.all completes
+			// immediately — caller's flow advances without waiting for the tween.
+			for (const win of wins) win.oncomplete();
+		},
 	});
 </script>
 

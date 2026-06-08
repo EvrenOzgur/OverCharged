@@ -4,6 +4,7 @@
 
 	import { getContext } from '../game/context';
 	import { hexToPixi, type BgLayer } from '../game/uiLayoutConfig.svelte';
+	import SkillMeterDriver from './SkillMeterDriver.svelte';
 
 	type Props = {
 		layer: BgLayer;
@@ -13,6 +14,18 @@
 	const context = getContext();
 
 	const canvasSizes = $derived(context.stateLayoutDerived.canvasSizes());
+
+	// Orientation-driven skin: the bgCharacters skeleton ships 'landscape' /
+	// 'portrait' skins (no 'default'), so a skin MUST be set or nothing renders.
+	// Reactive to layoutType so rotating the viewport re-skins via
+	// BaseSpineProvider's setSkinByName effect.
+	const skin = $derived(
+		layer.orientationSkin
+			? context.stateLayoutDerived.layoutType() === 'portrait'
+				? 'portrait'
+				: 'landscape'
+			: undefined,
+	);
 
 	function responsiveProps(l: BgLayer) {
 		if (l.useResponsiveLayout) {
@@ -315,6 +328,7 @@
 {:else if layer.type === 'spine' && layer.spineKey}
 	<SpineProvider
 		asset={layer.spineKey}
+		{skin}
 		{...responsiveProps(layer)}
 		scale={{ x: layer.scaleX, y: layer.scaleY }}
 		alpha={layer.alpha}
@@ -330,5 +344,8 @@
 				/>
 			{/if}
 		{/each}
+		<!-- Drives this spine's embedded mana fill bones from skillMeters.
+		     Gracefully no-ops on layers whose skeleton doesn't define them. -->
+		<SkillMeterDriver />
 	</SpineProvider>
 {/if}

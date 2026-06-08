@@ -194,6 +194,12 @@ export type BgLayer = {
 	useResponsiveLayout: boolean;
 	/** Scale passed to normalBackgroundLayout */
 	responsiveScale: number;
+	/**
+	 * When true, the spine skin is selected reactively from layoutType
+	 * ('portrait' → 'portrait', else 'landscape'). For skeletons that ship
+	 * orientation skins instead of a 'default' skin (e.g. bgCharacters).
+	 */
+	orientationSkin?: boolean;
 };
 
 export type ColorPalette = {
@@ -218,6 +224,13 @@ export type BoardConfig = {
 	gridGapY: number;
 	boardPaddingX: number;
 	boardPaddingY: number;
+	/**
+	 * @deprecated No longer consumed. The board well + frame + logo are baked
+	 * into the bgCharacters spine (SlotArea / boardFrame / logo slots); the old
+	 * SDK frame + reelhouse win-glow were removed. Kept for config back-compat;
+	 * safe to remove once no persisted layout references it.
+	 */
+	showBoardFrame?: boolean;
 };
 
 export const BOARD_CONFIG_DEFAULTS: BoardConfig = {
@@ -228,6 +241,8 @@ export const BOARD_CONFIG_DEFAULTS: BoardConfig = {
 	gridGapY: 0,
 	boardPaddingX: 0,
 	boardPaddingY: 0,
+	// Deprecated/no-op: board frame now comes from the bgCharacters spine.
+	showBoardFrame: true,
 };
 
 export type LayoutVariant = 'desktop' | 'tablet' | 'landscape' | 'portrait';
@@ -340,6 +355,7 @@ export const DEFAULT_BG_LAYERS: BgLayer[] = [
 		visible: true,
 		useResponsiveLayout: true,
 		responsiveScale: 0.5,
+		orientationSkin: true,
 	},
 ];
 

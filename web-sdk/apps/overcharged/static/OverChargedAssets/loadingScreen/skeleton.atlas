@@ -1,0 +1,14 @@
+skeleton.png
+size:1204,969
+pma:true
+loadingScreen/barBG
+bounds:471,98,500,20
+loadingScreen/bg
+bounds:2,148,1200,819
+loadingScreen/color
+bounds:471,76,500,20
+loadingScreen/logo
+bounds:2,2,467,144
+offsets:22,5,512,160
+loadingScreen/stroke
+bounds:471,120,506,26

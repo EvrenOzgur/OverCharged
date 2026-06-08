@@ -10,12 +10,14 @@ import { stateApp } from './stateApp';
 
 import { stateGame, stateGameDerived } from './stateGame.svelte';
 import { i18nDerived } from '../i18n/i18nDerived';
+import { setupBetModes } from './betModes';
 
 export const setContext = () => {
 	setContextEventEmitter<EmitterEvent>({ eventEmitter });
 	setContextXstate({ stateXstate, stateXstateDerived });
 	setContextLayout({ stateLayout, stateLayoutDerived });
 	setContextApp({ stateApp });
+	setupBetModes();
 };
 
 export const getContext = () => ({

@@ -9,6 +9,17 @@
 	const hasAnticipation = $derived(
 		context.stateGame.board.some((reel) => reel.reelState.anticipating),
 	);
+
+	context.eventEmitter.subscribeOnMount({
+		// Clear all anticipating reels — child <Anticipation> components unmount
+		// and the reveal flow advances immediately. Same effect as each anim
+		// completing naturally (oncomplete sets anticipating=false).
+		skipAnimation: () => {
+			for (const reel of context.stateGame.board) {
+				if (reel.reelState.anticipating) reel.reelState.anticipating = false;
+			}
+		},
+	});
 </script>
 
 {#if hasAnticipation}

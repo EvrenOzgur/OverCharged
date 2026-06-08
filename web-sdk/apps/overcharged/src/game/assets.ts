@@ -13,8 +13,8 @@ export default {
 	loader: {
 		type: 'spine',
 		src: {
-			atlas: './assets/spines/loader/loader.atlas',
-			skeleton: './assets/spines/loader/loader.json',
+			atlas: './OverChargedAssets/loadingScreen/skeleton.atlas',
+			skeleton: './OverChargedAssets/loadingScreen/skeleton.json',
 			scale: 2,
 		},
 		preload: true,
@@ -54,8 +54,8 @@ export default {
 	bgCharacters: {
 		type: 'spine',
 		src: {
-			atlas: './OverChargedAssets/bg_characters_machine/bg_characters.atlas',
-			skeleton: './OverChargedAssets/bg_characters_machine/bg_characters.json',
+			atlas: './bg_characters/bg_characters.atlas',
+			skeleton: './bg_characters/bg_characters.json',
 			scale: 2,
 		},
 		preload: true,
@@ -145,14 +145,6 @@ export default {
 		src: {
 			atlas: './assets/spines/tumbleWin/tumble_win.atlas',
 			skeleton: './assets/spines/tumbleWin/tumble_win.json',
-			scale: 2,
-		},
-	},
-	reelhouse: {
-		type: 'spine',
-		src: {
-			atlas: './assets/spines/reelhouse/reelhouse_glow.atlas',
-			skeleton: './assets/spines/reelhouse/reelhouse_glow.json',
 			scale: 2,
 		},
 	},

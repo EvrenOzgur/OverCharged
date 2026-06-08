@@ -33,8 +33,14 @@
 
 	const mainLayout = $derived.by(context.stateLayoutDerived.mainLayout);
 
+	// runId — every time the banner sequence starts we bump this. The handler
+	// checks it after each await to drop out cleanly if `skipAnimation` was
+	// broadcast (which bumps the id and snaps the banner away).
+	let runId = 0;
+
 	context.eventEmitter.subscribeOnMount({
 		skillActivatedDisplay: async ({ skillKey }) => {
+			const id = ++runId;
 			activeSkill = skillKey;
 			// Reset to start state instantly
 			alpha.set(0, { duration: 0 });
@@ -44,11 +50,23 @@
 				alpha.set(1, { duration: 220, easing: cubicOut }),
 				scale.set(1, { duration: 280, easing: backOut }),
 			]);
+			if (id !== runId) return;
 			// Hold the banner so the player can read it
 			await new Promise((resolve) => setTimeout(resolve, 800));
+			if (id !== runId) return;
 			// Fade out
 			await alpha.set(0, { duration: 380, easing: cubicIn });
+			if (id !== runId) return;
 			activeSkill = null;
+		},
+		skipAnimation: () => {
+			if (activeSkill === null) return;
+			// Invalidate the in-flight handler — its post-await guards drop out.
+			++runId;
+			// Quick fade so the dismiss still reads as motion, not a teleport.
+			alpha.set(0, { duration: 120, easing: cubicIn }).then(() => {
+				if (alpha.current <= 0.01) activeSkill = null;
+			});
 		},
 	});
 </script>

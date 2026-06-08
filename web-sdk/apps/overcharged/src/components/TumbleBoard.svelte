@@ -89,7 +89,7 @@
 					if (reel && reel[symbolIndex]) {
 						const tumbleSymbol = reel[symbolIndex];
 						tumbleSymbol.symbolState = 'explosion';
-						
+
 						// Safeguard: Timeout after 3 seconds if animation doesn't complete
 						await Promise.race([
 							waitForResolve((resolve) => (tumbleSymbol.oncomplete = resolve)),
@@ -100,6 +100,33 @@
 			};
 
 			await Promise.all(getPromises());
+		},
+		skipAnimation: () => {
+			// 1. Resolve every in-flight symbol explosion so tumbleBoardExplode's
+			//    Promise.all completes immediately.
+			for (const reel of context.stateGame.tumbleBoardBase) {
+				for (const sym of reel) {
+					if (sym.symbolState === 'explosion' && sym.oncomplete) {
+						sym.oncomplete();
+					}
+				}
+			}
+			// 2. Snap every in-flight slide-down tween to its target so
+			//    tumbleBoardSlideDown's tween awaits resolve right away.
+			for (const reel of context.stateGame.tumbleBoardBase) {
+				for (const sym of reel) {
+					if (sym.symbolY && typeof sym.symbolY.set === 'function') {
+						sym.symbolY.set(sym.symbolY.target, { duration: 0 });
+					}
+				}
+			}
+			for (const reel of context.stateGame.tumbleBoardAdding) {
+				for (const sym of reel) {
+					if (sym.symbolY && typeof sym.symbolY.set === 'function') {
+						sym.symbolY.set(sym.symbolY.target, { duration: 0 });
+					}
+				}
+			}
 		},
 		tumbleBoardRemoveExploded: () => {
 			context.stateGame.tumbleBoardBase.forEach((tumbleReel, reelIndex) => {

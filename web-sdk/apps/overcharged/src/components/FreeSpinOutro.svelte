@@ -40,6 +40,12 @@
 			winLevelData = emitterEvent.winLevelData;
 			await waitForResolve((resolve) => (oncomplete = resolve));
 		},
+		skipAnimation: () => {
+			// While the outro is up, advance the flow (same as PressToContinue
+			// firing). Skips both the count-up wait and the dismissal wait in
+			// one go; subsequent skips on the same screen are no-ops.
+			if (show) oncomplete();
+		},
 	});
 </script>
 

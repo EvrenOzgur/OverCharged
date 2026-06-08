@@ -36,15 +36,29 @@
 	let color = $state(0xffffff);
 	const alpha = new Tween(0, { duration: 200, easing: cubicOut });
 
+	// Invalidate-on-skip token (see SkillActivatedOverlay for the pattern).
+	let runId = 0;
+
 	context.eventEmitter.subscribeOnMount({
 		skillPreHighlight: async ({ positions: p, color: c, holdMs = 200 }) => {
+			const id = ++runId;
 			positions = p;
 			color = c;
 			alpha.set(0, { duration: 0 });
 			await alpha.set(0.7, { duration: 140, easing: cubicOut });
+			if (id !== runId) return;
 			await new Promise((resolve) => setTimeout(resolve, holdMs));
+			if (id !== runId) return;
 			await alpha.set(0, { duration: 180, easing: cubicIn });
+			if (id !== runId) return;
 			positions = [];
+		},
+		skipAnimation: () => {
+			if (positions.length === 0) return;
+			++runId;
+			alpha.set(0, { duration: 80, easing: cubicIn }).then(() => {
+				if (alpha.current <= 0.01) positions = [];
+			});
 		},
 	});
 </script>

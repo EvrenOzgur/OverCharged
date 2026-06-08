@@ -36,6 +36,10 @@
 				await waitForResolve((resolve) => (oncomplete = resolve));
 			}
 		},
+		skipAnimation: () => {
+			// Resolve the pending update tween so the flow advances immediately.
+			oncomplete();
+		},
 	});
 </script>
 

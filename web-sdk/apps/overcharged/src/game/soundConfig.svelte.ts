@@ -255,8 +255,6 @@ export const GAME_EVENTS: GameEventDef[] = [
 	{ name: 'boardHide', label: 'Board Hide', category: 'board' },
 	{ name: 'boardSymbolsReset', label: 'Symbols Reset', category: 'board' },
 	{ name: 'boardWithAnimateSymbols', label: 'Animate Symbols', category: 'board' },
-	{ name: 'boardFrameGlowShow', label: 'Frame Glow Show', category: 'board' },
-	{ name: 'boardFrameGlowHide', label: 'Frame Glow Hide', category: 'board' },
 	// Tumble
 	{ name: 'tumbleBoardShow', label: 'Tumble Show', category: 'tumble' },
 	{ name: 'tumbleBoardHide', label: 'Tumble Hide', category: 'tumble' },

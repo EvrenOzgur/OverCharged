@@ -7,7 +7,11 @@ import {
 
 import type { RawSymbol, SymbolState } from './types';
 
-export const SYMBOL_SIZE = 70;
+// 57 ≈ 70 × 0.8152 — calibrated so the 8×8 board exactly fills the bgCharacters
+// spine's embedded board well (SlotArea); see migration notes. The whole board
+// composition (symbols, masks, counters, meters) is sized relative to this, so
+// it scales as one unit to sit inside the painted grid.
+export const SYMBOL_SIZE = 57;
 
 export const REEL_PADDING = 0.53;
 

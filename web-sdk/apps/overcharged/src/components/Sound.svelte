@@ -134,8 +134,6 @@
 		boardHide: () => playEventMappings('boardHide'),
 		boardSymbolsReset: () => playEventMappings('boardSymbolsReset'),
 		boardWithAnimateSymbols: () => playEventMappings('boardWithAnimateSymbols'),
-		boardFrameGlowShow: () => playEventMappings('boardFrameGlowShow'),
-		boardFrameGlowHide: () => playEventMappings('boardFrameGlowHide'),
 		tumbleBoardShow: () => playEventMappings('tumbleBoardShow'),
 		tumbleBoardHide: () => playEventMappings('tumbleBoardHide'),
 		tumbleBoardInit: () => playEventMappings('tumbleBoardInit'),

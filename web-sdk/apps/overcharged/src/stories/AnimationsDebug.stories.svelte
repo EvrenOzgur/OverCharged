@@ -148,13 +148,6 @@
 
 	// ─── 3. BOARD & SAHNE ────────────────────────────────────────────────────────
 
-	let frameGlowing = $state(false);
-
-	function toggleFrameGlow() {
-		frameGlowing = !frameGlowing;
-		context.eventEmitter.broadcast({ type: frameGlowing ? 'boardFrameGlowShow' : 'boardFrameGlowHide' });
-	}
-
 	async function triggerTransition() {
 		await context.eventEmitter.broadcastAsync({ type: 'transition' });
 	}
@@ -413,14 +406,6 @@
 			Board & Sahne <span class="chv">{sections.board ? '▲' : '▼'}</span>
 		</button>
 		{#if sections.board}
-			<div class="sec">
-				<p class="lbl">Board Frame Glow</p>
-				<div class="btn-grid">
-					<button class="abtn" class:active-glow={frameGlowing} onclick={toggleFrameGlow}>
-						{frameGlowing ? 'Glow Kapat' : 'Glow Aç'}
-					</button>
-				</div>
-			</div>
 			<div class="sec">
 				<p class="lbl">Sahne Geçişi</p>
 				<button class="abtn" onclick={triggerTransition}>Transition</button>

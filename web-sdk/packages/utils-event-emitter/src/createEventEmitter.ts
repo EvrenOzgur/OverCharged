@@ -46,6 +46,12 @@ export function createEventEmitter<TEmitterEvent extends EmitterEventBase>() {
 	};
 
 	const eventEmitter = {
+		/**
+		 * Subscribe at module scope (no Svelte onMount lifecycle). Use this
+		 * from non-component code such as game/bookEventHandlerMap that needs
+		 * to react to broadcasts. Returns an unsubscribe function.
+		 */
+		subscribe: subscribeHandlerMap,
 		subscribeOnMount,
 		broadcast,
 		broadcastAsync,

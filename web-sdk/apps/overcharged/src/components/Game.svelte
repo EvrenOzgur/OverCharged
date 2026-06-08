@@ -2,9 +2,9 @@
 	import { onMount } from 'svelte';
 
 	import { EnablePixiExtension } from 'components-pixi';
-	import { EnableHotkey } from 'components-shared';
+	import { EnableHotkey, OnHotkey } from 'components-shared';
 	import { MainContainer } from 'components-layout';
-	import { App, Text, REM } from 'pixi-svelte';
+	import { App } from 'pixi-svelte';
 	import { stateModal } from 'state-shared';
 
 	import { UI, UiGameName } from 'components-ui-pixi';
@@ -19,7 +19,6 @@
 	import Sound from './Sound.svelte';
 	import Background from './Background.svelte';
 	import LoadingScreen from './LoadingScreen.svelte';
-	import BoardFrame from './BoardFrame.svelte';
 	import BoardContainer from './BoardContainer.svelte';
 	import OverchargedUI from './UI/OverchargedUI.svelte';
 	import Board from './Board.svelte';
@@ -212,6 +211,17 @@
 	<EnableGameActor />
 	<EnablePixiExtension />
 
+	<!-- Global skipAnimation hotkey — fires on every Space press regardless of
+	     XState idle/non-idle. ButtonBet's own Space hotkey still owns the
+	     bet/stop flow; this one runs in parallel so skip works in story setups
+	     that don't include ButtonBet, and during animation phases where the
+	     state machine reports idle (event-replay stories). isTurbo is NOT
+	     touched. -->
+	<OnHotkey
+		hotkey="Space"
+		onpress={() => context.eventEmitter.broadcast({ type: 'skipAnimation' })}
+	/>
+
 	<Background />
 
 	{#if shouldShowLoadingScreen}
@@ -232,10 +242,6 @@
 		-->
 		<ScreenShake>
 			<MainContainer>
-				<BoardFrame />
-			</MainContainer>
-
-			<MainContainer>
 				<Board />
 				<Anticipations />
 				<!-- Fires a one-shot win animation on all scatters when the
@@ -251,6 +257,11 @@
 				<!-- Pre-highlight overlay sits over the board, under SkillMeter. -->
 				<SkillPreHighlight />
 				<BoardContainer>
+					<!-- hidden={true}: bgCharacters spine has its own embedded mana
+					     bars (driven by skillActivated triggers). Keep these custom
+					     meters mounted so all logic / tweens / event subscriptions
+					     stay live, but render them invisible. Flip back to false
+					     to fall back to the custom UI any time. -->
 					<SkillMeter
 						x={-SYMBOL_SIZE * 5}
 						y={SYMBOL_SIZE * 1}
@@ -258,6 +269,7 @@
 						currentValue={context.stateGame.skillMeters.L1}
 						targetValue={config.skillThresholds.L1}
 						colorId={SKILL_DATA.L1.color}
+						hidden={true}
 					/>
 					<SkillMeter
 						x={-SYMBOL_SIZE * 5}
@@ -266,6 +278,7 @@
 						currentValue={context.stateGame.skillMeters.L2}
 						targetValue={config.skillThresholds.L2}
 						colorId={SKILL_DATA.L2.color}
+						hidden={true}
 					/>
 					<SkillMeter
 						x={-SYMBOL_SIZE * 5}
@@ -274,6 +287,7 @@
 						currentValue={context.stateGame.skillMeters.L3}
 						targetValue={config.skillThresholds.L3}
 						colorId={SKILL_DATA.L3.color}
+						hidden={true}
 					/>
 					<SkillMeter
 						x={-SYMBOL_SIZE * 5}
@@ -282,6 +296,7 @@
 						currentValue={context.stateGame.skillMeters.L4}
 						targetValue={config.skillThresholds.L4}
 						colorId={SKILL_DATA.L4.color}
+						hidden={true}
 					/>
 				</BoardContainer>
 			</MainContainer>
@@ -292,17 +307,8 @@
 				<UiGameName name={config.gameName} />
 			{/snippet}
 			{#snippet logo()}
-				<Text
-					anchor={{ x: 1, y: 0 }}
-					text="ADD YOUR LOGO"
-					style={{
-						fontFamily: 'proxima-nova',
-						fontSize: REM * 1.5,
-						fontWeight: '600',
-						lineHeight: REM * 2,
-						fill: 0xffffff,
-					}}
-				/>
+				<!-- Logo is now baked into the bgCharacters spine (`logo` slot),
+				     so the UI-layer placeholder is intentionally empty. -->
 			{/snippet}
 		</OverchargedUI>
 		<Win />

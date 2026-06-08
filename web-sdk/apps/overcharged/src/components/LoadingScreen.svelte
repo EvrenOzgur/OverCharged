@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { SpineProvider, SpineTrack, Container, Sprite } from 'pixi-svelte';
-	import { FadeContainer, LoadingProgress } from 'components-pixi';
+	import { SpineProvider, SpineTrack, Container } from 'pixi-svelte';
+	import { FadeContainer } from 'components-pixi';
 	import { MainContainer } from 'components-layout';
 	import { stateUrlDerived } from 'state-shared';
 
@@ -16,6 +16,28 @@
 	const context = getContext();
 
 	let loadingType = $state<'start' | 'transition'>('start');
+
+	// Full-screen loading spine (OverChargedAssets/loadingScreen). Self-contained:
+	// background + logo + loading bar baked into one skeleton, with landscape /
+	// portrait skins (no `default` skin → a skin MUST be set or nothing renders).
+	const LOADER_SIZE = { width: 1200, height: 819 }; // skeleton bounds
+	const LOADING_BAR_DURATION = 3.333333; // `loadingBar` anim length (seconds)
+
+	const loaderSkin = $derived(
+		context.stateLayoutDerived.layoutType() === 'portrait' ? 'portrait' : 'landscape',
+	);
+	// Uniform scale so the spine COVERS the main layout (fills the screen).
+	const loaderWidth = $derived(
+		LOADER_SIZE.width *
+			Math.max(
+				context.stateLayoutDerived.mainLayout().width / LOADER_SIZE.width,
+				context.stateLayoutDerived.mainLayout().height / LOADER_SIZE.height,
+			),
+	);
+	// Scrub the loading-bar fill to the real asset-load progress (0..100).
+	const loaderBarTime = $derived(
+		Math.min(context.stateApp.loadingProgress / 100, 1) * LOADING_BAR_DURATION,
+	);
 
 	// In replay mode, skip the "Press Anywhere to Continue" gate — the user
 	// has already interacted by clicking "Start Replay" in the overlay; making
@@ -43,29 +65,24 @@
 	});
 </script>
 
-<!-- logo and loading progress -->
+<!-- full-screen loading screen: background + logo + progress bar (all in spine) -->
 <FadeContainer show={loadingType === 'start'}>
 	<MainContainer>
 		<Container
 			x={context.stateLayoutDerived.mainLayout().width * 0.5}
 			y={context.stateLayoutDerived.mainLayout().height * 0.5}
 		>
-			<SpineProvider asset="loader" width={300}>
-				<SpineTrack trackIndex={0} animationName={'title_screen'} loop timeScale={3} />
+			<SpineProvider asset="loader" skin={loaderSkin} width={loaderWidth}>
+				<!-- timeScale 0 + trackTime: freeze the bar and scrub it to the
+				     real load progress so it fills as assets load. -->
+				<SpineTrack
+					trackIndex={0}
+					animationName="loadingBar"
+					loop={false}
+					timeScale={0}
+					trackTime={loaderBarTime}
+				/>
 			</SpineProvider>
-			{#if !context.stateApp.loaded}
-				<LoadingProgress y={250} width={1967 * 0.2} height={346 * 0.2}>
-					{#snippet background(sizes)}
-						<Sprite key="progressBarBackground.png" {...sizes} />
-					{/snippet}
-					{#snippet progress(sizes)}
-						<Sprite key="progressBar.png" {...sizes} />
-					{/snippet}
-					{#snippet frame(sizes)}
-						<Sprite key="progressBarFrame.png" {...sizes} />
-					{/snippet}
-				</LoadingProgress>
-			{/if}
 		</Container>
 	</MainContainer>
 </FadeContainer>

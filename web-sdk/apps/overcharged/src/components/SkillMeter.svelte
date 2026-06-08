@@ -27,6 +27,11 @@
 		spineSkin,
 		spineWidth,
 		spineHeight,
+		/** When true, the meter mounts and runs all its tweens / event
+		 *  subscriptions normally but the root Container is invisible — used
+		 *  while we transition to the bgCharacters-embedded mana bars without
+		 *  losing this component's working state machine. */
+		hidden = false,
 		idleAnim = 'idle',
 		incrementAnim = 'increment',
 		fullAnim = 'full',
@@ -41,6 +46,7 @@
 		spineSkin?: string;
 		spineWidth?: number;
 		spineHeight?: number;
+		hidden?: boolean;
 		idleAnim?: string;
 		incrementAnim?: string;
 		fullAnim?: string;
@@ -218,6 +224,7 @@
 <Container
 	x={x + METER_WIDTH / 2}
 	{y}
+	visible={!hidden}
 	scale={{ x: readyScale.current, y: readyScale.current }}
 	pivot={{ x: METER_WIDTH / 2, y: 0 }}
 >

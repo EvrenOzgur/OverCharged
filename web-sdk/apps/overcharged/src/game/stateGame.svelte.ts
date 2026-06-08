@@ -7,6 +7,7 @@ import { createGetWinLevelDataByWinLevelAlias } from 'utils-shared/winLevel';
 
 import type { GameType, RawSymbol, SymbolState } from './types';
 import { stateLayoutDerived } from './stateLayout';
+import { boardCalibration } from './boardCalibration.svelte';
 import { winLevelMap } from './winLevelMap';
 import { eventEmitter } from './eventEmitter';
 import {
@@ -85,10 +86,15 @@ export const stateGame = $state({
 });
 
 const boardLayout = () => ({
-	x: stateLayoutDerived.mainLayout().width * 0.5,
-	y: stateLayoutDerived.mainLayout().height * 0.5,
+	// Centre on the canvas, then shift by the measured offset so the grid lands
+	// on the bgCharacters spine's embedded board well (see boardCalibration).
+	x: stateLayoutDerived.mainLayout().width * 0.5 + boardCalibration.offsetX,
+	y: stateLayoutDerived.mainLayout().height * 0.5 + boardCalibration.offsetY,
 	anchor: { x: 0.5, y: 0.5 },
 	pivot: { x: BOARD_SIZES.width / 2, y: BOARD_SIZES.height / 2 },
+	// Applied by BoardContainer so the board scales as one unit to fill the
+	// bgCharacters well across orientations.
+	scale: boardCalibration.scale,
 	...BOARD_SIZES,
 });
 

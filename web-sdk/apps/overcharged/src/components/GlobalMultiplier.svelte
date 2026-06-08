@@ -103,6 +103,13 @@
 				previousMultiplier.set(previousMultiplierValue, { duration: 0 });
 			}
 		},
+		skipAnimation: () => {
+			// Resolve the pending spine-complete promise so the multiplier
+			// jumps to its final value without waiting out the animation.
+			if (animationName !== 'static') {
+				oncomplete();
+			}
+		},
 	});
 
 	$effect(() => {

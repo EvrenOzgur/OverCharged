@@ -28,6 +28,12 @@
 	const bet = () => context.eventEmitter.broadcast({ type: 'bet' });
 
 	const stop = () => {
+		// Always broadcast skipAnimation — components subscribe to fast-forward
+		// their tweens (skill banner, freespin intro, etc.). Not gated by
+		// `stopDisabled` so the user can press Space repeatedly to chew through
+		// successive animations. Does NOT alter `isTurbo` itself.
+		context.eventEmitter.broadcast({ type: 'skipAnimation' });
+
 		if (!stopDisabled) {
 			if (stateBetDerived.hasAutoBetCounter()) stateBet.autoSpinsCounter = 0;
 			context.eventEmitter.broadcast({ type: 'stopButtonClick' });

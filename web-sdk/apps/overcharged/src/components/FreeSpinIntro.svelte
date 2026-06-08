@@ -43,6 +43,12 @@
 			isUpdate = emitterEvent.isRetrigger;
 			await waitForResolve((resolve) => (oncomplete = resolve));
 		},
+		skipAnimation: () => {
+			// While the intro is up, Space (bet-button hotkey) also broadcasts
+			// skipAnimation — resolve the pending oncomplete so the flow advances
+			// even if PressToContinue's own hotkey missed the press.
+			if (show) oncomplete();
+		},
 	});
 </script>
 

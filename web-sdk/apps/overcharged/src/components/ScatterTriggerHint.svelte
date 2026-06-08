@@ -61,4 +61,18 @@
 			sym.symbolState = 'win';
 		}
 	});
+
+	context.eventEmitter.subscribeOnMount({
+		// Snap any scatter currently mid-win-animation back to static so the
+		// freespin-trigger reveal can proceed without waiting it out.
+		skipAnimation: () => {
+			for (const reel of context.stateGame.board) {
+				for (const sym of reel.reelState.symbols) {
+					if (sym.rawSymbol?.name === 'S' && sym.symbolState === 'win') {
+						sym.symbolState = 'static';
+					}
+				}
+			}
+		},
+	});
 </script>
