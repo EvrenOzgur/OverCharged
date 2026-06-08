@@ -13,6 +13,12 @@ import type { RawSymbol, SymbolState } from './types';
 // it scales as one unit to sit inside the painted grid.
 export const SYMBOL_SIZE = 57;
 
+// Render scale of the symbol art within its grid cell (1 = fills the cell).
+// <1 shrinks every symbol slightly, leaving a small gap, WITHOUT changing the
+// board grid spacing (which stays SYMBOL_SIZE). Note: shrinking SYMBOL_SIZE
+// itself has no net effect — the board auto-calibrates to the bg well.
+export const SYMBOL_RENDER_SCALE = 0.9;
+
 // Size of the multiplier (M) coin spine relative to a normal symbol cell.
 // The coin skeleton (+ its glow halo) fills more of its bounds than the other
 // symbols, so it reads ~2× too big at ratio 1 — tune here to taste.

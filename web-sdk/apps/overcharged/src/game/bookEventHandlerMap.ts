@@ -256,17 +256,10 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		});
 	},
 	multiplierSymbolActivated: async (bookEvent: BookEventOfType<'multiplierSymbolActivated'>) => {
-		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_levelup' });
-		// Collect/activation → 'win' state, which is the ONLY non-frozen state for
-		// the multiplier coin: it plays the `flip` reveal once (see SYMBOL_INFO_MAP.M
-		// / SymbolSpineMain). Normal landing uses 'land' (frozen), so the coin only
-		// animates when actually won. 'win' is safe for M — it has no win-frame
-		// (excluded in Symbol.svelte) and explosions are triggered separately.
-		// Pass the value as 'multiplier' to ensure the symbol UI has the latest data.
-		await animateSymbols({
-			positions: bookEvent.symbols.map((s) => ({ ...s, multiplier: s.value })),
-			state: 'win',
-		});
+		// DON'T flip the coin here — the "collect" flip is deferred to the end of
+		// the tumble (finalMultiplierApplied), once nothing is left to explode.
+		// The coin stays frozen on its value (set via the reveal look-ahead). Here
+		// we only keep the running multiplier panel ticking.
 		stateGame.globalMultiplier = bookEvent.newGlobalMultiplier;
 		await eventEmitter.broadcastAsync({
 			type: 'globalMultiplierUpdate',
@@ -393,13 +386,27 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		]);
 	},
 	finalMultiplierApplied: async (bookEvent: BookEventOfType<'finalMultiplierApplied'>) => {
+		// 0. Collect the multiplier coins now that the tumble has fully settled
+		// (nothing left to explode): flip every M coin currently on the board
+		// once. We scan the live board (not the activation positions) so cascaded
+		// coins are flipped at their CURRENT cell. 'win' is the coin's only
+		// non-frozen state (see SYMBOL_INFO_MAP.M) — safe for M (no win-frame;
+		// explosions are triggered separately).
+		const multiplierPositions: Position[] = [];
+		stateGame.board.forEach((reel, reelIndex) => {
+			reel.reelState.symbols.forEach((sym, row) => {
+				if (sym.rawSymbol.name === 'M') multiplierPositions.push({ reel: reelIndex, row });
+			});
+		});
+		if (multiplierPositions.length) {
+			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_levelup' });
+			await animateSymbols({ positions: multiplierPositions, state: 'win' });
+		}
+
 		// 1. Ensure Multiplier UI is visible
 		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
-		
-		// 2. Play a "Power Up" sound
-		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_levelup' });
 
-		// 3. Update global multiplier state
+		// 2. Update global multiplier state
 		stateGame.globalMultiplier = bookEvent.finalMultiplier;
 		await eventEmitter.broadcastAsync({
 			type: 'globalMultiplierUpdate',
