@@ -231,6 +231,18 @@ export type BoardConfig = {
 	 * safe to remove once no persisted layout references it.
 	 */
 	showBoardFrame?: boolean;
+	/**
+	 * Global-multiplier panel (BoardmultiplierPart.png backing plate + the
+	 * value, kept centred together — see GlobalMultiplier.svelte).
+	 *   • multiplierBgX/Y — position offset of the whole panel+value group, in
+	 *     board (mainLayout) coordinate space, added to its default corner spot.
+	 *   • multiplierBgWidth/Height — backing-plate size in the spine's local
+	 *     space (the legacy frame was 725×450). The value stays centred in it.
+	 */
+	multiplierBgX: number;
+	multiplierBgY: number;
+	multiplierBgWidth: number;
+	multiplierBgHeight: number;
 };
 
 export const BOARD_CONFIG_DEFAULTS: BoardConfig = {
@@ -243,6 +255,11 @@ export const BOARD_CONFIG_DEFAULTS: BoardConfig = {
 	boardPaddingY: 0,
 	// Deprecated/no-op: board frame now comes from the bgCharacters spine.
 	showBoardFrame: true,
+	// Multiplier backing plate — defaults match the legacy frame footprint.
+	multiplierBgX: 0,
+	multiplierBgY: 0,
+	multiplierBgWidth: 725,
+	multiplierBgHeight: 450,
 };
 
 export type LayoutVariant = 'desktop' | 'tablet' | 'landscape' | 'portrait';

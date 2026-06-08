@@ -257,11 +257,15 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	},
 	multiplierSymbolActivated: async (bookEvent: BookEventOfType<'multiplierSymbolActivated'>) => {
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_levelup' });
-		// Use 'land' state for multiplier activation to avoid destructive 'win' explosions
-		// Pass the value as 'multiplier' to ensure the symbol UI has the latest data
+		// Collect/activation → 'win' state, which is the ONLY non-frozen state for
+		// the multiplier coin: it plays the `flip` reveal once (see SYMBOL_INFO_MAP.M
+		// / SymbolSpineMain). Normal landing uses 'land' (frozen), so the coin only
+		// animates when actually won. 'win' is safe for M — it has no win-frame
+		// (excluded in Symbol.svelte) and explosions are triggered separately.
+		// Pass the value as 'multiplier' to ensure the symbol UI has the latest data.
 		await animateSymbols({
 			positions: bookEvent.symbols.map((s) => ({ ...s, multiplier: s.value })),
-			state: 'land',
+			state: 'win',
 		});
 		stateGame.globalMultiplier = bookEvent.newGlobalMultiplier;
 		await eventEmitter.broadcastAsync({

@@ -20,6 +20,7 @@
 	import {
 		BitmapText,
 		Container,
+		Sprite,
 		SpineEventEmitterProvider,
 		SpineProvider,
 		SpineSlot,
@@ -30,7 +31,9 @@
 	import { waitForResolve, waitForTimeout } from 'utils-shared/wait';
 
 	import BoardContainer from './BoardContainer.svelte';
+	import HideSpineSlot from './HideSpineSlot.svelte';
 	import { getContext } from '../game/context';
+	import { getBoardConfig, editorState } from '../game/uiLayoutConfig.svelte';
 	import { SYMBOL_SIZE } from '../game/constants';
 	import { SKILL_L3_ASSETS } from '../game/skillAssets';
 
@@ -38,6 +41,8 @@
 
 	const PANEL_WIDTH = SYMBOL_SIZE * 0.641;
 	const context = getContext();
+	// Editable backing-plate offset/size (UI layout editor → Board Config).
+	const boardCfg = $derived(getBoardConfig());
 	const scale = $derived(context.stateLayoutDerived.isStacked() ? 1.28 : 1);
 	const desktopPosition = $derived({
 		x: context.stateGameDerived.boardLayout().width - PANEL_WIDTH * 0.5,
@@ -113,7 +118,9 @@
 	});
 
 	$effect(() => {
-		if (context.stateGame.gameType === 'freegame') {
+		// Always show in the UI layout editor so the backing-plate position/size
+		// can be tuned live; otherwise only during free spins.
+		if (context.stateGame.gameType === 'freegame' || editorState.enabled) {
 			show = true;
 		}
 	});
@@ -121,7 +128,11 @@
 
 <FadeContainer {show}>
 	<BoardContainer>
-		<Container {...position} {scale}>
+		<Container
+			x={position.x + boardCfg.multiplierBgX}
+			y={position.y + boardCfg.multiplierBgY}
+			{scale}
+		>
 			<SpineProvider asset="globalMultiplier" width={PANEL_WIDTH}>
 				<SpineTrack
 					trackIndex={0}
@@ -133,6 +144,24 @@
 						},
 					}}
 				/>
+				<!-- Drop the legacy wooden frame art entirely (both layers). -->
+				<HideSpineSlot slotNames={['Frame_Multiplier', 'Frame_Multiplier2']} />
+				<!-- Custom backing plate injected into `Frame_Multiplier` at the
+				     original frame's 725×450 setup size; addSlotObject renders it
+				     as the slot's object (independent of the now-null attachment),
+				     under the number, while sparkles / win-glow / increment-flash
+				     keep playing. Kept OUTSIDE SpineEventEmitterProvider so its
+				     SpineSlot `show` isn't gated on the (nulled) attachment.
+				     Uses Frame_Multiplier (idle alpha 1), not Frame_Multiplier2
+				     (driven to alpha 0 by the `static` anim). -->
+				<SpineSlot slotName="Frame_Multiplier">
+					<Sprite
+						key="boardMultiplierPart"
+						anchor={0.5}
+						width={boardCfg.multiplierBgWidth}
+						height={boardCfg.multiplierBgHeight}
+					/>
+				</SpineSlot>
 				<SpineEventEmitterProvider>
 					<SpineSlot slotName="slot_multi">
 						<BitmapText

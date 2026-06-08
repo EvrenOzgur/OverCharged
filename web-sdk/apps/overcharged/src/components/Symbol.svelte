@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BitmapText, SpineProvider, SpineTrack, Graphics, Container } from 'pixi-svelte';
+	import { SpineProvider, SpineTrack } from 'pixi-svelte';
 
 	import SymbolSpine from './SymbolSpine.svelte';
 	import SymbolSprite from './SymbolSprite.svelte';
@@ -48,23 +48,13 @@
 	// causing a "lighten" snap. That round-trip looks like a per-symbol
 	// flicker after each tumble settles.
 	const effectiveLoop = $derived(
-		props.loop ?? (props.state === 'static' || props.state === 'postWinStatic'),
+		// Multiplier coin: never loop — `flip`/`land` play once and hold on the
+		// value-facing last frame (the end pose is bright, so no freeze-darken).
+		isMultiplierSymbol
+			? false
+			: props.loop ?? (props.state === 'static' || props.state === 'postWinStatic'),
 	);
 </script>
-
-{#if isMultiplierSymbol && props.state !== 'explosion'}
-	<!-- Golden Glow Circle Behind Multiplier -->
-	<Container x={props.x} y={props.y}>
-		<Graphics
-			draw={(g) => {
-				g.clear();
-				g.beginFill(0xffd700, 0.4);
-				g.drawCircle(0, 0, SYMBOL_SIZE * 0.5);
-				g.endFill();
-			}}
-		/>
-	</Container>
-{/if}
 
 {#if isSprite}
 	<SymbolSprite {symbolInfo} x={props.x} y={props.y} oncomplete={props.oncomplete} />
@@ -76,20 +66,6 @@
 		x={props.x}
 		y={props.y}
 		listener={spineListener}
-	/>
-{/if}
-
-{#if props.rawSymbol.multiplier && props.state !== 'explosion'}
-	<BitmapText
-		x={props.x}
-		y={props.y}
-		anchor={0.5}
-		text={`X${props.rawSymbol.multiplier}`}
-		style={{
-			fontFamily: 'gold',
-			fontSize: SYMBOL_SIZE * 0.7,
-		}}
-		tint={0x5e3000} 
 	/>
 {/if}
 

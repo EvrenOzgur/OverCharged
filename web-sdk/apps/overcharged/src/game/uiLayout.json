@@ -472,7 +472,11 @@
     "gridGapY": 0,
     "boardPaddingX": 0,
     "boardPaddingY": 0,
-    "showBoardFrame": true
+    "showBoardFrame": true,
+    "multiplierBgX": 0,
+    "multiplierBgY": 0,
+    "multiplierBgWidth": 1164,
+    "multiplierBgHeight": 911
   },
   "presetConfigs": {
     "1200x675": {

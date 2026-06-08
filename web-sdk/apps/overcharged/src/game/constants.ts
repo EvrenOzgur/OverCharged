@@ -13,6 +13,11 @@ import type { RawSymbol, SymbolState } from './types';
 // it scales as one unit to sit inside the painted grid.
 export const SYMBOL_SIZE = 57;
 
+// Size of the multiplier (M) coin spine relative to a normal symbol cell.
+// The coin skeleton (+ its glow halo) fills more of its bounds than the other
+// symbols, so it reads ~2× too big at ratio 1 — tune here to taste.
+export const MULTIPLIER_SYMBOL_RATIO = 0.5;
+
 export const REEL_PADDING = 0.53;
 
 /**
@@ -472,42 +477,56 @@ export const SYMBOL_INFO_MAP = {
 			sizeRatios: { width: 1, height: 1 },
 		},
 	},
+	// Multiplier symbol — new coin-flip `multipliers` spine. `skin` is a
+	// placeholder ('default'); getSymbolInfo() overrides it with `${value}x`
+	// (e.g. '5x') from rawSymbol.multiplier. `flip` reveals the value and holds
+	// on its last (value-facing) frame; `land` is the drop. explosion keeps the
+	// shared lowExplosion.
+	// Multiplier symbol — coin-flip `multipliers` spine. The coin stays FROZEN
+	// on its value-facing pose for every state except `win`: only when the
+	// multiplier is collected (winning tumble) does it play `flip` once. skin is
+	// overridden per value (`5x` …) by getSymbolInfo. `frozen` is read by
+	// SymbolSpineMain → timeScale 0 + held last frame.
 	M: {
 		explosion: lowExplosion,
 		win: {
 			type: 'spine',
-			assetKey: 'specialSymbols',
+			assetKey: 'multipliers',
 			skin: 'default',
-			animationName: 'win',
-			sizeRatios: { width: 1, height: 1 },
+			animationName: 'flip',
+			sizeRatios: { width: MULTIPLIER_SYMBOL_RATIO, height: MULTIPLIER_SYMBOL_RATIO },
 		},
 		postWinStatic: {
 			type: 'spine',
-			assetKey: 'specialSymbols',
+			assetKey: 'multipliers',
 			skin: 'default',
-			animationName: 'static',
-			sizeRatios: { width: 1, height: 1 },
+			animationName: 'land',
+			frozen: true,
+			sizeRatios: { width: MULTIPLIER_SYMBOL_RATIO, height: MULTIPLIER_SYMBOL_RATIO },
 		},
 		static: {
 			type: 'spine',
-			assetKey: 'specialSymbols',
+			assetKey: 'multipliers',
 			skin: 'default',
-			animationName: 'static',
-			sizeRatios: { width: 1, height: 1 },
+			animationName: 'land',
+			frozen: true,
+			sizeRatios: { width: MULTIPLIER_SYMBOL_RATIO, height: MULTIPLIER_SYMBOL_RATIO },
 		},
 		spin: {
 			type: 'spine',
-			assetKey: 'specialSymbols',
+			assetKey: 'multipliers',
 			skin: 'default',
-			animationName: 'spin',
-			sizeRatios: { width: 1, height: 1 },
+			animationName: 'land',
+			frozen: true,
+			sizeRatios: { width: MULTIPLIER_SYMBOL_RATIO, height: MULTIPLIER_SYMBOL_RATIO },
 		},
 		land: {
 			type: 'spine',
-			assetKey: 'specialSymbols',
+			assetKey: 'multipliers',
 			skin: 'default',
 			animationName: 'land',
-			sizeRatios: { width: 1, height: 1 },
+			frozen: true,
+			sizeRatios: { width: MULTIPLIER_SYMBOL_RATIO, height: MULTIPLIER_SYMBOL_RATIO },
 		},
 	},
 	S: {

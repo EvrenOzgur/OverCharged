@@ -15,6 +15,12 @@
 	};
 
 	const props: Props = $props();
+
+	// `frozen` symbols (the multiplier coin's idle states) hold their animation's
+	// last frame instead of playing — timeScale 0 + a trackTime past the end
+	// clamps the non-looping animation to its final (value-facing) pose. Only the
+	// `win` state is unfrozen, so the coin flips exactly once when collected.
+	const frozen = $derived(Boolean((props.symbolInfo as { frozen?: boolean })?.frozen));
 </script>
 
 {#if props.symbolInfo}
@@ -29,7 +35,8 @@
 			loop={props.loop}
 			trackIndex={0}
 			animationName={props.symbolInfo.animationName}
-			timeScale={stateBetDerived.timeScale()}
+			timeScale={frozen ? 0 : stateBetDerived.timeScale()}
+			trackTime={frozen ? 9999 : undefined}
 			listener={props.listener}
 		/>
 	</SpineProvider>

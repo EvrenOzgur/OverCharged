@@ -51,6 +51,18 @@ export default {
 		},
 		preload: true,
 	},
+	// Multiplier (M) symbol — coin-flip spine with one skin per value
+	// (`2x`..`500x`) and `flip` / `land` animations. Replaces the old
+	// specialSymbols + "X{n}" text overlay (see SYMBOL_INFO_MAP.M / Symbol.svelte).
+	multipliers: {
+		type: 'spine',
+		src: {
+			atlas: './multipliers/skeleton.atlas',
+			skeleton: './multipliers/skeleton.json',
+			scale: 2,
+		},
+		preload: true,
+	},
 	bgCharacters: {
 		type: 'spine',
 		src: {
@@ -108,6 +120,10 @@ export default {
 			scale: 2,
 		},
 	},
+	// Custom backing plate for the global-multiplier panel — injected into the
+	// multiframe spine's `Frame_Multiplier` slot (covers the old frame art);
+	// see GlobalMultiplier.svelte.
+	boardMultiplierPart: { type: 'sprite', src: './BoardmultiplierPart.png', preload: true },
 	fsIntro: {
 		type: 'spine',
 		src: {

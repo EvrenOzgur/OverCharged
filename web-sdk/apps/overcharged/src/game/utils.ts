@@ -179,5 +179,11 @@ export const getSymbolInfo = ({
 	state: SymbolState;
 }) => {
 	const symbolKey = getSymbolKey({ rawSymbol });
-	return SYMBOL_INFO_MAP[symbolKey][state];
+	const info = SYMBOL_INFO_MAP[symbolKey][state];
+	// Multiplier symbol: pick the per-value skin (`2x`, `5x`, …) from the
+	// rawSymbol's multiplier so the new `multipliers` spine shows the right value.
+	if (info && (info as { assetKey?: string }).assetKey === 'multipliers' && rawSymbol.multiplier) {
+		return { ...info, skin: `${rawSymbol.multiplier}x` };
+	}
+	return info;
 };

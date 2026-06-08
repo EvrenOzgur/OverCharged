@@ -346,6 +346,30 @@
 				<input type="number" bind:value={bc.boardPaddingY} step="1" min="0" max="50" />
 				<input type="range" min="0" max="50" step="1" bind:value={bc.boardPaddingY} />
 			</div>
+
+			<header style="margin-top:10px;">
+				<span class="title">Multiplier BG</span>
+			</header>
+			<div class="row">
+				<label>Mult X</label>
+				<input type="number" bind:value={bc.multiplierBgX} step="1" min="-1000" max="1000" />
+				<input type="range" min="-1000" max="1000" step="1" bind:value={bc.multiplierBgX} />
+			</div>
+			<div class="row">
+				<label>Mult Y</label>
+				<input type="number" bind:value={bc.multiplierBgY} step="1" min="-1000" max="1000" />
+				<input type="range" min="-1000" max="1000" step="1" bind:value={bc.multiplierBgY} />
+			</div>
+			<div class="row">
+				<label>Mult Width</label>
+				<input type="number" bind:value={bc.multiplierBgWidth} step="1" min="0" max="2000" />
+				<input type="range" min="0" max="2000" step="1" bind:value={bc.multiplierBgWidth} />
+			</div>
+			<div class="row">
+				<label>Mult Height</label>
+				<input type="number" bind:value={bc.multiplierBgHeight} step="1" min="0" max="2000" />
+				<input type="range" min="0" max="2000" step="1" bind:value={bc.multiplierBgHeight} />
+			</div>
 		</div>
 	</div>
 {/if}
