@@ -31,6 +31,10 @@
 	// background (bone_bg → target_*BG) is untouched. Multipliers below are the
 	// targets' setup scales × this factor.
 	const LOGO_BAR_SCALE = 0.5;
+	// Portrait-only extra enlargement of the logo + loading bar. On a tall phone
+	// the fit-sized logo/bar look too small, so bump them up here without
+	// touching landscape. 1 = same as landscape.
+	const PORTRAIT_LOGO_BAR_BOOST = 2.25;
 	const TARGET_SETUP = {
 		landscapeLogo: 1,
 		landscapeLoadingBar: 0.725,
@@ -41,16 +45,33 @@
 	const loaderSkin = $derived(
 		context.stateLayoutDerived.layoutType() === 'portrait' ? 'portrait' : 'landscape',
 	);
-	// Uniform scale: FIT the spine inside the main layout (whole design visible,
-	// no overflow), then apply LOADER_SCALE.
-	const loaderWidth = $derived(
-		LOADER_SIZE.width *
-			Math.min(
-				context.stateLayoutDerived.mainLayout().width / LOADER_SIZE.width,
-				context.stateLayoutDerived.mainLayout().height / LOADER_SIZE.height,
-			) *
-			LOADER_SCALE,
+	// Uniform scale: FIT (contain) the spine inside the main layout, then apply
+	// LOADER_SCALE. This sizes/positions the logo + loading bar consistently
+	// across orientations. The background is covered separately (see bgCover).
+	const spineScaleFactor = $derived(
+		Math.min(
+			context.stateLayoutDerived.mainLayout().width / LOADER_SIZE.width,
+			context.stateLayoutDerived.mainLayout().height / LOADER_SIZE.height,
+		),
 	);
+	const loaderWidth = $derived(LOADER_SIZE.width * spineScaleFactor * LOADER_SCALE);
+	// Portrait-only background COVER. The loading art is a landscape-ratio
+	// 1200×819 image (no dedicated tall portrait bg), so the fit above leaves
+	// vertical gaps on a tall phone. We grow ONLY the background bone
+	// (bone_bg ← target_portraitBG, TC mixScale = 1) to fill the canvas in both
+	// dimensions, cropping the sides — the logo + bar keep the fit size/position.
+	// At the fit scale the bg spans `mainLayout.scale × spineScaleFactor × 1200`
+	// px; bgCover scales it up to cover the canvas. Centred on bone_bg (canvas
+	// centre), so it grows symmetrically.
+	const bgCover = $derived.by(() => {
+		if (loaderSkin !== 'portrait') return 1;
+		const ml = context.stateLayoutDerived.mainLayout();
+		const cs = context.stateLayoutDerived.canvasSizes();
+		const bgW = ml.scale * spineScaleFactor * LOADER_SIZE.width;
+		const bgH = ml.scale * spineScaleFactor * LOADER_SIZE.height;
+		if (bgW <= 0 || bgH <= 0) return 1;
+		return Math.max(1, cs.width / bgW, cs.height / bgH);
+	});
 	// Scrub the loading-bar fill to the real asset-load progress (0..100).
 	const loaderBarTime = $derived(
 		Math.min(context.stateApp.loadingProgress / 100, 1) * LOADING_BAR_DURATION,
@@ -101,15 +122,17 @@
 				/>
 				<!-- Shrink only the logo + bar (background stays full-size). -->
 				{#if loaderSkin === 'portrait'}
+					<!-- Fill the tall phone screen: grow only the background. -->
+					<SpineBone boneName="target_portraitBG" scaleX={bgCover} scaleY={bgCover} />
 					<SpineBone
 						boneName="target_portraitLogo"
-						scaleX={TARGET_SETUP.portraitLogo * LOGO_BAR_SCALE}
-						scaleY={TARGET_SETUP.portraitLogo * LOGO_BAR_SCALE}
+						scaleX={TARGET_SETUP.portraitLogo * LOGO_BAR_SCALE * PORTRAIT_LOGO_BAR_BOOST}
+						scaleY={TARGET_SETUP.portraitLogo * LOGO_BAR_SCALE * PORTRAIT_LOGO_BAR_BOOST}
 					/>
 					<SpineBone
 						boneName="target_portraitLoadingBar"
-						scaleX={TARGET_SETUP.portraitLoadingBar * LOGO_BAR_SCALE}
-						scaleY={TARGET_SETUP.portraitLoadingBar * LOGO_BAR_SCALE}
+						scaleX={TARGET_SETUP.portraitLoadingBar * LOGO_BAR_SCALE * PORTRAIT_LOGO_BAR_BOOST}
+						scaleY={TARGET_SETUP.portraitLoadingBar * LOGO_BAR_SCALE * PORTRAIT_LOGO_BAR_BOOST}
 					/>
 				{:else}
 					<SpineBone

@@ -504,8 +504,8 @@
         }
       },
       "amountWin": {
-        "x": 875,
-        "y": 51,
+        "x": 865,
+        "y": 42,
         "scale": 0.9,
         "rotation": 0,
         "style": {
@@ -570,9 +570,9 @@
         }
       },
       "amountBalance": {
-        "x": -36,
-        "y": -554,
-        "scale": 0.45,
+        "x": -19,
+        "y": -389,
+        "scale": 0.8,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -592,8 +592,8 @@
         }
       },
       "buttonDecrease": {
-        "x": -318,
-        "y": -253,
+        "x": -292,
+        "y": -244,
         "scale": 0.55,
         "rotation": 0,
         "style": {
@@ -636,8 +636,8 @@
         }
       },
       "buttonIncrease": {
-        "x": 271,
-        "y": -247,
+        "x": 255,
+        "y": -248,
         "scale": 0.55,
         "rotation": 0,
         "style": {
@@ -814,9 +814,9 @@
         }
       },
       "amountBalance": {
-        "x": -36,
-        "y": -554,
-        "scale": 0.45,
+        "x": -47,
+        "y": -382,
+        "scale": 0.8,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -858,8 +858,8 @@
         }
       },
       "amountBet": {
-        "x": -22,
-        "y": -423,
+        "x": -47,
+        "y": -278,
         "scale": 0.8,
         "rotation": 0,
         "style": {
@@ -880,8 +880,8 @@
         }
       },
       "buttonIncrease": {
-        "x": 271,
-        "y": -247,
+        "x": 224,
+        "y": -244,
         "scale": 0.55,
         "rotation": 0,
         "style": {
@@ -992,8 +992,8 @@
         }
       },
       "amountWin": {
-        "x": 875,
-        "y": 51,
+        "x": 841,
+        "y": 63,
         "scale": 0.9,
         "rotation": 0,
         "style": {
@@ -1058,9 +1058,9 @@
         }
       },
       "amountBalance": {
-        "x": -36,
-        "y": -554,
-        "scale": 0.45,
+        "x": -14,
+        "y": -394,
+        "scale": 0.8,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -1080,8 +1080,8 @@
         }
       },
       "buttonDecrease": {
-        "x": -318,
-        "y": -253,
+        "x": -295,
+        "y": -251,
         "scale": 0.55,
         "rotation": 0,
         "style": {
@@ -1124,8 +1124,8 @@
         }
       },
       "buttonIncrease": {
-        "x": 271,
-        "y": -247,
+        "x": 255,
+        "y": -249,
         "scale": 0.55,
         "rotation": 0,
         "style": {
@@ -1146,8 +1146,8 @@
         }
       },
       "buttonAutoSpin": {
-        "x": -226,
-        "y": -18,
+        "x": -223,
+        "y": -15,
         "scale": 0.85,
         "rotation": 0,
         "style": {
@@ -1258,8 +1258,8 @@
         }
       },
       "buttonBuyBonus": {
-        "x": 12,
-        "y": 305,
+        "x": -42,
+        "y": 416,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1280,8 +1280,8 @@
         }
       },
       "buttonMenu": {
-        "x": 6,
-        "y": 361,
+        "x": -53,
+        "y": 439,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1302,9 +1302,9 @@
         }
       },
       "amountBalance": {
-        "x": -626,
-        "y": 577,
-        "scale": 0.45,
+        "x": -576,
+        "y": 632,
+        "scale": 0.75,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -1324,9 +1324,9 @@
         }
       },
       "buttonDecrease": {
-        "x": -318,
-        "y": -253,
-        "scale": 0.55,
+        "x": -491,
+        "y": 536,
+        "scale": 1.5,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -1346,8 +1346,8 @@
         }
       },
       "amountBet": {
-        "x": -542,
-        "y": 461,
+        "x": -528,
+        "y": 512,
         "scale": 0.8,
         "rotation": 0,
         "style": {
@@ -1368,9 +1368,9 @@
         }
       },
       "buttonIncrease": {
-        "x": 271,
-        "y": -247,
-        "scale": 0.55,
+        "x": -572,
+        "y": 541,
+        "scale": 1.5,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -1390,8 +1390,8 @@
         }
       },
       "buttonAutoSpin": {
-        "x": -88,
-        "y": 231,
+        "x": 56,
+        "y": 360,
         "scale": 0.85,
         "rotation": 0,
         "style": {
@@ -1412,8 +1412,8 @@
         }
       },
       "buttonBet": {
-        "x": 11,
-        "y": 220,
+        "x": 114,
+        "y": 340,
         "scale": 1.1,
         "rotation": 0,
         "style": {
@@ -1434,8 +1434,8 @@
         }
       },
       "buttonTurbo": {
-        "x": 124,
-        "y": 215,
+        "x": 168,
+        "y": 352,
         "scale": 0.85,
         "rotation": 0,
         "style": {
@@ -1502,8 +1502,8 @@
         }
       },
       "buttonBuyBonus": {
-        "x": 76,
-        "y": 422,
+        "x": 29,
+        "y": 625,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1524,8 +1524,8 @@
         }
       },
       "buttonMenu": {
-        "x": 63,
-        "y": 546,
+        "x": 23,
+        "y": 676,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1546,9 +1546,9 @@
         }
       },
       "amountBalance": {
-        "x": -62,
-        "y": 668,
-        "scale": 0.45,
+        "x": -522,
+        "y": 959,
+        "scale": 0.7,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -1568,9 +1568,9 @@
         }
       },
       "buttonDecrease": {
-        "x": -176,
-        "y": 492,
-        "scale": 0.55,
+        "x": -489,
+        "y": 747,
+        "scale": 1.2,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -1590,8 +1590,8 @@
         }
       },
       "amountBet": {
-        "x": -19,
-        "y": 266,
+        "x": -466,
+        "y": 635,
         "scale": 0.8,
         "rotation": 0,
         "style": {
@@ -1612,9 +1612,9 @@
         }
       },
       "buttonIncrease": {
-        "x": 51,
-        "y": 485,
-        "scale": 0.55,
+        "x": -460,
+        "y": 750,
+        "scale": 1.2,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -1634,8 +1634,8 @@
         }
       },
       "buttonAutoSpin": {
-        "x": 28,
-        "y": 499,
+        "x": 51,
+        "y": 611,
         "scale": 0.85,
         "rotation": 0,
         "style": {
@@ -1656,8 +1656,8 @@
         }
       },
       "buttonBet": {
-        "x": -510,
-        "y": 293,
+        "x": 109,
+        "y": 613,
         "scale": 1.1,
         "rotation": 0,
         "style": {
@@ -1678,8 +1678,8 @@
         }
       },
       "buttonTurbo": {
-        "x": 185,
-        "y": 429,
+        "x": 166,
+        "y": 604,
         "scale": 0.85,
         "rotation": 0,
         "style": {
@@ -1746,8 +1746,8 @@
         }
       },
       "buttonBuyBonus": {
-        "x": 42,
-        "y": 418,
+        "x": -12,
+        "y": 597,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1768,8 +1768,8 @@
         }
       },
       "buttonMenu": {
-        "x": 24,
-        "y": 476,
+        "x": -17,
+        "y": 651,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1790,9 +1790,9 @@
         }
       },
       "amountBalance": {
-        "x": -527,
-        "y": 599,
-        "scale": 0.45,
+        "x": -616,
+        "y": 911,
+        "scale": 0.6,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -1812,9 +1812,9 @@
         }
       },
       "buttonDecrease": {
-        "x": -318,
-        "y": -253,
-        "scale": 0.55,
+        "x": -564,
+        "y": 708,
+        "scale": 1,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -1834,9 +1834,9 @@
         }
       },
       "amountBet": {
-        "x": -452,
-        "y": 258,
-        "scale": 0.8,
+        "x": -551,
+        "y": 604,
+        "scale": 0.7,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -1856,9 +1856,9 @@
         }
       },
       "buttonIncrease": {
-        "x": 271,
-        "y": -247,
-        "scale": 0.55,
+        "x": -547,
+        "y": 705,
+        "scale": 1,
         "rotation": 0,
         "style": {
           "textOverride": "",
@@ -1878,8 +1878,8 @@
         }
       },
       "buttonAutoSpin": {
-        "x": -42,
-        "y": 367,
+        "x": 63,
+        "y": 490,
         "scale": 0.85,
         "rotation": 0,
         "style": {
@@ -1900,8 +1900,8 @@
         }
       },
       "buttonBet": {
-        "x": 46,
-        "y": 357,
+        "x": 118,
+        "y": 480,
         "scale": 1.1,
         "rotation": 0,
         "style": {
@@ -1922,8 +1922,8 @@
         }
       },
       "buttonTurbo": {
-        "x": 120,
-        "y": 376,
+        "x": 175,
+        "y": 481,
         "scale": 0.85,
         "rotation": 0,
         "style": {
@@ -1941,6 +1941,320 @@
           "bgSpineKey": "",
           "bgSpineAnim": "",
           "bgSpineLoop": true
+        }
+      }
+    },
+    "400x225": {
+      "gameName": {
+        "x": 20,
+        "y": 15,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "amountWin": {
+        "x": 10,
+        "y": 4,
+        "scale": 0.9,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonBuyBonus": {
+        "x": 50,
+        "y": -192,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true,
+          "iconColor": "#ffffff",
+          "ringEnabled": false,
+          "ringColor": "#B0BEC5",
+          "ringWidth": 3,
+          "rotateRingOnSpin": true,
+          "glowColor": "#B0BEC5",
+          "hoverEffect": "shine",
+          "hoverGlowIntensity": 0.6,
+          "activeGlowIntensity": 0.55,
+          "bgAlpha": 0.4
+        }
+      },
+      "buttonMenu": {
+        "x": 53,
+        "y": -6,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true,
+          "iconColor": "#ffffff",
+          "ringEnabled": false,
+          "ringColor": "#B0BEC5",
+          "ringWidth": 3,
+          "rotateRingOnSpin": true,
+          "glowColor": "#B0BEC5",
+          "hoverEffect": "shine",
+          "hoverGlowIntensity": 0.6,
+          "activeGlowIntensity": 0.55,
+          "bgAlpha": 0.4
+        }
+      },
+      "amountBalance": {
+        "x": -25,
+        "y": -350,
+        "scale": 0.55,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#cfd8dc",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonDecrease": {
+        "x": -241,
+        "y": -257,
+        "scale": 0.8,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true,
+          "iconColor": "#ffffff",
+          "ringEnabled": false,
+          "ringColor": "#B0BEC5",
+          "ringWidth": 3,
+          "rotateRingOnSpin": true,
+          "glowColor": "#B0BEC5",
+          "hoverEffect": "shine",
+          "hoverGlowIntensity": 0.6,
+          "activeGlowIntensity": 0.55,
+          "bgAlpha": 0.4
+        }
+      },
+      "amountBet": {
+        "x": -25,
+        "y": -281,
+        "scale": 0.55,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#cfd8dc",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "buttonIncrease": {
+        "x": 191,
+        "y": -257,
+        "scale": 0.8,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true,
+          "iconColor": "#ffffff",
+          "ringEnabled": false,
+          "ringColor": "#B0BEC5",
+          "ringWidth": 3,
+          "rotateRingOnSpin": true,
+          "glowColor": "#B0BEC5",
+          "hoverEffect": "shine",
+          "hoverGlowIntensity": 0.6,
+          "activeGlowIntensity": 0.55,
+          "bgAlpha": 0.4
+        }
+      },
+      "buttonAutoSpin": {
+        "x": -226,
+        "y": -18,
+        "scale": 0.85,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true,
+          "iconColor": "#ffffff",
+          "ringEnabled": false,
+          "ringColor": "#B0BEC5",
+          "ringWidth": 3,
+          "rotateRingOnSpin": true,
+          "glowColor": "#B0BEC5",
+          "hoverEffect": "shine",
+          "hoverGlowIntensity": 0.6,
+          "activeGlowIntensity": 0.55,
+          "bgAlpha": 0.4
+        }
+      },
+      "buttonBet": {
+        "x": -51,
+        "y": -25,
+        "scale": 1.1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true,
+          "iconColor": "#ffffff",
+          "ringEnabled": false,
+          "ringColor": "#B0BEC5",
+          "ringWidth": 3,
+          "rotateRingOnSpin": true,
+          "glowColor": "#B0BEC5",
+          "hoverEffect": "shine",
+          "hoverGlowIntensity": 0.6,
+          "activeGlowIntensity": 0.55,
+          "bgAlpha": 0.4
+        }
+      },
+      "buttonTurbo": {
+        "x": 126,
+        "y": -11,
+        "scale": 0.85,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#ffffff",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true,
+          "iconColor": "#ffffff",
+          "ringEnabled": false,
+          "ringColor": "#B0BEC5",
+          "ringWidth": 3,
+          "rotateRingOnSpin": true,
+          "glowColor": "#B0BEC5",
+          "hoverEffect": "shine",
+          "hoverGlowIntensity": 0.6,
+          "activeGlowIntensity": 0.55,
+          "bgAlpha": 0.4
         }
       }
     }

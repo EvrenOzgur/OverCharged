@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { onMount } from 'svelte';
 	import { Container, Graphics } from 'pixi-svelte';
 	import {
 		editorState,
@@ -46,7 +45,13 @@
 	const showOutline = $derived(editorState.enabled && (hovered || dragging || isSelected || isMultiSelected));
 	const elStyle = $derived(getElementStyle(id));
 
-	onMount(() => {
+	// Re-register reactively, NOT just onMount: when the active layout variant /
+	// resolution preset changes, `getActiveVariantConfig()` returns a different
+	// config object, so the `transform` prop becomes a NEW object. The inspector
+	// edits via this registry, so it must always point at the CURRENTLY rendered
+	// object — otherwise scale/rotation edits in a non-desktop preset silently
+	// mutate the stale (mount-time) object and have no visible effect.
+	$effect(() => {
 		registerEditableElement(id, transform);
 		return () => unregisterEditableElement(id);
 	});
