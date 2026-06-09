@@ -19,3 +19,15 @@ export const boardCalibration = $state({
 	offsetX: 0,
 	offsetY: 0,
 });
+
+// Live COVER scale for the bgCharacters spine: BoardWellSync measures the BG
+// scene's screen rect each layout change and writes the uniform scale that makes
+// the scene fill the canvas (max ratio) at any resolution / orientation. This
+// replaces a fixed responsiveScale (which can't cover both landscape AND
+// portrait). `offsetX/Y` recentre the scene on the canvas. Default scale is a
+// small non-zero so the first frame isn't the spine's huge native size.
+export const bgCover = $state({
+	scale: 0.3,
+	offsetX: 0,
+	offsetY: 0,
+});

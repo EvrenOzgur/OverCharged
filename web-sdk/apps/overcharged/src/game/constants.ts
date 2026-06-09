@@ -13,6 +13,22 @@ import type { RawSymbol, SymbolState } from './types';
 // it scales as one unit to sit inside the painted grid.
 export const SYMBOL_SIZE = 57;
 
+// Portrait-only shrink of the bg's board WELL (grid). Applied to the spine's
+// `target_portrait_board` bone (setup scale below); the SlotArea grid follows
+// it and the symbol board follows the grid via boardCalibration — so both the
+// cells and the symbols get smaller together, leaving room for the bottom
+// button bar. The lab scene (bone_bg) is unaffected. 1 = no extra shrink.
+export const PORTRAIT_WELL_SHRINK = 0.85;
+// Setup scale of `target_portrait_board` in the bg_characters skeleton — the
+// portrait well's base size that PORTRAIT_WELL_SHRINK multiplies.
+export const PORTRAIT_WELL_SETUP_SCALE = 0.7075084;
+// Portrait-only upward shift of the bg's board WELL, in spine units, so the
+// grid sits flush under the OVERCHARGED logo (no gap) and the symbol board
+// follows it via boardCalibration. Larger = higher. Applied as the SpineBone's
+// `y` prop NEGATED (SpineBone does `bone.y = -y`, and spine +y is up), so we
+// pass `y={-PORTRAIT_WELL_LIFT}`.
+export const PORTRAIT_WELL_LIFT = 60;
+
 // Render scale of the symbol art within its grid cell (1 = fills the cell).
 // <1 shrinks every symbol slightly, leaving a small gap, WITHOUT changing the
 // board grid spacing (which stays SYMBOL_SIZE). Note: shrinking SYMBOL_SIZE

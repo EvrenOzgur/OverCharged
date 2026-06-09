@@ -1,9 +1,15 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { Rectangle, Sprite, SpineProvider, SpineTrack } from 'pixi-svelte';
+	import { Rectangle, Sprite, SpineProvider, SpineTrack, SpineBone } from 'pixi-svelte';
 
 	import { getContext } from '../game/context';
 	import { hexToPixi, type BgLayer } from '../game/uiLayoutConfig.svelte';
+	import { bgCover } from '../game/boardCalibration.svelte';
+	import {
+		PORTRAIT_WELL_SHRINK,
+		PORTRAIT_WELL_SETUP_SCALE,
+		PORTRAIT_WELL_LIFT,
+	} from '../game/constants';
 	import SkillMeterDriver from './SkillMeterDriver.svelte';
 
 	type Props = {
@@ -14,6 +20,15 @@
 	const context = getContext();
 
 	const canvasSizes = $derived(context.stateLayoutDerived.canvasSizes());
+
+	// bgCharacters cover: SkillMeterDriver measures the BG scene and writes the
+	// uniform scale that fills the canvas (bgCover.scale) for the current
+	// resolution / orientation. The spine renders at its native size × this scale.
+	const spineScale = $derived(
+		layer.coverCanvas
+			? { x: layer.scaleX * bgCover.scale, y: layer.scaleY * bgCover.scale }
+			: { x: layer.scaleX, y: layer.scaleY },
+	);
 
 	// Orientation-driven skin: the bgCharacters skeleton ships 'landscape' /
 	// 'portrait' skins (no 'default'), so a skin MUST be set or nothing renders.
@@ -28,6 +43,15 @@
 	);
 
 	function responsiveProps(l: BgLayer) {
+		// Full-canvas cover: just centre on the canvas (no width/height) — the
+		// spine renders at its native size × spineScale (= bgCover.scale), which
+		// SkillMeterDriver keeps sized to fill the canvas at any resolution.
+		if (l.coverCanvas) {
+			return {
+				x: canvasSizes.width / 2 + bgCover.offsetX,
+				y: canvasSizes.height / 2 + bgCover.offsetY,
+			};
+		}
 		if (l.useResponsiveLayout) {
 			return context.stateLayoutDerived.normalBackgroundLayout({
 				scale: l.responsiveScale,
@@ -330,7 +354,7 @@
 		asset={layer.spineKey}
 		{skin}
 		{...responsiveProps(layer)}
-		scale={{ x: layer.scaleX, y: layer.scaleY }}
+		scale={spineScale}
 		alpha={layer.alpha}
 		{zIndex}
 	>
@@ -347,5 +371,16 @@
 		<!-- Drives this spine's embedded mana fill bones from skillMeters.
 		     Gracefully no-ops on layers whose skeleton doesn't define them. -->
 		<SkillMeterDriver />
+		{#if layer.coverCanvas && context.stateLayoutDerived.layoutType() === 'portrait'}
+			<!-- Shrink the board WELL in portrait (the TC_board target the well is
+			     constrained to) so the grid + the symbol board that follows it don't
+			     fill the screen, leaving room for the bottom buttons. -->
+			<SpineBone
+				boneName="target_portrait_board"
+				scaleX={PORTRAIT_WELL_SETUP_SCALE * PORTRAIT_WELL_SHRINK}
+				scaleY={PORTRAIT_WELL_SETUP_SCALE * PORTRAIT_WELL_SHRINK}
+				y={-PORTRAIT_WELL_LIFT}
+			/>
+		{/if}
 	</SpineProvider>
 {/if}

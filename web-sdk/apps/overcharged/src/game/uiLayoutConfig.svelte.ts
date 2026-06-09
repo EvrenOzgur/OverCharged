@@ -200,6 +200,13 @@ export type BgLayer = {
 	 * orientation skins instead of a 'default' skin (e.g. bgCharacters).
 	 */
 	orientationSkin?: boolean;
+	/**
+	 * When true, the spine is scaled to COVER the whole canvas (fill at any
+	 * resolution, no letterbox) instead of the responsive fit sizing. scaleX/Y
+	 * act as an extra over-scale factor on top (to compensate for art that is
+	 * smaller than the skeleton bounds).
+	 */
+	coverCanvas?: boolean;
 };
 
 export type ColorPalette = {
@@ -371,8 +378,9 @@ export const DEFAULT_BG_LAYERS: BgLayer[] = [
 		alpha: 1,
 		visible: true,
 		useResponsiveLayout: true,
-		responsiveScale: 0.5,
+		responsiveScale: 0.66,
 		orientationSkin: true,
+		coverCanvas: true,
 	},
 ];
 

@@ -9,6 +9,13 @@
 		anchor?: PixiPoint;
 		scale?: PixiPoint;
 		skin?: string;
+		/**
+		 * When true and BOTH width + height are given, the skeleton is scaled
+		 * UNIFORMLY to COVER that box (max ratio, may crop) instead of stretching
+		 * to it. Useful for full-bleed backgrounds that must fill the canvas at
+		 * any resolution without distortion.
+		 */
+		cover?: boolean;
 	};
 </script>
 
@@ -27,6 +34,7 @@
 		children,
 		scale: scaleProp,
 		skin,
+		cover,
 		...baseSpineProps
 	}: Props = $props();
 	const context = getContextApp();
@@ -39,6 +47,14 @@
 		if (!spineData) return SCALE_BASE;
 		if (!spineData?.width || !spineData?.height) return SCALE_BASE;
 		if (!baseSpineProps.width && !baseSpineProps.height) return SCALE_BASE;
+		if (cover && baseSpineProps.width && baseSpineProps.height) {
+			// Uniform COVER: scale by the larger ratio so the box is fully filled.
+			const coverScale = Math.max(
+				baseSpineProps.width / spineData.width,
+				baseSpineProps.height / spineData.height,
+			);
+			return { x: coverScale, y: coverScale };
+		}
 		if (!baseSpineProps.width && baseSpineProps.height) {
 			const scaleHeight = baseSpineProps.height / spineData.height;
 			return { x: scaleHeight, y: scaleHeight };
@@ -71,6 +87,15 @@
 
 		return anchorToPivot({ anchor, sizes: { width: factWidth, height: factHeight } });
 	});
+
+	// In cover mode the box (width/height) is only used to compute the uniform
+	// cover `scale`; forwarding width/height to the Spine would set its display
+	// size directly (a non-uniform stretch) and override the scale, so strip them.
+	const forwardProps = $derived.by(() => {
+		if (!cover) return baseSpineProps;
+		const { width: _w, height: _h, ...rest } = baseSpineProps as Record<string, unknown>;
+		return rest;
+	});
 </script>
 
 {#if !spineData}
@@ -79,7 +104,7 @@
 
 {#if spineData}
 	{#key spineData}
-		<BaseSpineProvider {...baseSpineProps} {scale} {pivot} {spineData} {skin}>
+		<BaseSpineProvider {...forwardProps} {scale} {pivot} {spineData} {skin}>
 			{@render children()}
 		</BaseSpineProvider>
 	{/key}

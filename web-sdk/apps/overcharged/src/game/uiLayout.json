@@ -442,8 +442,9 @@
       "alpha": 1,
       "visible": true,
       "useResponsiveLayout": true,
-      "responsiveScale": 0.5,
-      "orientationSkin": true
+      "responsiveScale": 0.66,
+      "orientationSkin": true,
+      "coverCanvas": true
     },
     {
       "id": "bgSkillEffects",

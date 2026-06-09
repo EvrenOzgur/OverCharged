@@ -21,7 +21,7 @@
 	import { getContext } from '../game/context';
 	import config from '../game/config';
 	import { BOARD_SIZES } from '../game/constants';
-	import { boardCalibration } from '../game/boardCalibration.svelte';
+	import { boardCalibration, bgCover } from '../game/boardCalibration.svelte';
 
 	type SkillKey = 'L1' | 'L2' | 'L3' | 'L4';
 
@@ -62,6 +62,41 @@
 		const measure = () => {
 			try {
 				const sk: any = spine.skeleton;
+
+				// ── bg cover: scale the BG scene to fill the canvas (any orientation).
+				const bgSlot: any = sk.findSlot('BG');
+				const bgBone = bgSlot?.bone;
+				const bgAtt: any = bgSlot?.getAttachment?.();
+				if (bgBone && bgAtt && bgCover.scale) {
+					const bw = (bgAtt.width ?? 1200) * (bgAtt.scaleX ?? 1) * 0.5;
+					const bh = (bgAtt.height ?? 675) * (bgAtt.scaleY ?? 1) * 0.5;
+					const toGb = (lx: number, ly: number) =>
+						spine.toGlobal({
+							x: bgBone.a * lx + bgBone.b * ly + bgBone.worldX,
+							y: bgBone.c * lx + bgBone.d * ly + bgBone.worldY,
+						} as any);
+					const o = toGb(0, 0);
+					const sceneW = 2 * Math.hypot(toGb(bw, 0).x - o.x, toGb(bw, 0).y - o.y);
+					const sceneH = 2 * Math.hypot(toGb(0, bh).x - o.x, toGb(0, bh).y - o.y);
+					if (sceneW > 1 && sceneH > 1) {
+						// `sceneW/H` are at the current bgCover.scale → divide it out to
+						// get the scene's size at scale 1, then cover the canvas.
+						const naturalW = sceneW / bgCover.scale;
+						const naturalH = sceneH / bgCover.scale;
+						const cover = Math.max(cs.width / naturalW, cs.height / naturalH);
+						if (Number.isFinite(cover) && cover > 0.01 && cover < 20) {
+							bgCover.scale = cover;
+						}
+						// Recentre the scene on the canvas. `o` is the scene centre in
+						// screen px at the current offset, so the correction is cumulative
+						// (converges to centred over the sampled re-measures).
+						if (Number.isFinite(o.x) && Number.isFinite(o.y)) {
+							bgCover.offsetX += cs.width / 2 - o.x;
+							bgCover.offsetY += cs.height / 2 - o.y;
+						}
+					}
+				}
+
 				const bone = sk.findBone('bone_board');
 				const slot = sk.findSlot('SlotArea');
 				const att: any = slot?.getAttachment?.();

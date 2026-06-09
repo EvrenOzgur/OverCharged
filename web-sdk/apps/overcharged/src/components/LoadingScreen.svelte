@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SpineProvider, SpineTrack, Container } from 'pixi-svelte';
+	import { SpineProvider, SpineTrack, SpineBone, Container } from 'pixi-svelte';
 	import { FadeContainer } from 'components-pixi';
 	import { MainContainer } from 'components-layout';
 	import { stateUrlDerived } from 'state-shared';
@@ -22,17 +22,34 @@
 	// portrait skins (no `default` skin → a skin MUST be set or nothing renders).
 	const LOADER_SIZE = { width: 1200, height: 819 }; // skeleton bounds
 	const LOADING_BAR_DURATION = 3.333333; // `loadingBar` anim length (seconds)
+	// Overall size of the loading screen relative to a FIT (contain) of the main
+	// layout. 1 = whole design (background) just fits; <1 shrinks everything.
+	const LOADER_SCALE = 1;
+	// Shrink ONLY the logo + loading bar (not the background). The skin's
+	// transform constraints drive bone_logo / bone_loadingBar from these target
+	// bones (mixScale = 1), so scaling the targets scales the logo/bar while the
+	// background (bone_bg → target_*BG) is untouched. Multipliers below are the
+	// targets' setup scales × this factor.
+	const LOGO_BAR_SCALE = 0.5;
+	const TARGET_SETUP = {
+		landscapeLogo: 1,
+		landscapeLoadingBar: 0.725,
+		portraitLogo: 0.618,
+		portraitLoadingBar: 0.453,
+	};
 
 	const loaderSkin = $derived(
 		context.stateLayoutDerived.layoutType() === 'portrait' ? 'portrait' : 'landscape',
 	);
-	// Uniform scale so the spine COVERS the main layout (fills the screen).
+	// Uniform scale: FIT the spine inside the main layout (whole design visible,
+	// no overflow), then apply LOADER_SCALE.
 	const loaderWidth = $derived(
 		LOADER_SIZE.width *
-			Math.max(
+			Math.min(
 				context.stateLayoutDerived.mainLayout().width / LOADER_SIZE.width,
 				context.stateLayoutDerived.mainLayout().height / LOADER_SIZE.height,
-			),
+			) *
+			LOADER_SCALE,
 	);
 	// Scrub the loading-bar fill to the real asset-load progress (0..100).
 	const loaderBarTime = $derived(
@@ -82,6 +99,30 @@
 					timeScale={0}
 					trackTime={loaderBarTime}
 				/>
+				<!-- Shrink only the logo + bar (background stays full-size). -->
+				{#if loaderSkin === 'portrait'}
+					<SpineBone
+						boneName="target_portraitLogo"
+						scaleX={TARGET_SETUP.portraitLogo * LOGO_BAR_SCALE}
+						scaleY={TARGET_SETUP.portraitLogo * LOGO_BAR_SCALE}
+					/>
+					<SpineBone
+						boneName="target_portraitLoadingBar"
+						scaleX={TARGET_SETUP.portraitLoadingBar * LOGO_BAR_SCALE}
+						scaleY={TARGET_SETUP.portraitLoadingBar * LOGO_BAR_SCALE}
+					/>
+				{:else}
+					<SpineBone
+						boneName="target_landscapeLogo"
+						scaleX={TARGET_SETUP.landscapeLogo * LOGO_BAR_SCALE}
+						scaleY={TARGET_SETUP.landscapeLogo * LOGO_BAR_SCALE}
+					/>
+					<SpineBone
+						boneName="target_landscapeLoadingBar"
+						scaleX={TARGET_SETUP.landscapeLoadingBar * LOGO_BAR_SCALE}
+						scaleY={TARGET_SETUP.landscapeLoadingBar * LOGO_BAR_SCALE}
+					/>
+				{/if}
 			</SpineProvider>
 		</Container>
 	</MainContainer>
