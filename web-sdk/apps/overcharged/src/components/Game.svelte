@@ -21,6 +21,7 @@
 	import LoadingScreen from './LoadingScreen.svelte';
 	import BoardContainer from './BoardContainer.svelte';
 	import OverchargedUI from './UI/OverchargedUI.svelte';
+	import DebugLayoutHud from './DebugLayoutHud.svelte';
 	import Board from './Board.svelte';
 	import Anticipations from './Anticipations.svelte';
 	import ScatterTriggerHint from './ScatterTriggerHint.svelte';
@@ -329,6 +330,10 @@
 		-->
 		<SkillActivatedOverlay />
 		<Transition />
+
+		<!-- Diagnostic overlay (opt-in via ?uidebug=1) for the auto-resolution
+		     feature: shows live canvas size / layoutType / active preset. -->
+		<DebugLayoutHud />
 
 	{/if}
 </App>

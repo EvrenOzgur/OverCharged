@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
 	import { GlobalStyle } from 'components-ui-html';
-	import { Authenticate, LoaderStakeEngine, LoaderExample, LoadI18n } from 'components-shared';
+	import { Authenticate, LoaderStakeEngine, LoadI18n } from 'components-shared';
 	import { stateUrlDerived } from 'state-shared';
 	import Game from '../components/Game.svelte';
 	import ReplayOverlay from '../components/ReplayOverlay.svelte';
@@ -13,10 +13,7 @@
 
 	const props: Props = $props();
 
-	let showYourLoader = $state(false);
-
 	const loaderUrlStakeEngine = new URL('../../stake-engine-loader.gif', import.meta.url).href;
-	const loaderUrl = new URL('../../loader.gif', import.meta.url).href;
 
 	const isReplay = $derived(stateUrlDerived.isReplayMode());
 
@@ -34,12 +31,8 @@
 	</Authenticate>
 </GlobalStyle>
 
-<LoaderStakeEngine src={loaderUrlStakeEngine} oncomplete={() => (showYourLoader = true)} />
-
-{#if showYourLoader}
-	<LoaderExample src={loaderUrl} />
-	<!-- '/loader.gif' is served from static folder of sveltekit -->
-	<!-- File location: apps/scatter/static/loader.gif -->
-{/if}
+<!-- Stake's required boot loader. The game's own Pixi loading screen takes over
+     once assets load; the old "Add Your Loader" placeholder GIF was removed. -->
+<LoaderStakeEngine src={loaderUrlStakeEngine} />
 
 {@render props.children()}

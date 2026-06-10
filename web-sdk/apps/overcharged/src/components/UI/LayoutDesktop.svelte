@@ -19,7 +19,14 @@
 
 	const props: LayoutUiProps = $props();
 	const context = getContext();
-	const desktopCfg = $derived(getActiveVariantConfig());
+	// Pass the live window size so the running game auto-selects the matching
+	// resolution preset config (and re-selects reactively on resize).
+	const liveLayout = $derived({
+		width: context.stateLayoutDerived.canvasSizes().width,
+		height: context.stateLayoutDerived.canvasSizes().height,
+		layoutType: context.stateLayoutDerived.layoutType(),
+	});
+	const desktopCfg = $derived(getActiveVariantConfig(liveLayout));
 </script>
 
 <MainContainer alignVertical="top">

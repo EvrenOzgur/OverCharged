@@ -464,9 +464,13 @@ export function debouncedSave(callback?: (ok: boolean) => void) {
 	}, 300);
 }
 
-/** Get the reactive style object for a layout element (variant-aware). */
-export function getElementStyle(id: string): UiElementStyle | undefined {
-	return getActiveVariantConfig()[id]?.style;
+/** Get the reactive style object for a layout element (variant-aware). Pass
+ *  `live` so the running game reads the style from the auto-selected preset. */
+export function getElementStyle(
+	id: string,
+	live?: LiveLayoutContext,
+): UiElementStyle | undefined {
+	return getActiveVariantConfig(live)[id]?.style;
 }
 
 export function exportUiLayoutConfig(): string {
@@ -536,15 +540,165 @@ export function getActivePreset(): ResolutionPreset | null {
 	return RESOLUTION_PRESETS[editorState.activePreset] ?? null;
 }
 
-/** Get the active preset/variant's element config (falls back to desktop). */
-export function getActiveVariantConfig(): Record<string, UiElementConfig> {
-	// If a specific preset is active, use its dedicated config
+/** Live window context used to auto-pick a resolution preset config in the
+ *  running game (no editor preset forced). Passed in by the layout components
+ *  so the selection stays reactive to window resizes without this module
+ *  importing the layout state (which would create an import cycle). */
+export type LiveLayoutContext = {
+	width: number;
+	height: number;
+	layoutType: LayoutVariant;
+};
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+type PresetEntry = { preset: ResolutionPreset; cfg: Record<string, UiElementConfig> };
+
+/**
+ * Find the two configured presets (same layoutType) that bracket a live window
+ * WIDTH, plus the 0..1 interpolation factor between them. Presets are sorted by
+ * width; outside the configured range the result clamps to the nearest end
+ * (lo === hi, t = 0). Returns null when no matching preset is configured.
+ */
+function findPresetBracket(
+	width: number,
+	layoutType: LayoutVariant,
+): { lo: PresetEntry; hi: PresetEntry; t: number } | null {
+	const cfgs = uiLayoutConfig.presetConfigs;
+	if (!cfgs) return null;
+	const candidates: PresetEntry[] = RESOLUTION_PRESETS.filter(
+		(p) => p.layoutType === layoutType && cfgs[getPresetKey(p)],
+	)
+		.map((preset) => ({ preset, cfg: cfgs[getPresetKey(preset)] }))
+		.sort((a, b) => a.preset.width - b.preset.width);
+
+	if (candidates.length === 0) return null;
+	if (candidates.length === 1) return { lo: candidates[0], hi: candidates[0], t: 0 };
+
+	const first = candidates[0];
+	const last = candidates[candidates.length - 1];
+	if (width <= first.preset.width) return { lo: first, hi: first, t: 0 };
+	if (width >= last.preset.width) return { lo: last, hi: last, t: 0 };
+
+	for (let i = 0; i < candidates.length - 1; i++) {
+		const lo = candidates[i];
+		const hi = candidates[i + 1];
+		if (width >= lo.preset.width && width <= hi.preset.width) {
+			const span = hi.preset.width - lo.preset.width;
+			return { lo, hi, t: span > 0 ? (width - lo.preset.width) / span : 0 };
+		}
+	}
+	return { lo: last, hi: last, t: 0 };
+}
+
+/**
+ * Build the live UI config by INTERPOLATING element transforms between the two
+ * presets (of the matching layoutType) that bracket the current window width.
+ * This is what makes the layout "scale at the right ratio" between resolution
+ * settings and land exactly on a preset's tuned layout when the window reaches
+ * it — rather than snapping to a single preset's (differently-tuned) values at
+ * an in-between size, which made elements drift / overlap. x/y/scale/rotation
+ * are lerped; non-numeric fields (style, etc.) come from the nearer endpoint.
+ * Returns null when no matching preset is configured (caller falls back).
+ */
+export function getInterpolatedPresetConfig(
+	width: number,
+	layoutType: LayoutVariant,
+): Record<string, UiElementConfig> | null {
+	const bracket = findPresetBracket(width, layoutType);
+	if (!bracket) return null;
+	const { lo, hi, t } = bracket;
+	if (lo === hi || t <= 0) return lo.cfg;
+	if (t >= 1) return hi.cfg;
+
+	const nearer = t < 0.5 ? lo.cfg : hi.cfg;
+	const merged: Record<string, UiElementConfig> = {};
+	const ids = new Set([...Object.keys(lo.cfg), ...Object.keys(hi.cfg)]);
+	for (const id of ids) {
+		const a = lo.cfg[id];
+		const b = hi.cfg[id];
+		if (a && b) {
+			merged[id] = {
+				...(nearer[id] ?? a),
+				x: lerp(a.x, b.x, t),
+				y: lerp(a.y, b.y, t),
+				scale: lerp(a.scale ?? 1, b.scale ?? 1, t),
+				rotation: lerp(a.rotation ?? 0, b.rotation ?? 0, t),
+			};
+		} else {
+			merged[id] = (a ?? b)!;
+		}
+	}
+	return merged;
+}
+
+/** Nearest configured preset of the matching layoutType (used in editor-auto,
+ *  where a stable object is needed for dragging — no interpolation). */
+export function getAutoPresetConfig(
+	width: number,
+	height: number,
+	layoutType: LayoutVariant,
+): Record<string, UiElementConfig> | null {
+	const cfgs = uiLayoutConfig.presetConfigs;
+	if (!cfgs) return null;
+	let best: Record<string, UiElementConfig> | null = null;
+	let bestDist = Infinity;
+	for (const p of RESOLUTION_PRESETS) {
+		if (p.layoutType !== layoutType) continue;
+		const cfg = cfgs[getPresetKey(p)];
+		if (!cfg) continue;
+		const dw = p.width - width;
+		const dh = p.height - height;
+		const dist = dw * dw + dh * dh;
+		if (dist < bestDist) {
+			bestDist = dist;
+			best = cfg;
+		}
+	}
+	return best;
+}
+
+/** Human-readable description of which config is currently in effect, for the
+ *  layout debug HUD. Mirrors getActiveVariantConfig's selection logic. */
+export function getActiveConfigLabel(live?: LiveLayoutContext): string {
+	const preset = getActivePreset();
+	if (preset) return `${preset.name} ${preset.width}x${preset.height} [forced]`;
+	if (live && editorState.activePreset < 0) {
+		const bracket = findPresetBracket(live.width, live.layoutType);
+		if (bracket) {
+			const { lo, hi, t } = bracket;
+			if (lo === hi) return `${lo.preset.name} [clamped]`;
+			return `${lo.preset.name}↔${hi.preset.name}  t=${t.toFixed(2)} [lerp]`;
+		}
+	}
+	return `fallback:${editorState.activeVariant}`;
+}
+
+/** Get the active preset/variant's element config (falls back to desktop).
+ *  Pass `live` (current window size + layoutType) so the RUNNING game
+ *  auto-selects the matching resolution preset; omit it in editor-only call
+ *  sites where an explicit preset/variant is in effect. */
+export function getActiveVariantConfig(
+	live?: LiveLayoutContext,
+): Record<string, UiElementConfig> {
+	// 1. Editor: an explicitly selected resolution preset always wins.
 	const preset = getActivePreset();
 	if (preset) {
 		const key = getPresetKey(preset);
 		if (uiLayoutConfig.presetConfigs?.[key]) return uiLayoutConfig.presetConfigs[key];
 	}
-	// Fallback to variant-level or desktop
+	// 2. No preset forced: derive a config from the live window size.
+	if (live && editorState.activePreset < 0) {
+		// Live game → smoothly interpolate between bracketing presets so the
+		// layout scales proportionally and only "lands" on a preset's tuned
+		// values at its resolution. Editor-auto → nearest preset (a stable
+		// object so dragging/inspector edits aren't lost on a throwaway lerp).
+		const cfg = editorState.enabled
+			? getAutoPresetConfig(live.width, live.height, live.layoutType)
+			: getInterpolatedPresetConfig(live.width, live.layoutType);
+		if (cfg) return cfg;
+	}
+	// 3. Fallback to variant-level or desktop.
 	const v = editorState.activeVariant;
 	if (v !== 'desktop' && uiLayoutConfig[v]) return uiLayoutConfig[v]!;
 	return uiLayoutConfig.desktop;

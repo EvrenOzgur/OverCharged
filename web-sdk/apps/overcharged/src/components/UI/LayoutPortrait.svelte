@@ -18,7 +18,14 @@
 
 	const props: LayoutUiProps = $props();
 	const context = getContext();
-	const cfg = $derived(getActiveVariantConfig());
+	// Pass the live window size so the running game auto-selects the matching
+	// resolution preset config (and re-selects reactively on resize).
+	const liveLayout = $derived({
+		width: context.stateLayoutDerived.canvasSizes().width,
+		height: context.stateLayoutDerived.canvasSizes().height,
+		layoutType: context.stateLayoutDerived.layoutType(),
+	});
+	const cfg = $derived(getActiveVariantConfig(liveLayout));
 
 	const DRAWER_Y = { unfold: 0, fold: 550 };
 	const drawerTween = new Tween(stateUi.drawerFold ? DRAWER_Y.fold : DRAWER_Y.unfold, { easing: cubicInOut });

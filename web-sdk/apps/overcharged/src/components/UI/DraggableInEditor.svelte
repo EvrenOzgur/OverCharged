@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { Container, Graphics } from 'pixi-svelte';
+	import { getContext } from 'components-ui-pixi/src/context';
 	import {
 		editorState,
 		registerEditableElement,
@@ -40,10 +41,19 @@
 	let startCfgX = 0;
 	let startCfgY = 0;
 
+	const context = getContext();
+	// Live window context so style (alpha/visible) is read from the same
+	// auto-selected resolution preset the running game renders.
+	const liveLayout = $derived({
+		width: context.stateLayoutDerived.canvasSizes().width,
+		height: context.stateLayoutDerived.canvasSizes().height,
+		layoutType: context.stateLayoutDerived.layoutType(),
+	});
+
 	const isSelected = $derived(editorState.selected === id);
 	const isMultiSelected = $derived(editorState.multiSelected.includes(id));
 	const showOutline = $derived(editorState.enabled && (hovered || dragging || isSelected || isMultiSelected));
-	const elStyle = $derived(getElementStyle(id));
+	const elStyle = $derived(getElementStyle(id, liveLayout));
 
 	// Re-register reactively, NOT just onMount: when the active layout variant /
 	// resolution preset changes, `getActiveVariantConfig()` returns a different
