@@ -246,7 +246,7 @@
 		text={label}
 		style={{
 			fill: meterColor,
-			fontFamily: 'proxima-nova',
+			fontFamily: 'ranchers',
 			fontSize: REM * 0.9,
 			fontWeight: 'bold',
 			dropShadow: true,
@@ -264,7 +264,7 @@
 			text="READY!"
 			style={{
 				fill: 0xffffff,
-				fontFamily: 'proxima-nova',
+				fontFamily: 'ranchers',
 				fontSize: REM * 0.65,
 				fontWeight: 'bold',
 				dropShadow: true,
@@ -344,7 +344,7 @@
 		text="{Math.floor(currentValue)} / {targetValue}"
 		style={{
 			fill: 0xffffff,
-			fontFamily: 'proxima-nova',
+			fontFamily: 'ranchers',
 			fontSize: REM * 1.0,
 			fontWeight: 'bold',
 			dropShadow: true,

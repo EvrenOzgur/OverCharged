@@ -17,7 +17,14 @@
 	const extraConfig = $derived(
 		props?.levelAlias ? LEVEL_PARTICLE_COIN_MAP[props.levelAlias] : null,
 	);
-	const config = $derived({ ...baseConfig, ...extraConfig });
+	// OverCharged'a özel coin boyutu — paylaşılan `fountain` (0.3→0.4) diğer 5
+	// oyun tarafından da kullanıldığı için onu değiştirmeden burada override
+	// ediyoruz. Coinleri büyütmek/küçültmek için sadece bu scale'i ayarla.
+	const config = $derived({
+		...baseConfig,
+		...extraConfig,
+		scale: { start: 0.2, end: 0.27, minimumScaleMultiplier: 1 },
+	});
 </script>
 
 {#if config}

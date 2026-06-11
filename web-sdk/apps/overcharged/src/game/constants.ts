@@ -40,7 +40,19 @@ export const SYMBOL_RENDER_SCALE = 0.9;
 // symbols, so it reads ~2× too big at ratio 1 — tune here to taste.
 export const MULTIPLIER_SYMBOL_RATIO = 0.5;
 
+// Sembolün hücre içindeki konumu (hücre genişliğinin kesri). 0.5 = tam orta.
+// X: REEL_PADDING — büyüt = sağa, küçült = sola.
+// Y: ROW_PADDING  — büyüt = aşağı, küçült = yukarı.
+// Board art'ındaki kutucuklar SYMBOL_SIZE grid'ine tam oturmadığı için ince ayar.
 export const REEL_PADDING = 0.53;
+export const ROW_PADDING = 0.5;
+
+// Sembol grid'inin board well'ine oturma ölçeği için ince ayar faktörü.
+// Semboller kutucuklardan dışa taşıyorsa (soldaki sola, sağdaki sağa, üst yukarı,
+// alt aşağı = grid fazla geniş) bunu 1'in ALTINA çek → grid merkeze doğru küçülür,
+// semboller kutu merkezlerine gelir. 1 = ölçülen well'e birebir otur.
+// (Uniform kayma için REEL_PADDING/ROW_PADDING; yayılma/ölçek için bu.)
+export const BOARD_FIT_FACTOR = 0.97;
 
 /**
  * Multiplier applied to the shared SDK `UI_BASE_SIZE` (150) when sizing

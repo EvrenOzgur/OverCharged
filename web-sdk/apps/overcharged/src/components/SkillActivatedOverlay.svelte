@@ -104,7 +104,7 @@
 				text={current.name}
 				style={{
 					fill: current.color,
-					fontFamily: 'proxima-nova',
+					fontFamily: 'ranchers',
 					fontSize: REM * 3.2,
 					fontWeight: '900',
 					letterSpacing: 4,
@@ -122,7 +122,7 @@
 				text="ACTIVATED"
 				style={{
 					fill: 0xffffff,
-					fontFamily: 'proxima-nova',
+					fontFamily: 'ranchers',
 					fontSize: REM * 1.1,
 					fontWeight: '600',
 					letterSpacing: 6,
@@ -139,7 +139,7 @@
 				text={current.description}
 				style={{
 					fill: 0xdddddd,
-					fontFamily: 'proxima-nova',
+					fontFamily: 'ranchers',
 					fontSize: REM * 1.0,
 					fontWeight: '400',
 					dropShadow: true,

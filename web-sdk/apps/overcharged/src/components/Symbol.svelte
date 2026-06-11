@@ -1,7 +1,10 @@
 <script lang="ts">
+	import { SpineProvider, SpineTrack } from 'pixi-svelte';
+
 	import SymbolSpine from './SymbolSpine.svelte';
 	import SymbolSprite from './SymbolSprite.svelte';
 	import type { SymbolState, RawSymbol } from '../game/types';
+	import { SYMBOL_SIZE } from '../game/constants';
 	import { getSymbolInfo } from '../game/utils';
 	import { getContext } from '../game/context';
 
@@ -19,6 +22,12 @@
 	const symbolInfo = $derived(getSymbolInfo({ rawSymbol: props.rawSymbol, state: props.state }));
 	const isSprite = $derived(symbolInfo.type === 'sprite');
 	const isMultiplierSymbol = $derived(props.rawSymbol.name === 'M');
+	// Kazanan sembollerde (S/M hariç) anticipation spine'ının `payframe`
+	// animasyonu — parlayan kazanç çerçevesi.
+	const showWinFrame = $derived(
+		['win', 'postWinStatic', 'explosion'].includes(props.state) &&
+			!['S', 'M'].includes(props.rawSymbol.name),
+	);
 
 	// Stable listener — defining it inline in the SymbolSpine props would
 	// allocate a new object on every render of this component, which makes
@@ -60,4 +69,12 @@
 		y={props.y}
 		listener={spineListener}
 	/>
+{/if}
+
+<!-- Parlayan kazanç çerçevesi (payframe). width: yeni anticipation spine'a göre
+     ayarlı (eski 0.19 -> 0.14, çünkü skeleton declared genişliği 364->272 küçüldü). -->
+{#if showWinFrame}
+	<SpineProvider x={props.x} y={props.y} key="anticipation" width={SYMBOL_SIZE * 0.13}>
+		<SpineTrack trackIndex={0} animationName={'payframe'} loop />
+	</SpineProvider>
 {/if}

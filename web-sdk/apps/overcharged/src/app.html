@@ -3,31 +3,15 @@
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
-		<!-- proxima-nova font files must be placed in /static/fonts/
-			 Required files:
-			   proxima-nova-regular.woff2   (weight 400)
-			   proxima-nova-semibold.woff2  (weight 600)
-			   proxima-nova-bold.woff2      (weight 700)
-		-->
+		<!-- Ranchers (TTF) — oyunun ana UI fontu (eski proxima-nova yerine).
+			 Tek ağırlığı var; tüm weight'lerde kullanılır.
+			 Dosya: /static/assets/fonts/Ranchers/Ranchers-Regular.ttf
+			 NOT: Büyük süslü sayı fontları (gold/silver/purple) ayrı bir BITMAP font
+			 sistemidir (assets.ts) ve bu @font-face onları ETKİLEMEZ. -->
 		<style>
 			@font-face {
-				font-family: 'proxima-nova';
-				src: url('./fonts/proxima-nova-regular.woff2') format('woff2');
-				font-weight: 400;
-				font-style: normal;
-				font-display: swap;
-			}
-			@font-face {
-				font-family: 'proxima-nova';
-				src: url('./fonts/proxima-nova-semibold.woff2') format('woff2');
-				font-weight: 600;
-				font-style: normal;
-				font-display: swap;
-			}
-			@font-face {
-				font-family: 'proxima-nova';
-				src: url('./fonts/proxima-nova-bold.woff2') format('woff2');
-				font-weight: 700;
+				font-family: 'ranchers';
+				src: url('./assets/fonts/Ranchers/Ranchers-Regular.ttf') format('truetype');
 				font-style: normal;
 				font-display: swap;
 			}

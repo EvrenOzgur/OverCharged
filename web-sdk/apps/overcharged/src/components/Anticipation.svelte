@@ -5,6 +5,7 @@
 	import type { Reel } from '../game/stateGame.svelte';
 	import { REEL_PADDING, SYMBOL_SIZE, BOARD_DIMENSIONS } from '../game/constants';
 	import BoardContainer from './BoardContainer.svelte';
+	import BoardMask from './BoardMask.svelte';
 
 	type Props = {
 		reel: Reel;
@@ -12,6 +13,12 @@
 	};
 
 	const props: Props = $props();
+
+	// Anticipation spine'ının yüksekliği (sembol cinsinden). Board 8 sembol;
+	// bunu board'dan küçük tutarak animasyonu üst/alta pay bırakacak şekilde
+	// küçültüyoruz. Maske board boyunda kalır, sadece spine küçülür.
+	// Büyüt/küçült için TEK yer burası.
+	const ANT_HEIGHT = SYMBOL_SIZE * 4;
 
 	type AnimationName = 'anticipation_intro' | 'anticipation_loop' | 'anticipation_out';
 
@@ -29,10 +36,14 @@
      column (matching getSymbolX); the spine's own origin centres it. No anchor —
      mirrors the original placement so the streak stays column-aligned. -->
 <BoardContainer>
+	<!-- Spine'ın dust/sparks/glow'u board dışına taşmasın diye board alanına
+	     kırpıyoruz. Maske board boyunda kalır; boyut ayarı spine'ın kendisinde
+	     (ANT_HEIGHT) yapılır. -->
+	<BoardMask />
 	<SpineProvider
 		asset="anticipation"
-		width={SYMBOL_SIZE * 0.6}
-		height={SYMBOL_SIZE * 5}
+		width={SYMBOL_SIZE * 0.5}
+		height={ANT_HEIGHT}
 		x={SYMBOL_SIZE * (props.reel.reelIndex + REEL_PADDING)}
 		y={(SYMBOL_SIZE * BOARD_DIMENSIONS.y) / 2 - SYMBOL_SIZE * 0.06}
 	>

@@ -38,7 +38,7 @@
 	{active}
 	{onpress}
 	{disabled}
-	icon="repeat"
+	icon={active ? 'repeatActive' : 'repeat'}
 	{styleOverrides}
 	hoverScale={1.08}
 >

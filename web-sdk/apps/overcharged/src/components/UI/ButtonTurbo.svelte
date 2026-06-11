@@ -32,7 +32,7 @@
 	{active}
 	{onpress}
 	{disabled}
-	icon="turbo"
+	icon={active ? 'turboActive' : 'turbo'}
 	{styleOverrides}
 	hoverScale={1.08}
 />

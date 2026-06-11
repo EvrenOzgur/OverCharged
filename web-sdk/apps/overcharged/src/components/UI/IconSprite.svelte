@@ -11,7 +11,9 @@
 		| 'stop'
 		| 'autoSpin'
 		| 'repeat'
+		| 'repeatActive'
 		| 'turbo'
+		| 'turboActive'
 		| 'menu'
 		| 'menuExit'
 		| 'settings'
@@ -28,7 +30,9 @@
 		stop: 'iconStop',
 		autoSpin: 'iconAutoSpin',
 		repeat: 'iconRepeat',
+		repeatActive: 'iconRepeatActive',
 		turbo: 'iconTurbo',
+		turboActive: 'iconTurboActive',
 		menu: 'iconMenu',
 		menuExit: 'iconMenuExit',
 		settings: 'iconSettings',

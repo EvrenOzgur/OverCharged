@@ -36,14 +36,14 @@
 	}
 
 	const labelStyle = {
-		fontFamily: 'proxima-nova',
+		fontFamily: 'ranchers',
 		fontSize: UI_BASE_FONT_SIZE * 0.85,
 		fill: 0xaaaaaa, // Muted label color
 		fontWeight: '600'
 	} as const;
 
 	const valueStyle = {
-		fontFamily: 'proxima-nova',
+		fontFamily: 'ranchers',
 		fontSize: UI_BASE_FONT_SIZE * 1.1,
 		fill: props.label.toLowerCase().includes('win') ? NEON_GREEN : WHITE,
 		fontWeight: '800',

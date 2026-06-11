@@ -121,14 +121,14 @@
 	const isWin = $derived(props.label.toLowerCase().includes('win'));
 
 	const labelStyle = $derived({
-		fontFamily: 'proxima-nova',
+		fontFamily: 'ranchers',
 		fontSize: UI_BASE_FONT_SIZE * 0.82 * FONT_MULT,
 		fill: LABEL_COLOR,
 		fontWeight: '600' as const,
 	});
 
 	const valueStyle = $derived({
-		fontFamily: 'proxima-nova',
+		fontFamily: 'ranchers',
 		fontSize: UI_BASE_FONT_SIZE * 1.15 * FONT_MULT,
 		fill: isWin ? ACCENT : VALUE_COLOR,
 		fontWeight: '800' as const,

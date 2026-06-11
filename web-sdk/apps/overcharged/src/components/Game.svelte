@@ -13,6 +13,7 @@
 	import { getContext } from '../game/context';
 	import { SYMBOL_SIZE } from '../game/constants';
 	import config from '../game/config';
+	import { installGoldBitmapFont } from '../game/installGoldFont';
 	import EnableSound from './EnableSound.svelte';
 	import EnableGameActor from './EnableGameActor.svelte';
 	import ResumeBet from './ResumeBet.svelte';
@@ -45,6 +46,14 @@
 	import { stateUrlDerived } from 'state-shared';
 
 	const context = getContext();
+
+	// 'gold' bitmap fontunu Ranchers TTF'inden runtime'da kur. Hem oyunda hem
+	// Storybook'ta çalışır (ikisi de Game'i render eder). Yükleme ekranı/oyun
+	// akışı sırasında tamamlanır; gold metinler (kazanç, çarpan) çok sonra çıkar.
+	onMount(() => {
+		installGoldBitmapFont();
+	});
+
 	const isReplayMode = $derived(stateUrlDerived.isReplayMode());
 	// In replay mode skip the LoadingScreen gate, but only AFTER assets are
 	// ready — otherwise Pixi children mount before their atlases are loaded

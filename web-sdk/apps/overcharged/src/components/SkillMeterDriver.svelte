@@ -20,7 +20,7 @@
 
 	import { getContext } from '../game/context';
 	import config from '../game/config';
-	import { BOARD_SIZES } from '../game/constants';
+	import { BOARD_SIZES, BOARD_FIT_FACTOR } from '../game/constants';
 	import { boardCalibration, bgCover } from '../game/boardCalibration.svelte';
 
 	type SkillKey = 'L1' | 'L2' | 'L3' | 'L4';
@@ -115,7 +115,7 @@
 				const wellH = 2 * Math.hypot(ey.x - o.x, ey.y - o.y);
 				const ml = context.stateLayoutDerived.mainLayout();
 				if (!ml.scale || !wellW || !wellH) return;
-				const scale = wellW / (BOARD_SIZES.width * ml.scale);
+				const scale = (wellW / (BOARD_SIZES.width * ml.scale)) * BOARD_FIT_FACTOR;
 				const offsetX = (o.x - cs.width / 2) / ml.scale;
 				const offsetY = (o.y - cs.height / 2) / ml.scale;
 				if (Number.isFinite(scale) && scale > 0.1 && scale < 5) {

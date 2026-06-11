@@ -84,7 +84,7 @@
 				align: 'center',
 				wordWrap: true,
 				wordWrapWidth: sizes.width * 0.8,
-				fontFamily: 'proxima-nova',
+				fontFamily: 'ranchers',
 				fontWeight: '700',
 				fontSize: UI_BASE_FONT_SIZE * 0.8,
 				fill: active ? NEON_GREEN : 0xffffff,

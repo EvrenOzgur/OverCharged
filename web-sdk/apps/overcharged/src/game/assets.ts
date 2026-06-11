@@ -88,10 +88,9 @@ export default {
 			scale: 2,
 		},
 	},
-	goldFont: {
-		type: 'font',
-		src: './assets/fonts/goldFont/mm_gold.xml',
-	},
+	// NOT: 'gold' bitmap fontu artık xml'den yüklenmiyor — Ranchers TTF'inden
+	// runtime'da üretiliyor (bkz. installGoldFont.ts, +layout.svelte). Eski
+	// mm_gold.xml burada kalsaydı AssetsLoader onu yükleyip Ranchers-gold'u ezerdi.
 	goldBlur: {
 		type: 'font',
 		src: './assets/fonts/goldBlur/miningfont_gold_blur.xml',
@@ -107,7 +106,7 @@ export default {
 	bigwin: {
 		type: 'spine',
 		src: {
-			atlas: './assets/spines/bigwin/big_wins.atlas',
+			atlas: './assets/spines/bigwin/mm_bigwin.atlas',
 			skeleton: './assets/spines/bigwin/mm_bigwin.json',
 			scale: 2,
 		},
@@ -211,16 +210,29 @@ export default {
 	iconRefresh: { type: 'sprite', src: './OverChargedAssets/ui-icons/refresh.svg', preload: true },
 	iconStop: { type: 'sprite', src: './OverChargedAssets/ui-icons/stop.svg', preload: true },
 	iconAutoSpin: { type: 'sprite', src: './OverChargedAssets/ui-icons/autoSpin.svg', preload: true },
-	iconRepeat: { type: 'sprite', src: './OverChargedAssets/ui-icons/repeat.svg', preload: true },
-	iconTurbo: { type: 'sprite', src: './OverChargedAssets/ui-icons/turbo.svg', preload: true },
-	iconMenu: { type: 'sprite', src: './OverChargedAssets/ui-icons/menu.svg', preload: true },
-	iconMenuExit: { type: 'sprite', src: './OverChargedAssets/ui-icons/menuExit.svg', preload: true },
-	iconSettings: { type: 'sprite', src: './OverChargedAssets/ui-icons/settings.svg', preload: true },
+	// Autoplay (repeat) ve Turbo: aktif/varsayılan AYRI görseller. Buton aktif
+	// duruma göre *Active / default arasında geçiş yapar (bkz. ButtonAutoSpin /
+	// ButtonTurbo). Renkli PNG oldukları için UiButton'da icon tint'i beyaz tutulur.
+	iconRepeat: { type: 'sprite', src: './menu/autoplayButton_default.png', preload: true },
+	iconRepeatActive: { type: 'sprite', src: './menu/autoplayButton_active.png', preload: true },
+	iconTurbo: { type: 'sprite', src: './menu/turboButton_default.png', preload: true },
+	iconTurboActive: { type: 'sprite', src: './menu/turboButton_active.png', preload: true },
+	// Menü iconları artık static/menu/ altındaki renkli PNG'ler (beyaz SVG + tint
+	// yerine). Idle'da beyaz tint olduğu için renkler doğru çıkar.
+	iconMenu: { type: 'sprite', src: './menu/menuButton.png', preload: true },
+	iconMenuExit: { type: 'sprite', src: './menu/closeIcon.png', preload: true },
+	iconSettings: { type: 'sprite', src: './menu/settingsIcon.png', preload: true },
+	// payTable'ın menu/ klasöründe karşılığı yok — eski SVG kalıyor.
 	iconPayTable: { type: 'sprite', src: './OverChargedAssets/ui-icons/payTable.svg', preload: true },
-	iconInfo: { type: 'sprite', src: './OverChargedAssets/ui-icons/info.svg', preload: true },
-	iconSoundOn: { type: 'sprite', src: './OverChargedAssets/ui-icons/soundOn.svg', preload: true },
-	iconSoundOff: { type: 'sprite', src: './OverChargedAssets/ui-icons/soundOff.svg', preload: true },
-	iconIncrease: { type: 'sprite', src: './OverChargedAssets/ui-icons/increase.svg', preload: true },
-	iconDecrease: { type: 'sprite', src: './OverChargedAssets/ui-icons/decrease.svg', preload: true },
-	iconBuyBonus: { type: 'sprite', src: './OverChargedAssets/ui-icons/buyBonus.svg', preload: true },
+	iconInfo: { type: 'sprite', src: './menu/infoIcon.png', preload: true },
+	iconSoundOn: { type: 'sprite', src: './menu/soundOnIcon.png', preload: true },
+	iconSoundOff: { type: 'sprite', src: './menu/soundOffIcon.png', preload: true },
+	iconIncrease: { type: 'sprite', src: './menu/plusButton.png', preload: true },
+	iconDecrease: { type: 'sprite', src: './menu/minusButton.png', preload: true },
+	iconBuyBonus: { type: 'sprite', src: './menu/bonusButton.png', preload: true },
+	// Ana spin butonu — komple buton görseli (zemin + ring + icon PNG'de baked).
+	// playButtonSpin = idle (spin oku), playButtonStop = spinning (yeşil dur karesi,
+	// dosya adı "autoplay" ama işlevi STOP durumudur).
+	playButtonSpin: { type: 'sprite', src: './menu/PlayButton_default.png', preload: true },
+	playButtonStop: { type: 'sprite', src: './menu/PlayButton_autoplay.png', preload: true },
 } as const;

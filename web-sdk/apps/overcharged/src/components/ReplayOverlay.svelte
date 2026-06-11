@@ -169,7 +169,7 @@
 		justify-content: center;
 		background: rgba(0, 0, 0, 0.7);
 		z-index: 9999;
-		font-family: 'proxima-nova', sans-serif;
+		font-family: 'ranchers', sans-serif;
 	}
 	.replay-panel {
 		min-width: 280px;
