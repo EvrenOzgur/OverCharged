@@ -10,18 +10,15 @@
 	import { stateUrlDerived } from 'state-shared';
 	import { FadeContainer } from 'components-pixi';
 	import { waitForResolve } from 'utils-shared/wait';
-	import { BitmapText, SpineProvider, SpineSlot, SpineTrack, Sprite } from 'pixi-svelte';
+	import { BitmapText, Container, Sprite } from 'pixi-svelte';
 
 	import { getContext } from '../game/context';
 	import PressToContinue from './PressToContinue.svelte';
 	import FreeSpinAnimation from './FreeSpinAnimation.svelte';
 
-	type AnimationName = 'intro' | 'idle';
-
 	const context = getContext();
 
 	let show = $state(false);
-	let animationName = $state<AnimationName>('intro');
 	let freeSpinsFromEvent = $state(0);
 	let addedFsFromEvent = $state(0);
 	let isUpdate = $state(false);
@@ -64,29 +61,22 @@
 				key="freespins_{stateUrlDerived.lang()}.png"
 			/>
 
-			<SpineProvider asset="fsIntroNumber" width={sizes.width * 0.4}>
-				<SpineTrack
-					trackIndex={0}
-					{animationName}
-					loop={animationName === 'idle'}
-					listener={{
-						complete: () => (animationName = 'idle'),
+			<!-- Eski fsIntroNumber spine'ı (sayı çerçevesi) yeni fsIntro export'unda
+			     kaldırıldı (atlas'ta region'ları yok). Sayıyı doğrudan gösteriyoruz.
+			     Konum (y) / boyut (fontSize) gerekirse buradan ayarlanır. -->
+			<Container y={0}>
+				<BitmapText
+					anchor={{ x: 0.5, y: 0.5 }}
+					text={isUpdate ? `+${addedFsFromEvent}` : addedFsFromEvent}
+					style={{
+						fontFamily: 'gold',
+						fontSize: sizes.width * 0.28,
+						fontWeight: 'bold',
 					}}
 				/>
-				<SpineSlot slotName="slot_number">
-					<BitmapText
-						anchor={{ x: 0.5, y: 0.5 }}
-						text={isUpdate ? `+${addedFsFromEvent}` : addedFsFromEvent}
-						style={{
-							fontFamily: 'gold',
-							fontSize: sizes.width * 0.15,
-							fontWeight: 'bold',
-						}}
-					/>
-				</SpineSlot>
-			</SpineProvider>
+			</Container>
 
-			<Sprite anchor={{ x: 0.5, y: -3 }} width={183 * 2.2} height={42 * 2.2} key="freespins.png" />
+			<Sprite anchor={{ x: 0.5, y: -2.2 }} width={183 * 2.2} height={42 * 2.2} key="freespins.png" />
 		{/snippet}
 	</FreeSpinAnimation>
 

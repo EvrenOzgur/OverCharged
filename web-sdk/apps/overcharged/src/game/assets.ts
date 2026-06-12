@@ -131,22 +131,10 @@ export default {
 			scale: 2,
 		},
 	},
-	fsIntroNumber: {
-		type: 'spine',
-		src: {
-			atlas: './assets/spines/fsIntro/fs_screen.atlas',
-			skeleton: './assets/spines/fsIntro/fs_screen_number.json',
-			scale: 2,
-		},
-	},
-	fsOutroNumber: {
-		type: 'spine',
-		src: {
-			atlas: './assets/spines/fsIntro/fs_screen.atlas',
-			skeleton: './assets/spines/fsIntro/fs_total_number.json',
-			scale: 2,
-		},
-	},
+	// fsIntroNumber / fsOutroNumber kaldırıldı — yeni fsIntro export'u sayı
+	// çerçevesi spine'larını (fs_screen_number.json / fs_total_number.json) ve
+	// atlas region'larını içermiyor. Sayılar artık FreeSpinIntro/Outro'da
+	// doğrudan text olarak gösteriliyor.
 	tumble_multiplier: {
 		type: 'spine',
 		src: {

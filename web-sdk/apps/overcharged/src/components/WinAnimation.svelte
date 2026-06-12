@@ -27,7 +27,7 @@
 
 <!-- scale: tüm big-win animasyonunu (yazı + partiküller) küçültür/büyütür,
      origin merkezli. 1 = board genişliği, <1 daha küçük. -->
-<SpineProvider width={context.stateGameDerived.boardLayout().width} scale={0.65} key={spineKey}>
+<SpineProvider width={context.stateGameDerived.boardLayout().width} scale={0.25} key={spineKey}>
 	<SpineTrack
 		trackIndex={0}
 		animationName={animationMap[animationState]}

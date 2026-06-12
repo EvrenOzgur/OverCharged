@@ -8,7 +8,7 @@
 </script>
 
 <script lang="ts">
-	import { Sprite, SpineProvider, SpineTrack, SpineSlot } from 'pixi-svelte';
+	import { Sprite, Container } from 'pixi-svelte';
 	import { FadeContainer, WinCountUpProvider, ResponsiveBitmapText } from 'components-pixi';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { waitForResolve } from 'utils-shared/wait';
@@ -21,12 +21,9 @@
 	import PressToContinue from './PressToContinue.svelte';
 	import WinCoins from './WinCoins.svelte';
 
-	type AnimationName = 'intro' | 'idle';
-
 	const context = getContext();
 
 	let show = $state(true);
-	let animationName = $state<AnimationName>('intro');
 	let amount = $state(0);
 	let winLevelData = $state<WinLevelData>();
 	let oncomplete = $state(() => {});
@@ -77,27 +74,20 @@
 							/>
 						{/if}
 
-						<SpineProvider asset="fsOutroNumber" width={sizes.width * 0.4}>
-							<SpineTrack
-								trackIndex={0}
-								{animationName}
-								loop={animationName === 'idle'}
-								listener={{
-									complete: () => (animationName = 'idle'),
+						<!-- Eski fsOutroNumber spine'ı (sayı çerçevesi) yeni fsIntro
+						     export'unda kaldırıldı. Toplam kazancı doğrudan gösteriyoruz.
+						     Konum (y) / boyut gerekirse buradan ayarlanır. -->
+						<Container y={0}>
+							<ResponsiveBitmapText
+								anchor={{ x: 0.5, y: 0.5 }}
+								style={{
+									fontFamily: 'gold',
+									fontSize: sizes.width * 0.15,
 								}}
+								text={bookEventAmountToCurrencyString(countUpAmount)}
+								maxWidth={sizes.width}
 							/>
-							<SpineSlot slotName="slot_number">
-								<ResponsiveBitmapText
-									anchor={{ x: 0.5, y: 0.5 }}
-									style={{
-										fontFamily: 'gold',
-										fontSize: sizes.width * 0.15,
-									}}
-									text={bookEventAmountToCurrencyString(countUpAmount)}
-									maxWidth={sizes.width}
-								/>
-							</SpineSlot>
-						</SpineProvider>
+						</Container>
 
 						<Sprite
 							y={0}
