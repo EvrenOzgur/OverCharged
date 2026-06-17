@@ -154,23 +154,30 @@ export const zIndexes = {
 	},
 };
 
-const highExplosion = {
+// Explosion info per symbol — MUST carry the symbol's own `skin`. Without it
+// the skeleton falls back to its `default` skin (a colourless/grey placeholder
+// pot for lowSymbols), which flashed at the symbol's position when the
+// explosion started. Each symbol passes its matching skin so the coloured
+// symbol shatters correctly.
+const highExplosion = (skin: string) => ({
 	type: 'spine',
 	assetKey: 'highSymbols',
+	skin,
 	animationName: 'explosion',
 	sizeRatios: { width: 1, height: 1 },
-};
+});
 
-const lowExplosion = {
+const lowExplosion = (skin: string) => ({
 	type: 'spine',
 	assetKey: 'lowSymbols',
+	skin,
 	animationName: 'explosion',
 	sizeRatios: { width: 1, height: 1 },
-};
+});
 
 export const SYMBOL_INFO_MAP = {
 	H1: {
-		explosion: highExplosion,
+		explosion: highExplosion('h1'),
 		win: {
 			type: 'spine',
 			assetKey: 'highSymbols',
@@ -208,7 +215,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	H2: {
-		explosion: highExplosion,
+		explosion: highExplosion('h2'),
 		win: {
 			type: 'spine',
 			assetKey: 'highSymbols',
@@ -246,7 +253,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	H3: {
-		explosion: highExplosion,
+		explosion: highExplosion('h3'),
 		win: {
 			type: 'spine',
 			assetKey: 'highSymbols',
@@ -284,7 +291,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	H4: {
-		explosion: highExplosion,
+		explosion: highExplosion('h4'),
 		win: {
 			type: 'spine',
 			assetKey: 'highSymbols',
@@ -322,7 +329,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	L1: {
-		explosion: lowExplosion,
+		explosion: lowExplosion('yellow'),
 		win: {
 			type: 'spine',
 			assetKey: 'lowSymbols',
@@ -360,7 +367,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	L2: {
-		explosion: lowExplosion,
+		explosion: lowExplosion('green'),
 		win: {
 			type: 'spine',
 			assetKey: 'lowSymbols',
@@ -398,7 +405,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	L3: {
-		explosion: lowExplosion,
+		explosion: lowExplosion('blue'),
 		win: {
 			type: 'spine',
 			assetKey: 'lowSymbols',
@@ -436,7 +443,7 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	L4: {
-		explosion: lowExplosion,
+		explosion: lowExplosion('red'),
 		win: {
 			type: 'spine',
 			assetKey: 'lowSymbols',
@@ -532,7 +539,8 @@ export const SYMBOL_INFO_MAP = {
 	// overridden per value (`5x` …) by getSymbolInfo. `frozen` is read by
 	// SymbolSpineMain → timeScale 0 + held last frame.
 	M: {
-		explosion: lowExplosion,
+		// Unchanged on request: keep the default-skin lowSymbols explosion.
+		explosion: lowExplosion('default'),
 		win: {
 			type: 'spine',
 			assetKey: 'multipliers',
