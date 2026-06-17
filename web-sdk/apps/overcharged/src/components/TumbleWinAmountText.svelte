@@ -14,37 +14,27 @@
 		oncomplete: () => void;
 	};
 
-	type AnimationName = 'idle' | 'explosion';
-
 	const props: Props = $props();
 	const amount = new Tween(0);
-	const animationName = $derived<AnimationName>(props.animate ? 'explosion' : 'idle');
 
+	// tumble_win spine sadece 'idle' oynar (kazanç çerçevesi + sayı). Çarpan
+	// uygulanırken (props.animate) ayrı `tumbleWinExplosion` spine'ı oynar ve
+	// bitince oncomplete'i çağırır. Çarpan yokken sayı tween bitince oncomplete.
 	const updateAmount = async () => {
 		await amount.set(props.amount);
-		if (animationName === 'idle') props.oncomplete();
+		if (!props.animate) props.oncomplete();
 	};
 
 	$effect(() => {
 		updateAmount();
 	});
+
+	// Stabil listener — inline obje track restart etmesin diye.
+	const explosionListener = { complete: () => props.oncomplete() };
 </script>
 
 <SpineProvider asset="tumble_win" width={props.width}>
-	<SpineTrack
-		trackIndex={0}
-		{animationName}
-		listener={{
-			complete: () => {
-				if (animationName === 'explosion') props.oncomplete();
-			},
-			event: (_, event) => {
-				if (event.data?.name === 'update_text') {
-					amount.set(props.amount);
-				}
-			},
-		}}
-	/>
+	<SpineTrack trackIndex={0} animationName="idle" />
 	<SpineSlot slotName="slot_win">
 		<ResponsiveBitmapText
 			anchor={0.5}
@@ -56,11 +46,11 @@
 			maxWidth={props.width}
 		/>
 	</SpineSlot>
-	<!-- <SpineSlot slotName="slot_win_add">
-		<ResponsiveBitmapText
-			alpha={alphaAmount}
-			text={$formatAmount({ amount: $getRealWin($countUpAmount), numberingSystem: 'latn'})}
-			maxWidth={width}
-		/>
-	</SpineSlot> -->
 </SpineProvider>
+
+{#if props.animate}
+	<!-- Çarpan patlaması (tumbleWinExplosion). Bitince oncomplete tetiklenir. -->
+	<SpineProvider asset="tumbleWinExplosion" width={props.width * 0.5}>
+		<SpineTrack trackIndex={0} animationName="tumblewin" listener={explosionListener} />
+	</SpineProvider>
+{/if}

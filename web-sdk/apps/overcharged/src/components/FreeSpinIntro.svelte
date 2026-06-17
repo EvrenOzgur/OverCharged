@@ -7,10 +7,10 @@
 
 <script lang="ts">
 	import { CanvasSizeRectangle } from 'components-layout';
-	import { stateUrlDerived } from 'state-shared';
+	import { stateI18nDerived } from 'state-shared';
 	import { FadeContainer } from 'components-pixi';
 	import { waitForResolve } from 'utils-shared/wait';
-	import { BitmapText, Container, Sprite } from 'pixi-svelte';
+	import { BitmapText, Container, Text } from 'pixi-svelte';
 
 	import { getContext } from '../game/context';
 	import PressToContinue from './PressToContinue.svelte';
@@ -54,29 +54,60 @@
 
 	<FreeSpinAnimation>
 		{#snippet children({ sizes })}
-			<Sprite
-				anchor={{ x: 0.5, y: 1.2 }}
-				width={500 * 2.2}
-				height={156 * 2.2}
-				key="freespins_{stateUrlDerived.lang()}.png"
-			/>
+			<!-- "CONGRATULATIONS!" (gold = Ranchers bitmap, büyük) + "YOU WON" (beyaz) —
+			     iki ayrı satır. Boyut/konum buradan ayarlanır. -->
+			<Container y={-sizes.width * 0.66}>
+				<BitmapText
+					anchor={{ x: 0.5, y: 0.5 }}
+					text={stateI18nDerived.translate('CONGRATULATIONS!')}
+					style={{
+						fontFamily: 'gold',
+						fontSize: sizes.width * 0.2,
+						fontWeight: 'bold',
+					}}
+				/>
+			</Container>
+			<Container y={-sizes.width * 0.38}>
+				<Text
+					anchor={{ x: 0.5, y: 0.5 }}
+					text={stateI18nDerived.translate('YOU WON')}
+					style={{
+						fontFamily: 'ranchers',
+						fontSize: sizes.width * 0.14,
+						fill: 0xffffff,
+						stroke: { color: 0x000000, width: 5 },
+						align: 'center',
+					}}
+				/>
+			</Container>
 
-			<!-- Eski fsIntroNumber spine'ı (sayı çerçevesi) yeni fsIntro export'unda
-			     kaldırıldı (atlas'ta region'ları yok). Sayıyı doğrudan gösteriyoruz.
-			     Konum (y) / boyut (fontSize) gerekirse buradan ayarlanır. -->
+			<!-- Kazanılan FS sayısı (gold = Ranchers bitmap) -->
 			<Container y={0}>
 				<BitmapText
 					anchor={{ x: 0.5, y: 0.5 }}
 					text={isUpdate ? `+${addedFsFromEvent}` : addedFsFromEvent}
 					style={{
 						fontFamily: 'gold',
-						fontSize: sizes.width * 0.28,
+						fontSize: sizes.width * 0.36,
 						fontWeight: 'bold',
 					}}
 				/>
 			</Container>
 
-			<Sprite anchor={{ x: 0.5, y: -2.2 }} width={183 * 2.2} height={42 * 2.2} key="freespins.png" />
+			<!-- "FREE SPINS" — Ranchers font-text (eski freespins.png yerine) -->
+			<Container y={sizes.width * 0.52}>
+				<Text
+					anchor={{ x: 0.5, y: 0.5 }}
+					text={stateI18nDerived.translate('FREE SPINS')}
+					style={{
+						fontFamily: 'ranchers',
+						fontSize: sizes.width * 0.2,
+						fill: 0xffffff,
+						stroke: { color: 0x000000, width: 6 },
+						align: 'center',
+					}}
+				/>
+			</Container>
 		{/snippet}
 	</FreeSpinAnimation>
 

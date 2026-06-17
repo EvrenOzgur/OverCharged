@@ -407,28 +407,28 @@
           "sustainAsGameType": "freegame"
         },
         "skillActivated.L1": {
-          "animation": "yellow_mana_work",
+          "animation": "",
           "animationFreegame": "hulk_mana_yellow",
           "loop": false,
           "trackIndex": 1,
           "returnToIdle": true
         },
         "skillActivated.L2": {
-          "animation": "green_mana_work",
+          "animation": "",
           "animationFreegame": "hulk_mana_green",
           "loop": false,
           "trackIndex": 1,
           "returnToIdle": true
         },
         "skillActivated.L3": {
-          "animation": "blue_mana_work",
+          "animation": "",
           "animationFreegame": "hulk_mana_blue",
           "loop": false,
           "trackIndex": 1,
           "returnToIdle": true
         },
         "skillActivated.L4": {
-          "animation": "red_mana_work",
+          "animation": "",
           "animationFreegame": "hulk_mana_red",
           "loop": false,
           "trackIndex": 1,

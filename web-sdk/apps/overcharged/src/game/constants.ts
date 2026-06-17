@@ -474,7 +474,17 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	W: {
-		explosion: lowExplosion,
+		// Use the wild's OWN spine for the explosion (specialSymbols has an
+		// `explosion` anim + `wild` skin). The shared `lowExplosion` has no skin,
+		// so it fell back to lowSymbols' `default` skin = an empty colourless
+		// bottle/potion rendered where the wild was.
+		explosion: {
+			type: 'spine',
+			assetKey: 'specialSymbols',
+			skin: 'wild',
+			animationName: 'explosion',
+			sizeRatios: { width: 1, height: 1 },
+		},
 		win: {
 			type: 'spine',
 			assetKey: 'specialSymbols',
@@ -564,7 +574,16 @@ export const SYMBOL_INFO_MAP = {
 		},
 	},
 	S: {
-		explosion: lowExplosion,
+		// Scatter explodes with its OWN spine (specialSymbols `explosion` anim +
+		// `scatter` skin) instead of the shared `lowExplosion`, which had no skin
+		// and fell back to lowSymbols' `default` skin = an empty colourless bottle.
+		explosion: {
+			type: 'spine',
+			assetKey: 'specialSymbols',
+			skin: 'scatter',
+			animationName: 'explosion',
+			sizeRatios: { width: 1, height: 1 },
+		},
 		win: {
 			type: 'spine',
 			assetKey: 'specialSymbols',

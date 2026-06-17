@@ -13,9 +13,13 @@ export default {
 	loader: {
 		type: 'spine',
 		src: {
-			atlas: './OverChargedAssets/loadingScreen/skeleton.atlas',
-			skeleton: './OverChargedAssets/loadingScreen/skeleton.json',
-			scale: 2,
+			atlas: './OverChargedAssets/loadingScreen/loadingScreen.atlas',
+			skeleton: './OverChargedAssets/loadingScreen/loadingScreen.json',
+			// scale 1: the skeleton is authored at 1200×819 and its bg texture
+			// region is 1:1 with that. A load scale > 1 inflates the geometry
+			// (renders ~2× too big since SpineProvider fits from the raw
+			// skeleton.width) AND upscales the texture (blur). Keep at 1.
+			scale: 1,
 		},
 		preload: true,
 	},
@@ -57,8 +61,8 @@ export default {
 	multipliers: {
 		type: 'spine',
 		src: {
-			atlas: './multipliers/skeleton.atlas',
-			skeleton: './multipliers/skeleton.json',
+			atlas: './multipliers/mutlipliers.atlas',
+			skeleton: './multipliers/mutlipliers.json',
 			scale: 2,
 		},
 		preload: true,
@@ -151,6 +155,16 @@ export default {
 			scale: 2,
 		},
 	},
+	// Tumble kazancı çarpanla çarpılırken oynayan patlama (eski tumble_win
+	// 'explosion' animasyonu yerine). Tek animasyon: 'tumblewin'. static/tumblewinexplosion/.
+	tumbleWinExplosion: {
+		type: 'spine',
+		src: {
+			atlas: './tumblewinexplosion/tumblewinexplosion.atlas',
+			skeleton: './tumblewinexplosion/tumblewinexplosion.json',
+			scale: 2,
+		},
+	},
 	progressBar: {
 		type: 'sprites',
 		src: './assets/sprites/progressBar/progressBar.json',
@@ -177,6 +191,16 @@ export default {
 		src: {
 			atlas: './assets/spines/transition/transition.atlas',
 			skeleton: './assets/spines/transition/transition.json',
+			scale: 2,
+		},
+	},
+	// Skill aktivasyon animasyonu — 4 skill için 4 animasyon
+	// (wildstrike/overload/powersurge/megabolt _intro). static/skillActivated/.
+	skillActivated: {
+		type: 'spine',
+		src: {
+			atlas: './skillActivated/skillActivated.atlas',
+			skeleton: './skillActivated/skillActivated.json',
 			scale: 2,
 		},
 	},

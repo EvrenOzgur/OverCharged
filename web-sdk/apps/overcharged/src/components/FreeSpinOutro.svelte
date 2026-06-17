@@ -8,13 +8,13 @@
 </script>
 
 <script lang="ts">
-	import { Sprite, Container } from 'pixi-svelte';
+	import { Text, BitmapText, Container } from 'pixi-svelte';
 	import { FadeContainer, WinCountUpProvider, ResponsiveBitmapText } from 'components-pixi';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { waitForResolve } from 'utils-shared/wait';
 	import { CanvasSizeRectangle } from 'components-layout';
 	import { OnMount } from 'components-shared';
-	import { stateUrlDerived } from 'state-shared';
+	import { stateI18nDerived } from 'state-shared';
 
 	import { getContext } from '../game/context';
 	import FreeSpinAnimation from './FreeSpinAnimation.svelte';
@@ -58,44 +58,76 @@
 
 				<FreeSpinAnimation>
 					{#snippet children({ sizes })}
+						<!-- Header — FreeSpinIntro ile aynı düzen: büyük kazançta altın
+						     "CONGRATULATIONS!" + beyaz "YOU WON"; küçük kazançta beyaz "WIN". -->
 						{#if isBigWin}
-							<Sprite
-								anchor={{ x: 0.5, y: 1.2 }}
-								width={500 * 2.2}
-								height={156 * 2.2}
-								key="freespins_{stateUrlDerived.lang()}.png"
-							/>
+							<Container y={-sizes.width * 0.66}>
+								<BitmapText
+									anchor={{ x: 0.5, y: 0.5 }}
+									text={stateI18nDerived.translate('CONGRATULATIONS!')}
+									style={{
+										fontFamily: 'gold',
+										fontSize: sizes.width * 0.2,
+										fontWeight: 'bold',
+									}}
+								/>
+							</Container>
+							<Container y={-sizes.width * 0.38}>
+								<Text
+									anchor={{ x: 0.5, y: 0.5 }}
+									text={stateI18nDerived.translate('YOU WON')}
+									style={{
+										fontFamily: 'ranchers',
+										fontSize: sizes.width * 0.14,
+										fill: 0xffffff,
+										stroke: { color: 0x000000, width: 5 },
+										align: 'center',
+									}}
+								/>
+							</Container>
 						{:else}
-							<Sprite
-								anchor={{ x: 0.5, y: 1.2 }}
-								width={500 * 4.5}
-								height={80 * 4.5}
-								key="winsmall_{stateUrlDerived.lang()}.png"
-							/>
+							<Container y={-sizes.width * 0.5}>
+								<Text
+									anchor={{ x: 0.5, y: 0.5 }}
+									text={stateI18nDerived.translate('WIN')}
+									style={{
+										fontFamily: 'ranchers',
+										fontSize: sizes.width * 0.2,
+										fill: 0xffffff,
+										stroke: { color: 0x000000, width: 6 },
+										align: 'center',
+									}}
+								/>
+							</Container>
 						{/if}
 
-						<!-- Eski fsOutroNumber spine'ı (sayı çerçevesi) yeni fsIntro
-						     export'unda kaldırıldı. Toplam kazancı doğrudan gösteriyoruz.
-						     Konum (y) / boyut gerekirse buradan ayarlanır. -->
+						<!-- Toplam kazanç tutarı (gold = Ranchers bitmap) -->
 						<Container y={0}>
 							<ResponsiveBitmapText
 								anchor={{ x: 0.5, y: 0.5 }}
 								style={{
 									fontFamily: 'gold',
-									fontSize: sizes.width * 0.15,
+									fontSize: sizes.width * 0.22,
 								}}
 								text={bookEventAmountToCurrencyString(countUpAmount)}
 								maxWidth={sizes.width}
 							/>
 						</Container>
 
-						<Sprite
-							y={0}
-							anchor={{ x: 0.5, y: isBigWin ? -3.2 : -2 }}
-							width={177 * (isBigWin ? 2.2 : 3)}
-							height={42 * (isBigWin ? 2.2 : 3)}
-							key="totalwin.png"
-						/>
+						<!-- "TOTAL WIN" — Ranchers font-text (eski totalwin.png yerine) -->
+						<Container y={sizes.width * 0.52}>
+							<Text
+								anchor={{ x: 0.5, y: 0.5 }}
+								text={stateI18nDerived.translate('TOTAL WIN')}
+								style={{
+									fontFamily: 'ranchers',
+									fontSize: sizes.width * 0.2,
+									fill: 0xffffff,
+									stroke: { color: 0x000000, width: 6 },
+									align: 'center',
+								}}
+							/>
+						</Container>
 					{/snippet}
 				</FreeSpinAnimation>
 

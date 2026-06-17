@@ -23,14 +23,15 @@
 	const LOADER_SIZE = { width: 1200, height: 819 }; // skeleton bounds
 	const LOADING_BAR_DURATION = 3.333333; // `loadingBar` anim length (seconds)
 	// Overall size of the loading screen relative to a FIT (contain) of the main
-	// layout. 1 = whole design (background) just fits; <1 shrinks everything.
+	// layout. 1 = whole design (background) just fits; <1 shrinks everything
+	// (pulls the screen "back", leaving a margin around it on the black base).
 	const LOADER_SCALE = 1;
 	// Shrink ONLY the logo + loading bar (not the background). The skin's
 	// transform constraints drive bone_logo / bone_loadingBar from these target
 	// bones (mixScale = 1), so scaling the targets scales the logo/bar while the
 	// background (bone_bg → target_*BG) is untouched. Multipliers below are the
 	// targets' setup scales × this factor.
-	const LOGO_BAR_SCALE = 0.5;
+	const LOGO_BAR_SCALE = 1.05;
 	// Portrait-only extra enlargement of the logo + loading bar. On a tall phone
 	// the fit-sized logo/bar look too small, so bump them up here without
 	// touching landscape. 1 = same as landscape.
@@ -55,20 +56,19 @@
 		),
 	);
 	const loaderWidth = $derived(LOADER_SIZE.width * spineScaleFactor * LOADER_SCALE);
-	// Portrait-only background COVER. The loading art is a landscape-ratio
-	// 1200×819 image (no dedicated tall portrait bg), so the fit above leaves
-	// vertical gaps on a tall phone. We grow ONLY the background bone
-	// (bone_bg ← target_portraitBG, TC mixScale = 1) to fill the canvas in both
-	// dimensions, cropping the sides — the logo + bar keep the fit size/position.
-	// At the fit scale the bg spans `mainLayout.scale × spineScaleFactor × 1200`
+	// Background COVER (both orientations). The loading spine is FIT (contain)
+	// to the main layout, so at any aspect ratio the background leaves gaps on
+	// the black base. We grow ONLY the background bone (bone_bg ← target_*BG,
+	// TC mixScale = 1) to fill the canvas in both dimensions, cropping the
+	// overflow — the logo + bar keep their fit size/position. At the fit scale
+	// the bg spans `mainLayout.scale × spineScaleFactor × LOADER_SIZE × LOADER_SCALE`
 	// px; bgCover scales it up to cover the canvas. Centred on bone_bg (canvas
 	// centre), so it grows symmetrically.
 	const bgCover = $derived.by(() => {
-		if (loaderSkin !== 'portrait') return 1;
 		const ml = context.stateLayoutDerived.mainLayout();
 		const cs = context.stateLayoutDerived.canvasSizes();
-		const bgW = ml.scale * spineScaleFactor * LOADER_SIZE.width;
-		const bgH = ml.scale * spineScaleFactor * LOADER_SIZE.height;
+		const bgW = ml.scale * spineScaleFactor * LOADER_SCALE * LOADER_SIZE.width;
+		const bgH = ml.scale * spineScaleFactor * LOADER_SCALE * LOADER_SIZE.height;
 		if (bgW <= 0 || bgH <= 0) return 1;
 		return Math.max(1, cs.width / bgW, cs.height / bgH);
 	});
@@ -120,9 +120,15 @@
 					timeScale={0}
 					trackTime={loaderBarTime}
 				/>
-				<!-- Shrink only the logo + bar (background stays full-size). -->
+				<!-- COVER the whole canvas with the background. We scale the
+				     target_*BG bone (NOT bone_bg directly): the TC_*BG transform
+				     constraints copy the target's scale onto bone_bg (scale-mix
+				     defaults to 1), so a scale set on bone_bg itself is overwritten
+				     by the constraint — the target bone is the real lever. bone_bg
+				     carries only the `bg` slot (logo + loadingBar are siblings
+				     under root), so the bg grows to fill the screen while the logo
+				     + bar keep their fit size/position. -->
 				{#if loaderSkin === 'portrait'}
-					<!-- Fill the tall phone screen: grow only the background. -->
 					<SpineBone boneName="target_portraitBG" scaleX={bgCover} scaleY={bgCover} />
 					<SpineBone
 						boneName="target_portraitLogo"
@@ -135,6 +141,7 @@
 						scaleY={TARGET_SETUP.portraitLoadingBar * LOGO_BAR_SCALE * PORTRAIT_LOGO_BAR_BOOST}
 					/>
 				{:else}
+					<SpineBone boneName="target_landscapeBG" scaleX={bgCover} scaleY={bgCover} />
 					<SpineBone
 						boneName="target_landscapeLogo"
 						scaleX={TARGET_SETUP.landscapeLogo * LOGO_BAR_SCALE}

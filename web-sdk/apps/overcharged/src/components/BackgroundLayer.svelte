@@ -250,6 +250,14 @@
 						gt === 'freegame' && cfg.animationFreegame
 							? cfg.animationFreegame
 							: cfg.animation;
+					// Empty animation = "no character animation for this gameType".
+					// Used so a skill trigger can drive the hulk body in freegame
+					// (animationFreegame) while leaving the basegame character's
+					// idle untouched — base-game *_mana_work only keys the mana
+					// fill bone (already driven by SkillMeterDriver) and keys NO
+					// body slots, so playing it on track 1 would blank the
+					// normal-skin body (every N-body slot is hidden in setup pose).
+					if (!anim) return;
 					applyTrigger(trackIndex, anim, cfg.loop ?? false);
 					// If looping or non-returning, never auto-revert.
 					// Otherwise the SpineTrack `complete` listener will restore baseline.

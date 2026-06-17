@@ -58,4 +58,12 @@ export default {
 
 	// game-specific
 	'NOT TRANSLATED': 'NOT TRANSLATED',
+
+	// Eski sprite-text görselleri yerine font-text (Ranchers) olarak kullanılan
+	// metinler (PressToContinue / FreeSpinIntro / FreeSpinOutro).
+	'PRESS ANYWHERE TO CONTINUE': 'PRESS ANYWHERE TO CONTINUE',
+	'CONGRATULATIONS! YOU WON': 'CONGRATULATIONS! YOU WON',
+	'CONGRATULATIONS!': 'CONGRATULATIONS!',
+	'YOU WON': 'YOU WON',
+	'TOTAL WIN': 'TOTAL WIN',
 };

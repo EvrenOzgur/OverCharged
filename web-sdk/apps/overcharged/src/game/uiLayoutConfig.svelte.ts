@@ -90,7 +90,10 @@ export type BgLayerType = 'color' | 'sprite' | 'spine';
  * `idleAnimation` if `returnToIdle !== false`.
  */
 export type BgLayerTrigger = {
-	/** Spine animation name to play (default / basegame) */
+	/** Spine animation name to play (default / basegame). Empty string = skip:
+	 *  the trigger fires no animation for this gameType (e.g. basegame skills
+	 *  leave the character's idle untouched while `animationFreegame` still
+	 *  drives the hulk body in the bonus round). */
 	animation: string;
 	/** Override used when the layer's effective gameType is 'freegame'. Lets
 	 *  a single trigger play different animations during a bonus round (e.g.

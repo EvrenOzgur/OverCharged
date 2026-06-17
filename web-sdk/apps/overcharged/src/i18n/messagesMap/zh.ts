@@ -53,4 +53,10 @@ export default {
 
 	// game-specific
 	'NOT TRANSLATED': '未翻译',
+
+	'PRESS ANYWHERE TO CONTINUE': '点击任意位置继续',
+	'CONGRATULATIONS! YOU WON': '恭喜！您赢得了',
+	'CONGRATULATIONS!': '恭喜！',
+	'YOU WON': '您赢得了',
+	'TOTAL WIN': '总赢取',
 };
