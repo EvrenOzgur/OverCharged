@@ -78,6 +78,10 @@ export function createReelForCascading<TRawSymbol extends object, TSymbolState e
 	let onSpinFinishing: () => void = () => {};
 	let noStop = false;
 	let paddingSize = 0;
+	// stop()/skip çağrıldı mı? interrupt sinyali sadece o an bekleyen reel'leri
+	// yakalar; bu bayrak ise henüz fallIn bekleyişine girmemiş reel'lerin de
+	// bekleme yapmadan tak diye oturmasını sağlar. Her spin'de sıfırlanır.
+	let stopped = false;
 
 	const delaySpinByReelIndex = async () => {
 		await waitForTimeout(reelState.spinOptions().reelFallOutDelay * reelOptions.reelIndex);
@@ -134,20 +138,40 @@ export function createReelForCascading<TRawSymbol extends object, TSymbolState e
 			await waitForTimeout(reelState.spinOptions().reelFallInDelay * fallInDelayMultiplier);
 
 		// Q: When to skip the waitToStartFallingIn?
-		// A: When stop button is clicked(isTurbo) and is noStop is false
-		if (noStop) {
-			await waitToStartFallingIn();
-		} else if (stateBet.isTurbo) {
-			// skip
+		// A: Turbo skips it outright for non-anticipated reels. For anticipated
+		//    (noStop) reels the wait is now ALSO interruptible — a `reel.stop()`
+		//    (e.g. Space → skipAnimation → enhancedBoard.stop()) cuts the
+		//    anticipation build-up short so the column settles immediately,
+		//    instead of always playing out the full waitToStartFallingIn.
+		let interrupted = false;
+		if (stopped) {
+			// Bekleyişe girmeden önce stop/skip geldi: hiç bekleme, direkt snap.
+			interrupted = true;
+		} else if (!noStop && stateBet.isTurbo) {
+			// turbo (non-anticipated): bekleme atlanır, normal hızlı fall animasyonu.
 		} else {
-			await interruptible.add(waitToStartFallingIn);
+			// Stop/skip (reel.stop() → interrupt) bu bekleyişi keserse `interrupted`
+			// true döner → semboller anime düşmek yerine tak diye yerine oturur.
+			({ interrupted } = await interruptible.add(waitToStartFallingIn));
 		}
 
 		reelState.motion = 'fallingIn';
 
 		await moveAllSymbolsWith(async (reelSymbol) => {
-			const oldSymbolY = reelSymbol.symbolY.current;
 			const newSymbolY = getSymbolY(reelSymbol.symbolIndexOfBoard);
+
+			// Skip/stop ile kesildiyse: tak diye yerine otur (fall + bounce yok).
+			if (interrupted) {
+				await reelSymbol.symbolY.set(newSymbolY, { duration: 0 });
+				reelSymbol.symbolState = 'land' as TSymbolState;
+				reelOptions.onSymbolLand({ rawSymbol: reelSymbol.rawSymbol });
+				if (reelSymbol.symbolIndexOfBoard === reelLengthInBoard - 1) {
+					onSpinFinishing();
+				}
+				return;
+			}
+
+			const oldSymbolY = reelSymbol.symbolY.current;
 			const distance = newSymbolY - oldSymbolY;
 			const delay =
 				reelState.spinOptions().symbolFallInInterval *
@@ -205,6 +229,7 @@ export function createReelForCascading<TRawSymbol extends object, TSymbolState e
 		reelState.spinType = prepareToSpinOptions.spinType;
 
 		noStop = prepareToSpinOptions.noStop;
+		stopped = false; // yeni spin: stop/skip bayrağını sıfırla
 		targetSymbols = prepareToSpinOptions.symbols;
 		onSpinFinishing = prepareToSpinOptions.onSpinFinishing;
 
@@ -231,6 +256,7 @@ export function createReelForCascading<TRawSymbol extends object, TSymbolState e
 	};
 
 	const stop = () => {
+		stopped = true;
 		interruptible.interrupt();
 	};
 

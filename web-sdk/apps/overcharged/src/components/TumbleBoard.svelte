@@ -111,13 +111,17 @@
 					}
 				}
 			}
-			// 2. Snap every in-flight slide-down tween to its target so
-			//    tumbleBoardSlideDown's tween awaits resolve right away.
+			// 2. Snap every in-flight slide-down tween to its target AND resolve its
+			//    await via oncomplete. The set({duration:0}) below aborts the running
+			//    200ms tween, but Svelte does NOT fulfil that aborted tween's promise,
+			//    so we must call oncomplete() explicitly — otherwise tumbleBoardSlideDown
+			//    hangs forever (the "rapid Space locks the flow" bug).
 			for (const reel of context.stateGame.tumbleBoardBase) {
 				for (const sym of reel) {
 					if (sym.symbolY && typeof sym.symbolY.set === 'function') {
 						sym.symbolY.set(sym.symbolY.target, { duration: 0 });
 					}
+					if (sym.oncomplete) sym.oncomplete();
 				}
 			}
 			for (const reel of context.stateGame.tumbleBoardAdding) {
@@ -125,6 +129,7 @@
 					if (sym.symbolY && typeof sym.symbolY.set === 'function') {
 						sym.symbolY.set(sym.symbolY.target, { duration: 0 });
 					}
+					if (sym.oncomplete) sym.oncomplete();
 				}
 			}
 		},
@@ -139,27 +144,44 @@
 			const getPromises = () =>
 				_.flatten(
 					context.stateGameDerived.tumbleBoardCombined().map((tumbleReel) => {
-						return tumbleReel.map(async (tumbleSymbol, symbolIndex) => {
+						return tumbleReel.map((tumbleSymbol, symbolIndex) => {
 							const targetY = getSymbolY(symbolIndex - 1); // Refer to initTumbleBoardBase
-							if (targetY !== tumbleSymbol.symbolY.current) {
-								const bounceDuration = 200;
+							if (targetY === tumbleSymbol.symbolY.current) return Promise.resolve();
 
-								await tumbleSymbol.symbolY.set(targetY, {
+							const bounceDuration = 200;
+
+							// We await an `oncomplete` resolver, NOT the set-promise directly.
+							// skipAnimation snaps the position with another set({duration:0}),
+							// and Svelte's Tween aborts the in-flight (200ms) tween WITHOUT
+							// fulfilling its promise (loop.abort() never calls fulfill). Awaiting
+							// that orphaned promise would hang tumbleBoardSlideDown forever — the
+							// exact "üst üste Space → akış kilitlenir" bug. The resolver is fired
+							// by the tween's own .then OR by skip; a timeout is a final safety net.
+							const done = Promise.race([
+								waitForResolve((resolve) => (tumbleSymbol.oncomplete = resolve)),
+								new Promise((resolve) => setTimeout(resolve, 1000)),
+							]);
+
+							tumbleSymbol.symbolY
+								.set(targetY, {
 									duration: bounceDuration,
 									// quadOut decelerates toward target without overshooting.
 									// backOut overshot bottom row past SymbolWrap's inFrame
 									// limit, briefly unmounting the symbol → flicker.
 									easing: quadOut,
+								})
+								.then(() => {
+									if (symbolIndex > 0 && symbolIndex < tumbleReel.length - 1) {
+										// Land animation disabled. The symbol is already in 'static'
+										// state (default from createTumbleSymbol), so DON'T reassign —
+										// any $state write triggers reactivity and re-mounts the Spine
+										// instance, producing a per-symbol flicker as each tween settles.
+										context.stateGameDerived.onSymbolLand({ rawSymbol: tumbleSymbol.rawSymbol });
+									}
+									tumbleSymbol.oncomplete();
 								});
 
-								if (symbolIndex > 0 && symbolIndex < tumbleReel.length - 1) {
-									// Land animation disabled. The symbol is already in 'static'
-									// state (default from createTumbleSymbol), so DON'T reassign —
-									// any $state write triggers reactivity and re-mounts the Spine
-									// instance, producing a per-symbol flicker as each tween settles.
-									context.stateGameDerived.onSymbolLand({ rawSymbol: tumbleSymbol.rawSymbol });
-								}
-							}
+							return done;
 						});
 					}),
 				);

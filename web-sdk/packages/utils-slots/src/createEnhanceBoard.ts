@@ -7,13 +7,14 @@ export function createEnhanceBoard() {
 		type TRawSymbol = GetRawSymbolFromReel<TReel>;
 
 		const { preSpin } = createEnhanceBoardPreSpin({ board });
-		const { spin } = createEnhanceBoardSpin({ board });
+		// `stop` artık spin ile aynı kapanışta — `isStopping` bayrağını da kurar ki
+		// skip/stop sonrası sonraki sütunlarda anticipation parlaması olmasın.
+		const { spin, stop } = createEnhanceBoardSpin({ board });
 		const settle = (rawBoard?: TRawSymbol[][]) =>
 			board.forEach((reel, reelIndex) => {
 				const rawSymbols = rawBoard?.[reelIndex] || [];
 				reel.setSymbolsWithRawSymbols(rawSymbols);
 			});
-		const stop = () => board.forEach((reel) => reel.stop());
 		const readyToSpinEffect = () => {
 			board.forEach((reel) => reel.readyToSpinEffect());
 		};

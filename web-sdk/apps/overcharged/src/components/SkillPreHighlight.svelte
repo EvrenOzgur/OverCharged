@@ -38,24 +38,33 @@
 
 	// Invalidate-on-skip token (see SkillActivatedOverlay for the pattern).
 	let runId = 0;
+	// Skip sinyali: her `await alpha.set(...)`'i bununla yarıştırıyoruz. Aksi halde
+	// skip'in `alpha.set({duration:0/80})`'i, beklenen tween'i Svelte tarafında
+	// abort eder ama promise'i fulfill ETMEZ → await sonsuza dek asılır ve
+	// runId kontrolüne hiç ulaşılamaz (üst üste Space → akış takılır).
+	let skipResolve: (() => void) | null = null;
 
 	context.eventEmitter.subscribeOnMount({
 		skillPreHighlight: async ({ positions: p, color: c, holdMs = 200 }) => {
 			const id = ++runId;
 			positions = p;
 			color = c;
+			const skipped = new Promise<void>((resolve) => (skipResolve = resolve));
 			alpha.set(0, { duration: 0 });
-			await alpha.set(0.7, { duration: 140, easing: cubicOut });
+			await Promise.race([alpha.set(0.7, { duration: 140, easing: cubicOut }), skipped]);
 			if (id !== runId) return;
-			await new Promise((resolve) => setTimeout(resolve, holdMs));
+			await Promise.race([new Promise((resolve) => setTimeout(resolve, holdMs)), skipped]);
 			if (id !== runId) return;
-			await alpha.set(0, { duration: 180, easing: cubicIn });
+			await Promise.race([alpha.set(0, { duration: 180, easing: cubicIn }), skipped]);
 			if (id !== runId) return;
 			positions = [];
 		},
 		skipAnimation: () => {
 			if (positions.length === 0) return;
 			++runId;
+			// Asılı await'leri çöz (orphan tween promise'ine güvenme), sonra hızlı fade.
+			skipResolve?.();
+			skipResolve = null;
 			alpha.set(0, { duration: 80, easing: cubicIn }).then(() => {
 				if (alpha.current <= 0.01) positions = [];
 			});

@@ -11,6 +11,12 @@ export function createEnhanceBoardSpin<TReel extends Reel<any, any>>({
 }) {
 	type TRawSymbol = GetRawSymbolFromReel<TReel>;
 
+	// Stop/skip yapıldı mı? (enhancedBoard.stop() → her reel.stop() + bu bayrak).
+	// True iken `onSpinFinishing` sıradaki anticipated reel'in `anticipating`
+	// bayrağını KURMAZ — böylece skip sonrası diğer sütunlarda anticipation
+	// animasyonu parlayıp kaybolmaz; doğrudan tumble düşer. Her spin'de sıfırlanır.
+	let isStopping = false;
+
 	type BaseRevealEvent = {
 		index: number;
 		type: 'reveal';
@@ -26,6 +32,8 @@ export function createEnhanceBoardSpin<TReel extends Reel<any, any>>({
 		revealEvent: RevealEvent;
 		paddingBoard?: TRawSymbol[][];
 	}) {
+		isStopping = false; // yeni spin: skip/stop bayrağını sıfırla
+
 		if (stateSlots.isPreSpinning) {
 			await Promise.all(
 				board.map(async (reel) => {
@@ -70,6 +78,8 @@ export function createEnhanceBoardSpin<TReel extends Reel<any, any>>({
 				previousPaddingSize,
 				onSpinFinishing: () => {
 					reel.onReelStopping();
+					// Skip/stop yapıldıysa sıradaki reel'de anticipation gösterme.
+					if (isStopping) return;
 					const nextReelIndex = reelIndex + 1;
 					const isNextReelAnticipated = (revealEvent.anticipation?.[nextReelIndex] || 0) > 0;
 					if (isNextReelAnticipated) board[nextReelIndex].reelState.anticipating = true;
@@ -86,5 +96,12 @@ export function createEnhanceBoardSpin<TReel extends Reel<any, any>>({
 		);
 	}
 
-	return { spin };
+	// Stop/skip: bayrağı kaldır (sonraki anticipation'ları bastırır) + her reel'in
+	// interruptible bekleyişini kes.
+	const stop = () => {
+		isStopping = true;
+		board.forEach((reel) => reel.stop());
+	};
+
+	return { spin, stop };
 }

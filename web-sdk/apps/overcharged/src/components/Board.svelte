@@ -70,6 +70,11 @@
 			await Promise.all(getPromises());
 		},
 		skipAnimation: () => {
+			// Reel'lerin interruptible bekleyişlerini kes — özellikle anticipation
+			// (scatter bekleme) reel'inin uzun `waitToStartFallingIn`'ini kısaltıp
+			// sütunun hemen yerleşmesini sağlar. Turbo'ya DOKUNMAZ (stop butonundan
+			// farklı olarak isTurbo'yu açmaz). reel'ler spinmiyorsa no-op.
+			context.stateGameDerived.enhancedBoard.stop();
 			// Resolve every in-flight symbol oncomplete so the cluster-win
 			// boardWithAnimateSymbols Promise.all completes immediately.
 			for (const reel of context.stateGame.board) {

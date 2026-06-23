@@ -5,7 +5,7 @@
 	import { EnableHotkey, OnHotkey } from 'components-shared';
 	import { MainContainer } from 'components-layout';
 	import { App } from 'pixi-svelte';
-	import { stateModal } from 'state-shared';
+	import { stateModal, stateBetDerived } from 'state-shared';
 
 	import { UI, UiGameName } from 'components-ui-pixi';
 	import { GameVersion, Modals } from 'components-ui-html';
@@ -220,15 +220,22 @@
 	<EnableGameActor />
 	<EnablePixiExtension />
 
-	<!-- Global skipAnimation hotkey — fires on every Space press regardless of
-	     XState idle/non-idle. ButtonBet's own Space hotkey still owns the
-	     bet/stop flow; this one runs in parallel so skip works in story setups
-	     that don't include ButtonBet, and during animation phases where the
-	     state machine reports idle (event-replay stories). isTurbo is NOT
-	     touched. -->
+	<!-- Tek nokta Space yönetimi:
+	     • Her basışta `skipAnimation` broadcast edilir → o anda oynayan animasyon
+	       atlanıp sıradakine geçilir (her basış TEK adım; turbo'ya DOKUNULMAZ).
+	       Story'lerde xstate idle raporlasa bile skip çalışsın diye her zaman atılır.
+	     • Idle (gerçek oyun, bet uygun) ise ayrıca spin başlatılır — atlanacak
+	       animasyon olmadığından skip no-op'tur.
+	     ButtonBet'in Space hotkey'i kaldırıldı; stop butonu TIKLAMASI turbo'yu korur. -->
 	<OnHotkey
 		hotkey="Space"
-		onpress={() => context.eventEmitter.broadcast({ type: 'skipAnimation' })}
+		onpress={() => {
+			context.eventEmitter.broadcast({ type: 'skipAnimation' });
+			if (context.stateXstateDerived.isIdle() && stateBetDerived.isBetCostAvailable()) {
+				context.eventEmitter.broadcast({ type: 'soundPressBet' });
+				context.eventEmitter.broadcast({ type: 'bet' });
+			}
+		}}
 	/>
 
 	<Background />

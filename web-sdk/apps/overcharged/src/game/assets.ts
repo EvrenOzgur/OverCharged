@@ -23,6 +23,18 @@ export default {
 		},
 		preload: true,
 	},
+	// Loading-bar splash shown FIRST, before `loader` (the FirstScreen panels).
+	// Same 1200×819 layout/skins as `loader`; its `loadingBar` animation drives a
+	// fill bar (bone_loadingBarColor scale) that we scrub to real load progress.
+	loaderBar: {
+		type: 'spine',
+		src: {
+			atlas: './OverChargedAssets/LoadingBar/loadingScreen.atlas',
+			skeleton: './OverChargedAssets/LoadingBar/loadingScreen.json',
+			scale: 1,
+		},
+		preload: true,
+	},
 	pressToContinueText: {
 		type: 'sprites',
 		src: './assets/sprites/pressToContinueText/MM_pressanywhere.json',

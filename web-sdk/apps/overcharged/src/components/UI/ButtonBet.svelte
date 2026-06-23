@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Sprite } from 'pixi-svelte';
 	import { Button, type ButtonProps } from 'components-pixi';
-	import { OnHotkey } from 'components-shared';
 	import { stateBetDerived } from 'state-shared';
 
 	import HoverAnimContainer from './HoverAnimContainer.svelte';
@@ -15,7 +14,9 @@
 
 <ButtonBetProvider>
 	{#snippet children({ key, onpress })}
-		<OnHotkey hotkey="Space" {disabled} {onpress} />
+		<!-- Space hotkey kaldırıldı: Space artık Game.svelte'de tek noktadan yönetiliyor
+		     (idle → spin, animasyon → tek-adım skip; turbo'ya dokunmadan). Stop butonu
+		     TIKLAMASI (onpress) eski davranışını korur (skip + geçici turbo). -->
 		<Button {...props} {sizes} {onpress} {disabled}>
 			{#snippet children({ center, hovered })}
 				{@const spinning = key === 'stop_default' || key === 'stop_disabled'}
