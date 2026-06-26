@@ -98,6 +98,10 @@ class GameStateOverride(GameExecutables):
     def reset_fs_spin(self):
         super().reset_fs_spin()
         self.skill_meters = {"L1": 0, "L2": 0, "L3": 0, "L4": 0}
+        # Allow exactly one red (L4) skill per free-spin session. reset_fs_spin
+        # runs once on FS entry, so the flag stays True for the rest of the
+        # session after the first trigger (see update_freespin note).
+        self.red_skill_used = False
 
     def assign_special_sym_function(self):
         pass

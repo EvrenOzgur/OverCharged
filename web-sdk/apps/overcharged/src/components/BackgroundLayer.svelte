@@ -9,7 +9,9 @@
 		PORTRAIT_WELL_SHRINK,
 		PORTRAIT_WELL_SETUP_SCALE,
 		PORTRAIT_WELL_LIFT,
+		LANDSCAPE_WELL_LIFT,
 	} from '../game/constants';
+	import { uiStore } from '../shared/stores/uiStore.svelte';
 	import SkillMeterDriver from './SkillMeterDriver.svelte';
 
 	type Props = {
@@ -40,6 +42,19 @@
 				? 'portrait'
 				: 'landscape'
 			: undefined,
+	);
+
+	// Lift the landscape board WELL only in laptop/desktop; popout (also
+	// landscape) keeps the well at its setup position (y=0). The symbol board
+	// follows this lift via boardCalibration, so the bg well art and the symbols
+	// move together. 0 when the bone shouldn't be lifted — never left "stuck"
+	// because the SpineBone below stays mounted across all landscape modes and
+	// just re-applies y reactively.
+	const landscapeWellLift = $derived(
+		uiStore.currentResolution.value === 'desktop' ||
+			uiStore.currentResolution.value === 'laptop'
+			? LANDSCAPE_WELL_LIFT
+			: 0,
 	);
 
 	function responsiveProps(l: BgLayer) {
@@ -389,6 +404,13 @@
 				scaleY={PORTRAIT_WELL_SETUP_SCALE * PORTRAIT_WELL_SHRINK}
 				y={-PORTRAIT_WELL_LIFT}
 			/>
+		{:else if layer.coverCanvas}
+			<!-- Landscape: lift the board WELL in laptop/desktop (y = lift) and keep
+			     it at setup (y = 0) for popout. Stays mounted across all landscape
+			     modes so y is always explicitly controlled (the bone has no cleanup,
+			     so we must not leave it stuck at a lifted value). The symbol board
+			     follows via boardCalibration. -->
+			<SpineBone boneName="target_landscape_board" y={-landscapeWellLift} />
 		{/if}
 	</SpineProvider>
 {/if}

@@ -1,0 +1,657 @@
+.footer-root {
+    position: absolute;
+    bottom: calc(var(--bottom-padding) * 1px);
+    left: 50%;
+    /* Removed translateY(38px) from here so it doesn't break Portrait mode */
+    transform: translateX(-50%) scale(var(--scale));
+    transform-origin: bottom center;
+    z-index: 100;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    /* Let empty space be click-through */
+}
+
+.decorative-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.6;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    /* Container pointer-events kapatıldı, sadece hitbox tıklanabilir olacak */
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    /* ::after hitbox'u için gerekli */
+}
+
+/* Gerçek resim tıklamaları engellemesin */
+.btn img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    pointer-events: none;
+}
+
+/* Kusursuz Hitbox oluşturuyoruz */
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    /* Hitbox tıklanabilir/hover edilebilir */
+    pointer-events: auto;
+    cursor: pointer;
+    /* Görselin tam merkezindeki buton kadar genişlik (şeffaf padding'leri ezer) */
+    width: 60%;
+    height: 60%;
+    z-index: 1;
+}
+
+/* Disabled butonda hitbox'un tıklamasını kapat */
+.btn:disabled::after {
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Özel hitbox boyutlandırmaları */
+.bonus-btn::after {
+    border-radius: 12px;
+    /* Dikdörtgenimsi */
+    width: 80%;
+    height: 60%;
+}
+
+.play-btn::after {
+    width: 68%;
+    height: 68%;
+}
+
+.plus-btn::after,
+.minus-btn::after {
+    width: 55%;
+    height: 55%;
+}
+
+/* Typography */
+.label-text {
+    font-size: 20px;
+    color: #FD9F1C;
+    margin: 0;
+    line-height: 1.1;
+    text-transform: uppercase;
+}
+
+.label-text.green {
+    color: #1CFD2F;
+}
+
+.amount-text {
+    font-size: 24px;
+    color: #FFFFFF;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.landscape-ui {
+    position: relative;
+    /* Bonus butonunu mutlak konuma alabilmek için eklendi */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /* Footer'ı komple biraz yukarı almak için 38px olan itme değerini 18px'e düşürdük */
+    transform: translateY(31px);
+}
+
+.bonus-button {
+    margin-right: 10px;
+}
+
+.footer-menu {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 160px 0 10px;
+    /* Increased right padding to push content further left */
+    width: 800px;
+    /* Genişliği 900px'den 800px'e düşürdük */
+    box-sizing: border-box;
+    justify-content: space-between;
+}
+
+.left-side {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+}
+
+.balance-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    margin-left: -10px;
+    /* Biraz aşağıda durduğu için yukarı (ortaya) doğru çekiyoruz */
+    margin-top: -12px;
+}
+
+.middle-part {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+}
+
+.right-side {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+}
+
+.landscape-ui .bet-part {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    margin-right: -30px;
+}
+
+.bet-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
+}
+
+.landscape-ui .bet-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin-left: -10px;
+}
+
+.landscape-ui .play-part {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    margin-right: -140px;
+}
+
+.play-btn {
+    position: relative;
+    z-index: 10;
+}
+
+.autospin-counter {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFFFFF;
+    font-size: 26px;
+    font-weight: 800;
+    pointer-events: none;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 2;
+}
+
+.autospin-counter .infinity-icon {
+    width: 38px; /* Varsayılan font boyutu olan "∞" ile hemen hemen aynı veya biraz daha büyük */
+    height: auto;
+    display: block;
+    margin-top: 3px; /* Dikeyde ince ayar */
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+}
+
+.portrait-ui .autospin-counter {
+    font-size: 32px;
+}
+
+.portrait-ui .autospin-counter .infinity-icon {
+    width: 44px; /* Mobilde yazılar gibi bu ikonu da biraz büyütüyoruz */
+}
+
+.landscape-ui .play-options {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
+    margin-left: -40px;
+    position: relative;
+    z-index: 5;
+}
+
+/* Arka plan resminde üstte şeffaf boşluk olduğu için tüm butonlar yukarıda görünüyordu.
+   -8px fazla geldiği için -4px ile tam merkeze oturtuyoruz. */
+.landscape-ui .decorative-bg {
+    margin-top: -4px;
+    width: 100%;
+    /* Siyahlığın (arkaplanın) genişliğini BURADAN kısıp açabilirsiniz (örneğin: 850px, 800px, 95% vb.) */
+}
+
+/* Adjust for transparent padding in native assets (Landscape only) */
+.landscape-ui .btn.plus-btn {
+    margin-bottom: -20px;
+    /* Biraz gevşettik (-28px fazla gelmişti, -16px ise azdı) */
+}
+
+.landscape-ui .btn.minus-btn {
+    margin-top: -20px;
+}
+
+.landscape-ui .btn.auto-btn {
+    margin-bottom: -20px;
+}
+
+.landscape-ui .btn.turbo-btn {
+    margin-top: -20px;
+}
+
+.landscape-ui .btn.turbo-btn img {
+    transform: scale(1);
+}
+
+.landscape-ui .btn.bonus-btn {
+    position: absolute;
+    left: -100px;
+    /* Sabit piksel değeriyle kasanın soluna konumlandırıldı */
+    top: 50%;
+    transform: translateY(calc(-50% - 4px));
+    /* Hem merkeze oturtur hem de şeffaf payı düzeltir */
+    z-index: 100;
+    /* Herhangi bir şeyin altında kalmasını engeller */
+}
+
+/* --- FREESPIN HUD (LANDSCAPE) --- */
+.freespin-hud {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    /* Asla alt alta inmesinler! */
+    align-items: center;
+    position: absolute;
+
+    /* Siyah arka planın tam içine, sağ kenara yerleştirir */
+    right: 15px;
+    gap: 10px;
+    /* Paneller ile turbo butonu arasındaki boşluk */
+
+    /* İKİNCİ GÖRSELDEKİ GİBİ HER ŞEYİ KÜÇÜLTÜP SİYAH ŞERİDE SIĞDIRMAK İÇİN:
+       Tüm HUD'u (hem paneller hem turbo) tek bir merkezden küçültüyoruz. */
+    top: 50%;
+    transform: translateY(-50%) scale(0.55);
+    transform-origin: right center;
+}
+
+.freespin-panels {
+    display: flex;
+    flex-direction: column;
+    /* Alt alta */
+    align-items: center;
+    /* İkinci görseldeki gibi kutuları birbirine yapıştırmak için eksi değer: */
+    gap: 0;
+    z-index: 5;
+    /* Yatay modda boyutu büyütüldü */
+    transform: scale(1.5);
+    transform-origin: right center;
+    /* Panelleri dikeyde biraz yukarı almak için negatif margin eklendi. Gerekirse bu değeri değiştirebilirsiniz. */
+    margin-top: -10px;
+}
+
+.fs-panel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.total-win-panel {
+    /* Sadece Total Win panelini biraz yukarı çekmek için */
+    transform: translateY(-6px);
+}
+
+.spin-count-panel {
+    /* İki kutuyu birbirine daha da yaklaştırmak ve yapıştırmak için negatif margin */
+    margin-top: -5px;
+}
+
+.fs-bg {
+    display: block;
+    max-width: 100%;
+}
+
+.fs-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-shadow: none;
+    /* Text in these white boxes usually has no shadow */
+}
+
+.fs-content.horizontal {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 25px;
+    /* Increase padding so text is not touching edges */
+    box-sizing: border-box;
+}
+
+.fs-label {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+    /* Yazının alt satıra geçip basıklaşmasını engeller */
+}
+
+.fs-label.orange {
+    color: #FD9F1C;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    /* Slight shadow to pop on white */
+}
+
+.fs-label.black {
+    color: #000;
+}
+
+.fs-value {
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.fs-value.black {
+    color: #000;
+}
+
+.fs-value.black-small {
+    color: #000;
+    font-size: 24px;
+}
+
+.freespin-hud .fs-turbo {
+    position: relative;
+    /* Artık dışarı taşmayacak, flex içinde duracak */
+    /* Ölçeklendirmeyi ana container yapıyor */
+    /* Flexbox height sorununu aşmak için margin yerine doğrudan görseli translateY ile kaydırıyoruz */
+    transform: scale(1.5) translateY(6px);
+    margin: 0;
+    z-index: 5;
+}
+
+/* --- PORTRAIT --- */
+.portrait-ui {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 400px;
+}
+
+.last-win-block {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: -20px;
+    /* Pull down into top-row's empty padding */
+    position: relative;
+    z-index: 10;
+}
+
+/* Background image has baked-in offset (transparent padding), so we shift it manually to visually center */
+.portrait-ui .top-row .decorative-bg {
+    margin-top: -2px;
+    /* Arka planı yukarı çektik */
+    transform: translate(-50%, -50%) scaleY(.9);
+    /* Üst footer'ın kalınlığını azaltmak (dikey olarak inceltmek) için eklendi */
+}
+
+/* Removed ineffective margin-top, we control vertical spacing via bottom-row's margin */
+
+.top-row {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: space-between;
+    /* Gap Auto */
+}
+
+.top-row .play-part {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    /* Slight gap between auto/play/turbo */
+}
+
+/* Ensure no margins are affecting portrait buttons anymore */
+.portrait-ui .top-row .btn {
+    margin: 0;
+    transform: none;
+}
+
+/* Move auto and turbo buttons closer to the center spin button visually */
+.portrait-ui .top-row .auto-btn {
+    transform: translateX(8px);
+}
+
+.portrait-ui .top-row .turbo-btn {
+    transform: translateX(-8px);
+}
+
+/* Bonus PNG has transparent padding at the top, making it look too low. Shift it UP visually */
+.portrait-ui .top-row .bonus-btn {
+    transform: translateY(-4px);
+    /* -8px fazla geldi, ince ayar yapıyoruz */
+}
+
+.top-row .btn.play-btn {
+    position: relative;
+    z-index: 10;
+}
+
+/* ---------------------------------------------------
+   PORTRAIT EXACT SIZES (To match Image 2 mockup)
+   The mockup clearly uses explicitly scaled images, not native sizes.
+--------------------------------------------------- */
+.portrait-ui .menu-btn img {
+    width: 65px;
+    height: 65px;
+    transform: scale(1.5);
+    /* Görsel olarak %30 büyütür */
+}
+
+.portrait-ui .bonus-btn img {
+    width: 75px;
+    height: 79px;
+    transform: scale(1.25);
+    /* Görsel olarak %15 büyütür */
+}
+
+.portrait-ui .play-btn img {
+    width: 110px;
+    height: 110px;
+    transform: scale(1.15);
+    /* Spin tuşunu %15 daha büyük gösterir */
+}
+
+.portrait-ui .auto-btn img {
+    width: 60px;
+    height: 60px;
+    transform: scale(1.5);
+    /* Görsel olarak %20 büyütür */
+}
+
+.portrait-ui .turbo-btn img {
+    width: 60px;
+    height: 60px;
+    transform: scale(1.25);
+    /* İstenilen şekilde normal boyutuna alındı */
+}
+
+.portrait-ui .plus-btn img {
+    width: 40px;
+    height: 40px;
+    transform: translateY(4px) scale(1.2);
+    /* Butonlar yazının hizasına göre biraz aşağı alındı */
+}
+
+.portrait-ui .minus-btn img {
+    width: 40px;
+    height: 40px;
+    transform: translateY(4px) scale(1.2);
+    /* Butonlar yazının hizasına göre biraz aşağı alındı */
+}
+
+/* Let the browser handle layout naturally now that sizes fit 400px */
+.portrait-ui .btn {
+    flex-shrink: 0;
+}
+
+.bottom-row {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: space-between;
+    /* Gap Auto */
+}
+
+/* DİKEY (PORTRAIT) EKRANLAR İÇİN SPESİFİK BOŞLUK */
+.portrait-ui .bottom-row {
+    margin-top: -27px;
+    /* İki footer parçasının arasındaki boşluğu azaltmak için tekrar negatif değer verdik */
+}
+
+/* YATAY (LANDSCAPE) EKRANLAR İÇİN SPESİFİK BOŞLUK */
+.landscape-ui .bottom-row {
+    margin-top: -20px;
+    /* Orijinal yatay tasarımında üst satırın boşluğuna girmesi için */
+}
+
+.portrait-ui .balance-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    margin-left: 10px;
+    /* Sola olan mesafeyi artırdık */
+    margin-top: 12px;
+    /* Üst sınırdan kurtarmak için aşağı ittik */
+}
+
+/* Match the 40px height of the bet buttons so the labels and amounts perfectly align horizontally */
+.portrait-ui .balance-block .amount-text {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    margin-top: -6px;
+    /* Label'a (BALANCE) daha yakın olması için eksi margin eklendi */
+}
+
+.portrait-ui .bet-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
+    margin-top: 12px;
+    /* Üst sınırdan kurtarmak için aşağı ittik */
+}
+
+.bet-label-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 0;
+}
+
+.bet-info-portrait {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: -6px;
+    /* Label'a (BET) daha yakın olması için eksi margin eklendi */
+}
+
+.bet-info-portrait .btn.minus-btn {
+    margin-right: 0px;
+}
+
+.bet-info-portrait .btn.plus-btn {
+    margin-left: 0px;
+}
+
+/* ---------------------------------------------------
+   PORTRAIT OVERRIDES
+   The buttons have large transparent paddings natively. We let them render
+   at native size but overlap them using negative margins above.
+--------------------------------------------------- */
+.portrait-ui .label-text {
+    font-size: 14px;
+}
+
+.portrait-ui .amount-text {
+    font-size: 18px;
+}
+
+.portrait-ui .last-win-block .label-text {
+    font-size: 16px;
+}
+
+.portrait-ui .last-win-block .amount-text {
+    font-size: 20px;
+}
+
+/* --- FREESPIN PORTRAIT HUD --- */
+.freespin-panels-portrait {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    z-index: 5;
+    /* Make it pop out of the footer in portrait */
+    transform: scale(0.85);
+    /* Dikey ortalama ayarı */
+    margin-top: 0px;
+}

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { recordBookEvent, checkIsMultipleRevealEvents, type BookEventHandlerMap } from 'utils-book';
-import { stateBet } from 'state-shared';
+import { stateBet, stateBetDerived } from 'state-shared';
 
 import { eventEmitter } from './eventEmitter';
 import { playBookEvent } from './utils';
@@ -382,7 +382,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// through it when the actual animation handler fast-forwards.
 		await Promise.race([
 			eventEmitter.broadcastAsync(bookEvent),
-			waitForSkipOrTimeout(5000),
+			waitForSkipOrTimeout(5000 / stateBetDerived.timeScale()),
 		]);
 	},
 	finalMultiplierApplied: async (bookEvent: BookEventOfType<'finalMultiplierApplied'>) => {
@@ -422,8 +422,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			animate: true,
 		});
 
-		// 5. Short wait for player to "feel" the win — skippable via Space.
-		await waitForSkipOrTimeout(800);
+		// 5. Short wait for player to "feel" the win — skippable via Space,
+		// and shortened under turbo so fast mode actually feels faster.
+		await waitForSkipOrTimeout(800 / stateBetDerived.timeScale());
 	},
 	// customised
 	createBonusSnapshot: async (bookEvent: BookEventOfType<'createBonusSnapshot'>) => {

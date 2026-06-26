@@ -2,12 +2,12 @@
 	import { onMount } from 'svelte';
 
 	import { EnablePixiExtension } from 'components-pixi';
-	import { EnableHotkey, OnHotkey } from 'components-shared';
+	import { EnableHotkey, OnHotkey, EnableSpaceHold } from 'components-shared';
 	import { MainContainer } from 'components-layout';
 	import { App } from 'pixi-svelte';
 	import { stateModal, stateBetDerived } from 'state-shared';
 
-	import { UI, UiGameName } from 'components-ui-pixi';
+	import { UI } from 'components-ui-pixi';
 	import { GameVersion, Modals } from 'components-ui-html';
 
 	import { getContext } from '../game/context';
@@ -21,7 +21,7 @@
 	import Background from './Background.svelte';
 	import LoadingScreen from './LoadingScreen.svelte';
 	import BoardContainer from './BoardContainer.svelte';
-	import OverchargedUI from './UI/OverchargedUI.svelte';
+	import FooterMenuOverlay from './UI/FooterMenuOverlay.svelte';
 	import DebugLayoutHud from './DebugLayoutHud.svelte';
 	import Board from './Board.svelte';
 	import Anticipations from './Anticipations.svelte';
@@ -217,6 +217,9 @@
 <App>
 	<EnableSound />
 	<EnableHotkey />
+	<!-- Hold Space = quick-repeat bet (turbo on while held). Previously mounted
+	     inside the old OverchargedUI; re-added here after that was removed. -->
+	<EnableSpaceHold />
 	<EnableGameActor />
 	<EnablePixiExtension />
 
@@ -318,15 +321,10 @@
 			</MainContainer>
 		</ScreenShake>
 
-		<OverchargedUI>
-			{#snippet gameName()}
-				<UiGameName name={config.gameName} />
-			{/snippet}
-			{#snippet logo()}
-				<!-- Logo is now baked into the bgCharacters spine (`logo` slot),
-				     so the UI-layer placeholder is intentionally empty. -->
-			{/snippet}
-		</OverchargedUI>
+		<!-- Footer/menu chrome moved to the DOM overlay (FooterMenuPackage),
+		     mounted as a sibling of <App> below. The old Pixi OverchargedUI was
+		     removed in favour of the HTML footer. -->
+
 		<Win />
 		<FreeSpinIntro />
 		{#if ['desktop', 'landscape'].includes(context.stateLayoutDerived.layoutType())}
@@ -347,6 +345,13 @@
 
 	{/if}
 </App>
+
+<!-- DOM footer/menu overlay (FooterMenuPackage), drawn on top of the canvas.
+     Gated on the loading screen being dismissed so it only mounts once i18n /
+     currency state is ready (matches the old Pixi UI render timing). -->
+{#if !shouldShowLoadingScreen}
+	<FooterMenuOverlay />
+{/if}
 
 <Modals>
 	{#snippet version()}

@@ -199,7 +199,11 @@ class GameExecutables(Executables):
         self.win_manager.reset_spin_win()
         self.tumblewin_mult = 0
         self.win_data = {}
-        self.red_skill_used = False
+        # NOTE: red_skill_used is intentionally NOT reset here. The red (L4)
+        # skill fires at most once per base game and once per free-spin SESSION
+        # (not per free spin). The flag is reset in reset_book (base round) and
+        # reset_fs_spin (free-spin session entry), so it persists across the
+        # individual free spins of a session.
         self.accumulated_base_win = 0
 
     def process_skills(self) -> bool:

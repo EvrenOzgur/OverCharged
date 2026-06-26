@@ -20,51 +20,94 @@
 	const xUnit = $derived(isSocial ? 'stake' : 'bet');
 	const XUnit = $derived(isSocial ? 'STAKE' : 'BET');
 
-	// Spritesheet: ./assets/sprites/symbolsStatic/symbolsStatic.webp (386×1645)
-	// Relative URL — Stake CDN serves the game under a subpath
-	// (e.g. /overcharged00/v2/...). An absolute `/assets/...` would resolve to
-	// the CDN root and 404. Same fix pattern as app.html font urls and
-	// assets.ts spine src (see stake_engine_setup memory).
-	const SHEET_URL = './assets/sprites/symbolsStatic/symbolsStatic.webp';
-	const SHEET_W = 386;
-	const SHEET_H = 1645;
-	const ICON_H = 44;
+	// OverCharged symbols are drawn straight from the game's own Spine texture
+	// atlases (the demo `symbolsStatic` sheet was the Stake template's gems).
+	// Each symbol is composed in a 512×512 logical cell from one or more atlas
+	// regions, positioned by the region's atlas `offsets`. High symbols + Wild +
+	// Scatter are single regions; low symbols (potion bottles) layer the colored
+	// liquid + rim over the shared glass body. Relative URLs — Stake serves the
+	// game under a subpath, so absolute `/...` would 404 (see stake_engine_setup).
+	const ICON_H = 60;
+	const CELL = 512;
 
-	const FRAMES: Record<string, { x: number; y: number; w: number; h: number }> = {
-		H1: { x: 1,   y: 1,    w: 200, h: 200 },
-		H2: { x: 1,   y: 203,  w: 200, h: 199 },
-		H3: { x: 1,   y: 1185, w: 200, h: 188 },
-		H4: { x: 191, y: 1263, w: 190, h: 194 },
-		L1: { x: 203, y: 1,    w: 200, h: 175 },
-		L2: { x: 203, y: 945,  w: 172, h: 159 },
-		L3: { x: 203, y: 777,  w: 166, h: 171 },
-		L4: { x: 198, y: 1106, w: 155, h: 173 },
-		W:  { x: 1,   y: 988,  w: 195, h: 195 },
-		S:  { x: 195, y: 1455, w: 189, h: 190 },
+	type Sheet = { url: string; w: number; h: number };
+	const SHEETS: Record<string, Sheet> = {
+		high:    { url: './OverChargedAssets/high_symbols/high-symbols.png',       w: 1932, h: 1539 },
+		low:     { url: './OverChargedAssets/low_symbols/low-symbols.png',         w: 1948, h: 1238 },
+		special: { url: './OverChargedAssets/special_symbols/special-symbols.png', w: 1944, h: 1915 },
+		mult:    { url: './multipliers/mutlipliers.png',                           w: 1960, h: 1328 },
 	};
 
-	function symbolStyle(key: string): string {
-		const f = FRAMES[key];
-		if (!f) return '';
-		const scale = ICON_H / f.h;
-		const bw = (SHEET_W * scale).toFixed(1);
-		const bh = (SHEET_H * scale).toFixed(1);
-		const bx = (-f.x * scale).toFixed(1);
-		const by = (-f.y * scale).toFixed(1);
-		const dw = (f.w * scale).toFixed(1);
+	type Layer = { sheet: string; x: number; y: number; w: number; h: number; ox: number; oy: number };
+
+	// Back-to-front layer order per symbol (first entry renders behind).
+	const SYMBOLS: Record<string, Layer[]> = {
+		H1: [{ sheet: 'high', x: 386, y: 237,  w: 345, h: 371, ox: 86,  oy: 61 }],
+		H2: [{ sheet: 'high', x: 503, y: 1195, w: 306, h: 342, ox: 109, oy: 80 }],
+		H3: [{ sheet: 'high', x: 733, y: 380,  w: 294, h: 348, ox: 107, oy: 74 }],
+		H4: [{ sheet: 'high', x: 2,   y: 236,  w: 382, h: 372, ox: 63,  oy: 73 }],
+		// Low potions: liquid (X-inner) + rim (X-top) behind the shared glass body.
+		L1: [ // yellow
+			{ sheet: 'low', x: 611, y: 66,  w: 201, h: 134, ox: 147, oy: 123 },
+			{ sheet: 'low', x: 611, y: 23,  w: 197, h: 41,  ox: 149, oy: 232 },
+			{ sheet: 'low', x: 291, y: 468, w: 235, h: 283, ox: 140, oy: 117 },
+		],
+		L2: [ // green
+			{ sheet: 'low', x: 205, y: 45,  w: 201, h: 134, ox: 147, oy: 123 },
+			{ sheet: 'low', x: 201, y: 2,   w: 197, h: 41,  ox: 149, oy: 232 },
+			{ sheet: 'low', x: 291, y: 468, w: 235, h: 283, ox: 140, oy: 117 },
+		],
+		L3: [ // blue
+			{ sheet: 'low', x: 2,   y: 47,  w: 201, h: 134, ox: 147, oy: 123 },
+			{ sheet: 'low', x: 2,   y: 4,   w: 197, h: 41,  ox: 149, oy: 232 },
+			{ sheet: 'low', x: 291, y: 468, w: 235, h: 283, ox: 140, oy: 117 },
+		],
+		L4: [ // red
+			{ sheet: 'low', x: 408, y: 45,  w: 201, h: 134, ox: 147, oy: 123 },
+			{ sheet: 'low', x: 400, y: 2,   w: 197, h: 41,  ox: 149, oy: 232 },
+			{ sheet: 'low', x: 291, y: 468, w: 235, h: 283, ox: 140, oy: 117 },
+		],
+		W: [{ sheet: 'special', x: 920, y: 1176, w: 335, h: 382, ox: 90, oy: 55 }],
+		// Scatter = red glow + red burst behind the lamp (matches the in-game symbol).
+		S: [
+			{ sheet: 'special', x: 503, y: 1549, w: 383, h: 364, ox: 65,  oy: 82 },  // scatter-glow
+			{ sheet: 'special', x: 503, y: 1209, w: 415, h: 338, ox: 44,  oy: 100 }, // scatter-red-effect
+			{ sheet: 'special', x: 888, y: 1605, w: 271, h: 308, ox: 137, oy: 79 },  // scatter-lamp
+		],
+		// Multiplier = gold coin + value text (the in-game 2x coin).
+		M: [
+			{ sheet: 'mult', x: 2,    y: 271, w: 494, h: 485, ox: 12, oy: 14 },  // coinFrontnew
+			{ sheet: 'mult', x: 1192, y: 538, w: 329, h: 307, ox: 98, oy: 106 }, // 2x value
+		],
+	};
+
+	function layerStyle(l: Layer, size: number): string {
+		const s = size / CELL;
+		const sh = SHEETS[l.sheet];
+		// Spine/libgdx atlas offsets are bottom-left origin (y-up); CSS is top-down,
+		// so convert the vertical offset: top = originalHeight - offsetY - height.
+		const top = CELL - l.oy - l.h;
 		return [
-			`display:inline-block`,
-			`width:${dw}px`,
-			`height:${ICON_H}px`,
-			`background-image:url(${SHEET_URL})`,
-			`background-size:${bw}px ${bh}px`,
-			`background-position:${bx}px ${by}px`,
+			`position:absolute`,
+			`left:${(l.ox * s).toFixed(2)}px`,
+			`top:${(top * s).toFixed(2)}px`,
+			`width:${(l.w * s).toFixed(2)}px`,
+			`height:${(l.h * s).toFixed(2)}px`,
+			`background-image:url(${sh.url})`,
+			`background-size:${(sh.w * s).toFixed(2)}px ${(sh.h * s).toFixed(2)}px`,
+			`background-position:-${(l.x * s).toFixed(2)}px -${(l.y * s).toFixed(2)}px`,
 			`background-repeat:no-repeat`,
-			`vertical-align:middle`,
-			`flex-shrink:0`,
 		].join(';');
 	}
 </script>
+
+{#snippet sym(key: string, size: number)}
+	<span class="sym-cell" style="width:{size}px;height:{size}px;">
+		{#each SYMBOLS[key] ?? [] as l}
+			<span style={layerStyle(l, size)}></span>
+		{/each}
+	</span>
+{/snippet}
 
 {#if stateModal.modal?.name === 'gameRules'}
 	<Popup zIndex={zIndex.modal} onclose={() => (stateModal.modal = null)}>
@@ -85,28 +128,28 @@
 					<span>9-12</span>
 					<span>13+</span>
 				</div>
-				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('H1')}></span></span><span>2.5×</span><span>6.3×</span><span>10×</span><span>24×</span></div>
-				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('H2')}></span></span><span>1.0×</span><span>2.5×</span><span>4×</span><span>16×</span></div>
-				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('H3')}></span></span><span>0.7×</span><span>1.6×</span><span>2.8×</span><span>12×</span></div>
-				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('H4')}></span></span><span>0.5×</span><span>1.3×</span><span>2.4×</span><span>8×</span></div>
-				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('L1')}></span></span><span>0.3×</span><span>0.8×</span><span>2.0×</span><span>5×</span></div>
-				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('L2')}></span></span><span>0.2×</span><span>0.6×</span><span>1.8×</span><span>4×</span></div>
-				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('L3')}></span></span><span>0.1×</span><span>0.4×</span><span>1.3×</span><span>2.5×</span></div>
-				<div class="paytable-row"><span class="paytable-sym"><span style={symbolStyle('L4')}></span></span><span>0.1×</span><span>0.3×</span><span>0.8×</span><span>2.0×</span></div>
+				<div class="paytable-row"><span class="paytable-sym">{@render sym('H1', ICON_H)}</span><span>2.5×</span><span>6.3×</span><span>10×</span><span>24×</span></div>
+				<div class="paytable-row"><span class="paytable-sym">{@render sym('H2', ICON_H)}</span><span>1.0×</span><span>2.5×</span><span>4×</span><span>16×</span></div>
+				<div class="paytable-row"><span class="paytable-sym">{@render sym('H3', ICON_H)}</span><span>0.7×</span><span>1.6×</span><span>2.8×</span><span>12×</span></div>
+				<div class="paytable-row"><span class="paytable-sym">{@render sym('H4', ICON_H)}</span><span>0.5×</span><span>1.3×</span><span>2.4×</span><span>8×</span></div>
+				<div class="paytable-row"><span class="paytable-sym">{@render sym('L1', ICON_H)}</span><span>0.3×</span><span>0.8×</span><span>2.0×</span><span>5×</span></div>
+				<div class="paytable-row"><span class="paytable-sym">{@render sym('L2', ICON_H)}</span><span>0.2×</span><span>0.6×</span><span>1.8×</span><span>4×</span></div>
+				<div class="paytable-row"><span class="paytable-sym">{@render sym('L3', ICON_H)}</span><span>0.1×</span><span>0.4×</span><span>1.3×</span><span>2.5×</span></div>
+				<div class="paytable-row"><span class="paytable-sym">{@render sym('L4', ICON_H)}</span><span>0.1×</span><span>0.3×</span><span>0.8×</span><span>2.0×</span></div>
 			</section>
 
 			<h3 class="rules-subtitle">SPECIAL SYMBOLS</h3>
 			<section class="rules-section">
 				<div class="rules-row">
-					<span style={symbolStyle('W')}></span>
+					{@render sym('W', ICON_H)}
 					<span class="rules-desc"><strong class="rules-label-inline">WILD</strong> — Substitutes for all regular symbols (excluding Scatter and Multiplier).</span>
 				</div>
 				<div class="rules-row">
-					<span class="multiplier-icon">M</span>
+					{@render sym('M', ICON_H)}
 					<span class="rules-desc"><strong class="rules-label-inline">MULTIPLIER</strong> — Carries a value (×2, ×3, ×5, ×8). When part of a winning cluster, the value is added to the Global Multiplier. Does not form winning clusters on its own.</span>
 				</div>
 				<div class="rules-row">
-					<span style={symbolStyle('S')}></span>
+					{@render sym('S', ICON_H)}
 					<span class="rules-desc"><strong class="rules-label-inline">SCATTER</strong> — 3 or more Scatters anywhere on the grid trigger Free Spins.</span>
 				</div>
 			</section>
@@ -129,19 +172,19 @@
 			<section class="rules-section">
 				<p>Each spin fills one of four Skill Meters by symbols of the same colour landing in winning clusters. When a meter reaches its threshold the effect activates and the meter resets.</p>
 				<div class="rules-row">
-					<span style={symbolStyle('L1')}></span>
+					{@render sym('L1', ICON_H)}
 					<span class="rules-desc"><strong class="rules-label-inline" style="color:#ffd700">WILD STRIKE — fills at 10</strong>: Selected low-tier symbols on the grid are converted to Wild.</span>
 				</div>
 				<div class="rules-row">
-					<span style={symbolStyle('L2')}></span>
+					{@render sym('L2', ICON_H)}
 					<span class="rules-desc"><strong class="rules-label-inline" style="color:#00cc44">OVERLOAD — fills at 16</strong>: All low-tier symbols on the grid explode, triggering an extra cascade.</span>
 				</div>
 				<div class="rules-row">
-					<span style={symbolStyle('L3')}></span>
+					{@render sym('L3', ICON_H)}
 					<span class="rules-desc"><strong class="rules-label-inline" style="color:#4488ff">POWER SURGE — fills at 22</strong>: The Global Multiplier is increased by ×2.</span>
 				</div>
 				<div class="rules-row">
-					<span style={symbolStyle('L4')}></span>
+					{@render sym('L4', ICON_H)}
 					<span class="rules-desc"><strong class="rules-label-inline" style="color:#ff4444">MEGA BOLT — fills at 25</strong>: A 3×3 block of symbols is converted to Wild.</span>
 				</div>
 			</section>
@@ -274,6 +317,14 @@
 		gap: 0.75rem;
 	}
 
+	/* Composited symbol cell: layers are absolutely positioned inside. */
+	.sym-cell {
+		position: relative;
+		display: inline-block;
+		flex-shrink: 0;
+		vertical-align: middle;
+	}
+
 	.rules-label-inline {
 		font-weight: 700;
 		color: #ffffff;
@@ -318,7 +369,7 @@
 	.paytable-header,
 	.paytable-row {
 		display: grid;
-		grid-template-columns: 60px repeat(4, 1fr);
+		grid-template-columns: 72px repeat(4, 1fr);
 		align-items: center;
 		gap: 0.4rem;
 		font-size: 0.78rem;

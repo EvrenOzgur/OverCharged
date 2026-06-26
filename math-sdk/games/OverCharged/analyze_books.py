@@ -221,12 +221,16 @@ def analyze_spin(spin, mode, issues):
             else:
                 # Mid-spin reveal — fs entry/retrigger or freespin progression
                 if gt == "freegame":
+                    # red_skill_used resets once on FS entry (session start),
+                    # NOT on every free-spin reveal — red fires at most once per
+                    # free-spin session. Matches reset_fs_spin in the game code.
+                    if not in_freegame:
+                        red_skill_used = False
                     in_freegame = True
                     skill_meters = {"L1": 0, "L2": 0, "L3": 0, "L4": 0}
                     # global_mult resets per FS spin
                     global_mult = 1
                     accumulated_base_win = 0
-                    red_skill_used = False
 
             current_board = board
             winInfo_emitted_this_tumble = False
@@ -356,9 +360,9 @@ def analyze_spin(spin, mode, issues):
                     positions = e.get("positions", [])
                     if len(positions) != 9:
                         issues.add("B.L4_positions", sid, f"L4 positions={len(positions)} (expected 9)")
-                    # B8: max 1 L4 per spin
+                    # B8: max 1 L4 per base round / per free-spin session
                     if red_skill_used:
-                        issues.add("B.L4_doubleUse", sid, "L4 fired twice in one spin")
+                        issues.add("B.L4_doubleUse", sid, "L4 fired more than once per base round / FS session")
                     red_skill_used = True
 
                 pending_skill_after_winInfo = False

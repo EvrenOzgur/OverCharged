@@ -28,6 +28,12 @@ export const PORTRAIT_WELL_SETUP_SCALE = 0.7075084;
 // `y` prop NEGATED (SpineBone does `bone.y = -y`, and spine +y is up), so we
 // pass `y={-PORTRAIT_WELL_LIFT}`.
 export const PORTRAIT_WELL_LIFT = 60;
+// Upward shift of the bg's board WELL in laptop/desktop (landscape), in spine
+// units, via the target_landscape_board bone (see BackgroundLayer). The symbol
+// board follows it through boardCalibration, so both the bg well art and the
+// symbols move together. Larger = higher. Other landscape modes (popout) and
+// portrait are NOT affected — they keep the well at its setup position (y=0).
+export const LANDSCAPE_WELL_LIFT = 64;
 
 // Render scale of the symbol art within its grid cell (1 = fills the cell).
 // <1 shrinks every symbol slightly, leaving a small gap, WITHOUT changing the

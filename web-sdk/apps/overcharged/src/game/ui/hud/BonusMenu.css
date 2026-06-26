@@ -1,0 +1,402 @@
+/* Reset / Overlay */
+.bonus-menu-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1000;
+    pointer-events: auto;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 0.04em;
+    overflow: hidden;
+}
+
+.bonus-menu-scaler {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(100% * var(--inv-scale, 1));
+    height: calc(100% * var(--inv-scale, 1));
+    transform: translate(-50%, -50%) scale(var(--scale, 1));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    transform-origin: center center;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.bonus-menu-scaler > * {
+    pointer-events: auto;
+}
+
+/* Dark Minimal Backdrop */
+.bonus-menu-backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1;
+    border: none;
+    cursor: default;
+    appearance: none;
+}
+
+/* Global Close Button */
+.screen-close-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.screen-close-btn img {
+    width: 32px;
+    height: 32px;
+    transition: transform 0.2s ease;
+}
+
+.screen-close-btn:hover img {
+    transform: scale(1.1);
+}
+
+/* Modal Container (Transparent to let cards float) */
+.bonus-menu-modal {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 1200px;
+    padding: 24px;
+    box-sizing: border-box;
+    flex: 1; /* kalan boşluğu doldurması için */
+    overflow-y: auto; /* Dikey olarak sığmadığında kaydırma sağlaması için */
+    overflow-x: hidden; /* Yatay taşmayı engellemek için eklendi */
+}
+
+.cards-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    justify-content: center;
+    align-items: stretch;
+    margin: auto 0; /* Kartları dikeyde güvenli şekilde ortalamak için */
+}
+
+/* Card Container */
+.bonus-card-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    /* Sadece hover için transform kaldı, width geçişi kaldırıldı */
+}
+
+.bonus-card-container:hover {
+    transform: translateY(-4px);
+}
+
+.bonus-card-container.long-mode {
+    width: 260px;
+    /* Slightly wider in long mode */
+    cursor: default;
+}
+
+.bonus-card-container.long-mode:hover {
+    transform: none;
+    /* remove hover jump in long mode */
+}
+
+/* Header Image (The blue top portion) */
+.card-header-img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    pointer-events: none;
+    /* Let clicks pass through if needed, though we handled it */
+}
+
+/* Card Body (The white bottom portion) */
+.card-body {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 16px 4px 16px;
+    padding-top: 55%;
+    /* Push content down further below the baked-in title */
+    z-index: 1;
+}
+
+/* Title (Removed from HTML, but keep for fallback if needed) */
+.card-title {
+    display: none;
+}
+
+/* Volatility Stars (Short Card Default) */
+.volatility-stars {
+    display: flex;
+    justify-content: center;
+    margin-top: 0px;
+    /* Short card için olan boşluk */
+    margin-bottom: 4px;
+}
+
+/* Volatility Stars (Long Card Override) */
+.long-mode .volatility-stars {
+    margin-top: -15px;
+    /* Long card için olan boşluk */
+    margin-bottom: 15px;
+}
+
+.volatility-stars img {
+    height: 16px;
+    width: auto;
+}
+
+/* Description Text (Long mode) */
+.card-desc {
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    font-weight: 500;
+    color: #000000;
+    text-align: center;
+    line-height: 1.4;
+    margin: 8px 0;
+}
+
+/* Price */
+.card-price {
+    font-size: 30px;
+    /* Increased from 22px to be much larger */
+    font-weight: 900;
+    color: #000000;
+    margin-top: auto;
+    /* Push to bottom before button */
+    padding-bottom: 2px;
+    /* Reduced to bring price closer to button */
+}
+
+/* Button */
+.card-action-btn {
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    /* Keep it slightly inset from the edges */
+    margin-bottom: 0;
+}
+
+.card-action-btn:disabled {
+    cursor: not-allowed;
+}
+
+.card-action-btn img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Text over the button image */
+.card-action-btn .btn-text {
+    position: absolute;
+    color: #ffffff;
+    font-family: 'Impact', sans-serif;
+    /* User confirmed it should be Impact */
+    font-weight: 900;
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    /* Dikey ortalama için (3D butonun altındaki gölge payını hesaba katarak) biraz yukarı alıyoruz */
+    margin-top: -6px;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    /* Let clicks hit the button */
+}
+
+/* For green buttons, the text should be black */
+.card-action-btn .btn-text.text-dark {
+    color: #000000;
+    text-shadow: none;
+    /* Siyah metinde gölgeyi kapatıyoruz ki font farklı görünmesin */
+}
+
+.card-action-btn:active:not(:disabled) .btn-text {
+    transform: translateY(2px);
+    /* tiny press effect */
+}
+
+/* Card Close Button (for Long mode) */
+.card-close-btn {
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 10;
+}
+
+.card-close-btn img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    /* small backdrop so it pops if overlapping */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.card-close-btn:hover img {
+    transform: scale(1.1);
+}
+
+/* Responsive */
+.bonus-menu-overlay.is-mobile .cards-wrapper {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 40px; /* Kontroller artık üstte olduğu için alt boşluğu normale döndürdük */
+}
+
+.bonus-menu-overlay.is-mobile .bonus-menu-modal {
+    padding-top: 20px; /* Mobil ekranlarda kartların kontrollere çok yapışmaması için boşluk */
+    height: 100%;
+    overflow-y: auto;
+    align-items: flex-start;
+    -webkit-overflow-scrolling: touch;
+    /* Mobil (özellikle iOS) cihazlarda ivmeli kaydırma sağlar */
+    touch-action: pan-y;
+    /* Tarayıcıya önceliğin dikey kaydırma olduğunu söyler */
+}
+
+/* Bir karta tıklandığında (long card mode) o kartı ekranın tam ortasına hizalar */
+.bonus-menu-overlay.is-mobile .bonus-menu-modal.single-card-mode {
+    padding-top: 0;
+    align-items: center;
+}
+
+/* Mobilde resimlerin yanlışlıkla sürüklenip (drag-and-drop) kaydırmayı kesmesini engeller */
+.bonus-menu-overlay.is-mobile img {
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+/* YATAY (LANDSCAPE) VE DİKEY (PORTRAIT) EKRAN İÇİN ÜST KONTROLLER */
+.bonus-menu-controls {
+    position: relative;
+    margin-top: 16px;
+    display: flex;
+    gap: 48px;
+    align-items: center;
+    z-index: 10;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 12px 32px;
+    border-radius: 40px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.bm-balance-block,
+.bm-bet-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bm-label {
+    font-size: 14px;
+    color: #ffd700;
+    /* Altın sarısı/Sarı tonu, footer ile uyumlu */
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.bm-amount {
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.bm-bet-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.bm-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s ease;
+}
+
+.bm-btn img {
+    width: 48px;
+    /* 32px'den 48px'e büyütüldü */
+    height: 48px;
+    /* 32px'den 48px'e büyütüldü */
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.bm-btn:hover {
+    transform: scale(1.1);
+}
+
+.bm-btn:active {
+    transform: scale(0.95);
+}
+
+.bm-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Mobil için özel düzenlemeler */
+.bonus-menu-overlay.is-mobile .bonus-menu-controls {
+    width: 90%;
+    max-width: 360px;
+    gap: 16px;
+    justify-content: space-between;
+    padding: 10px 24px;
+    border-radius: 30px;
+}
+
+.bonus-menu-overlay.is-mobile .bm-amount {
+    font-size: 20px;
+}
+
+.bonus-menu-overlay.is-mobile .bm-btn img {
+    width: 40px;
+    height: 40px;
+}

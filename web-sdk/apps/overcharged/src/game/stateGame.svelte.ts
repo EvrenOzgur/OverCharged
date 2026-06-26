@@ -88,6 +88,9 @@ export const stateGame = $state({
 const boardLayout = () => ({
 	// Centre on the canvas, then shift by the measured offset so the grid lands
 	// on the bgCharacters spine's embedded board well (see boardCalibration).
+	// The board well is lifted in laptop/desktop via the target_landscape_board
+	// bone (see BackgroundLayer), and the symbols follow it through this measured
+	// offset — no separate symbol nudge needed.
 	x: stateLayoutDerived.mainLayout().width * 0.5 + boardCalibration.offsetX,
 	y: stateLayoutDerived.mainLayout().height * 0.5 + boardCalibration.offsetY,
 	anchor: { x: 0.5, y: 0.5 },

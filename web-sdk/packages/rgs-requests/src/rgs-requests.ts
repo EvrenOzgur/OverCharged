@@ -69,7 +69,11 @@ export const requestForceResult = async (options: {
 		rgsUrl: options.rgsUrl,
 		url: '/game/search',
 		variables: {
-			mode: options.mode,
+			// The RGS resolves `mode` against the math `index.json` mode names,
+			// which the SDK always emits lowercase ("base"/"bonus"). FE state keeps
+			// the mode uppercase to match DEFAULT_BET_MODE_META, so normalize here
+			// at the wire boundary to avoid a case-sensitive lookup miss.
+			mode: options.mode.toLowerCase(),
 			search: options.search,
 		},
 	});
@@ -121,7 +125,11 @@ export const requestBet = async (options: {
 		rgsUrl: options.rgsUrl,
 		url: '/wallet/play',
 		variables: {
-			mode: options.mode,
+			// The RGS resolves `mode` against the math `index.json` mode names,
+			// which the SDK always emits lowercase ("base"/"bonus"). FE state keeps
+			// the mode uppercase to match DEFAULT_BET_MODE_META, so normalize here
+			// at the wire boundary to avoid a case-sensitive lookup miss.
+			mode: options.mode.toLowerCase(),
 			currency: options.currency,
 			sessionID: options.sessionID,
 			amount: options.amount * API_AMOUNT_MULTIPLIER,
