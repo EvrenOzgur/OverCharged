@@ -11,6 +11,7 @@
     import { stateBet, stateMeta } from "state-shared";
     import { numberToCurrencyString } from "utils-shared/amount";
     import { uiStore } from "../../../shared/stores/uiStore.svelte";
+    import { eventEmitter } from "../../eventEmitter";
 
     interface Props {
         onClose: () => void;
@@ -26,8 +27,16 @@
 
     const mode = $derived(stateMeta.betModeMeta?.[BONUS_KEY]);
     const costMultiplier = $derived(mode?.costMultiplier ?? 100);
-    const costText = $derived(numberToCurrencyString(stateBet.betAmount * costMultiplier));
+    const totalCost = $derived(stateBet.betAmount * costMultiplier);
+    const costText = $derived(numberToCurrencyString(totalCost));
     const title = $derived(mode?.text?.title || "BONUS");
+
+    // Affordability gate: the bonus buy debits bet × costMultiplier (100×) in a
+    // single play. The shared isBetCostAvailable() only sees the BASE (1×) cost
+    // while this menu is open (activeBetModeKey is still BASE), so the buy must
+    // check the full cost itself — otherwise the RGS rejects the play with
+    // ERR_IPB and the player just gets a generic error modal.
+    const affordable = $derived(totalCost <= stateBet.balanceAmount);
 
     let resVal = $derived(uiStore.currentResolution.value);
     let scaleFactor = $derived.by(() => {
@@ -44,9 +53,12 @@
     });
 
     function handleSelectBuy() {
+        if (!affordable) return;
+        eventEmitter.broadcast({ type: "soundPressGeneral" });
         stage = "confirm";
     }
     function handleConfirmBuy() {
+        if (!affordable) return;
         onConfirm();
         onClose();
     }
@@ -94,8 +106,13 @@
                     <p class="bb-line">from your balance</p>
                 {/if}
 
+                {#if !affordable}
+                    <p class="bb-line bb-insufficient">Insufficient balance</p>
+                {/if}
+
                 <button
                     class="bb-buy"
+                    disabled={!affordable}
                     onclick={stage === "select" ? handleSelectBuy : handleConfirmBuy}
                 >
                     <img
@@ -220,6 +237,19 @@
     }
     .bb-buy:active {
         transform: scale(0.97);
+    }
+    .bb-buy:disabled {
+        filter: grayscale(0.9) brightness(0.7);
+        cursor: not-allowed;
+    }
+    .bb-buy:disabled:hover,
+    .bb-buy:disabled:active {
+        transform: none;
+    }
+
+    .bb-insufficient {
+        color: #c0392b;
+        font-weight: bold;
     }
     .bb-buy img {
         width: 100%;

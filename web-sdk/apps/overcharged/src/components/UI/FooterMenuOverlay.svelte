@@ -96,13 +96,13 @@
 
 	const onIncrease = () => {
 		if (!context.stateXstateDerived.isIdle()) return;
-		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		context.eventEmitter.broadcast({ type: 'soundPressStep' });
 		bettingState.increaseBet();
 	};
 
 	const onDecrease = () => {
 		if (!context.stateXstateDerived.isIdle()) return;
-		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		context.eventEmitter.broadcast({ type: 'soundPressStepDown' });
 		bettingState.decreaseBet();
 	};
 
@@ -140,13 +140,34 @@
 		}
 	};
 
-	const onToggleTurbo = () => stateBetDerived.updateIsTurbo(!stateBet.isTurbo, { persistent: true });
+	const onToggleTurbo = () => {
+		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		stateBetDerived.updateIsTurbo(!stateBet.isTurbo, { persistent: true });
+	};
+
+	// TEST/MODE toggle: flips stateGame.skipExplosions. When ON, every spin
+	// auto-skips the symbol explosion animations + the green L2 explosion burst
+	// so the final board is reached fast (see TumbleBoard / Board handlers).
+	const skipExplosions = $derived(context.stateGame.skipExplosions);
+	const onToggleMode = () => {
+		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		context.stateGame.skipExplosions = !context.stateGame.skipExplosions;
+	};
 
 	// Menu → OptionsMenu hub (Info + Sound). Autoplay → AutoSpinMenu picker.
 	// Bonus → BonusBuyMenu cards (select → confirm).
-	const onMenu = () => (menuOpen = true);
-	const onAutoSpinMenu = () => (autoMenuOpen = true);
-	const onBonusBuy = () => (bonusMenuOpen = true);
+	const onMenu = () => {
+		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		menuOpen = true;
+	};
+	const onAutoSpinMenu = () => {
+		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		autoMenuOpen = true;
+	};
+	const onBonusBuy = () => {
+		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		bonusMenuOpen = true;
+	};
 
 	// Final confirm: mirrors the SDK's ModalBuyBonusConfirm — switch to the BONUS
 	// buy mode and place the (100×) bet that enters the feature directly.
@@ -158,8 +179,14 @@
 
 	// OptionsMenu "Info" opens the rich game-rules modal (HOW TO PLAY + PAYTABLE +
 	// special symbols + free spins); "Settings" opens the sound settings modal.
-	const onMenuInfo = () => (stateModal.modal = { name: 'gameRules' });
-	const onMenuSettings = () => (stateModal.modal = { name: 'settings' });
+	const onMenuInfo = () => {
+		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		stateModal.modal = { name: 'gameRules' };
+	};
+	const onMenuSettings = () => {
+		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		stateModal.modal = { name: 'settings' };
+	};
 
 	// AutoSpinMenu's START: the counter/limits are set by autoSpinStore.start();
 	// here we kick off the real loop exactly like the SDK's AutoSpinsStartButton.
@@ -191,6 +218,17 @@
 		{onAutoSpinMenu}
 		{onBonusBuy}
 	/>
+
+	<!-- TEST/MODE toggle — standalone DOM button (asset-free). Skips explosion
+	     animations every spin so QA can reach the result fast. -->
+	<button
+		class="mode-toggle"
+		class:active={skipExplosions}
+		onclick={onToggleMode}
+		title="Patlama animasyonlarını atla (test modu)"
+	>
+		MODE{skipExplosions ? ' ●' : ''}
+	</button>
 </div>
 
 {#if menuOpen}
@@ -215,5 +253,36 @@
 		pointer-events: none;
 		z-index: 50;
 		overflow: hidden;
+	}
+
+	/* TEST/MODE toggle: re-enables pointer events on itself (root is click-through).
+	   Anchored top-left of the game area, out of the way of the footer chrome. */
+	.mode-toggle {
+		position: absolute;
+		top: 8px;
+		left: 8px;
+		pointer-events: auto;
+		padding: 4px 10px;
+		font:
+			700 12px/1 system-ui,
+			sans-serif;
+		letter-spacing: 0.5px;
+		color: #cde6d2;
+		background: rgba(0, 0, 0, 0.55);
+		border: 1px solid rgba(0, 255, 0, 0.35);
+		border-radius: 6px;
+		cursor: pointer;
+		user-select: none;
+	}
+
+	.mode-toggle:hover {
+		border-color: rgba(0, 255, 0, 0.7);
+	}
+
+	.mode-toggle.active {
+		color: #0a0a0a;
+		background: #00d23a;
+		border-color: #00ff00;
+		box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
 	}
 </style>

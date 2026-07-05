@@ -40,6 +40,13 @@
 			});
 		},
 		boardWithAnimateSymbols: async ({ symbolPositions, state = 'win' }) => {
+			// MODE / skipExplosions: bypass the green L2 explosion burst (state==='explosion').
+			// We don't even flip the symbols to 'explosion' — they're overwritten by the
+			// following tumbleBoard/boardSettle anyway, so skipping the state-set avoids a
+			// one-frame explosion flash. Win animations (state==='win') are untouched.
+			const skipExplosion = context.stateGame.skipExplosions && state === 'explosion';
+			if (skipExplosion) return;
+
 			const getPromises = () => {
 				const uniquePositions = _.uniqBy(symbolPositions, (p) => `${p.reel}_${p.row}`);
 				return uniquePositions.map(async (position) => {

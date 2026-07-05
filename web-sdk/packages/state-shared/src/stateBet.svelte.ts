@@ -71,7 +71,11 @@ const isContinuousBet = () => stateBet.autoSpinsCounter > 1 || stateBet.isSpaceH
 const timeScale = () => (stateBet.isTurbo ? 2 : 1);
 const betCostMultiplier = () => {
 	const m = stateBetDerived.activeBetMode();
-	return m?.type === 'activate' ? m.costMultiplier : 1;
+	// Both ante ("activate") and bonus-buy ("buy") modes debit bet × costMultiplier
+	// per play; only "default" base play debits the bet 1:1. Including "buy" keeps
+	// betCost()/isBetCostAvailable()/correctBetAmount() consistent with the RGS
+	// debit so the buy is gated on the full (e.g. 100×) cost, not the base bet.
+	return m?.type === 'activate' || m?.type === 'buy' ? m.costMultiplier : 1;
 };
 const betCost = () => stateBet.betAmount * betCostMultiplier();
 const isBetCostAvailable = () => betCost() > 0 && betCost() <= stateBet.balanceAmount;

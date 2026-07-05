@@ -20,42 +20,49 @@ const INSTALL_FONT_SIZE = 160;
 const INSTALL_RESOLUTION = 2;
 // --------------------------------------------------------------------------
 
-let installed = false;
+let installPromise: Promise<void> | null = null;
 
 /**
  * Ranchers web fontunun yüklenmesini bekler, sonra 'gold' bitmap fontunu kurar.
- * Bir kez çalışır; oyun render edilmeden ÖNCE çağrılmalı (bkz. +layout.svelte).
+ *
+ * Idempotent + AWAIT-EDİLEBİLİR: tekrar çağrılırsa aynı (tek) kurulum promise'ini
+ * döndürür. Böylece çağıranlar kurulumun BİTMESİNİ bekleyebilir — gold metin
+ * ('gold' fontFamily'li BitmapText) render edilmeden önce fontun hazır olması
+ * garanti edilir. (Eski sürüm hemen `installed=true` yapıp erken dönüyordu; bu
+ * yüzden await etmek kurulumu beklemiyor, gold metin fallback fontla çıkıyordu.)
+ * Oyun render edilmeden önce çağrılmalı.
  */
-export async function installGoldBitmapFont(): Promise<void> {
-	if (installed) return;
-	installed = true;
-
-	// Glyph'leri Ranchers ile çizebilmek için fontun tarayıcıda yüklü olması şart.
-	// Yavaş/başarısız yüklemede boot'u kilitlememek için timeout ile yarıştırıyoruz.
-	try {
-		if (typeof document !== 'undefined' && document.fonts?.load) {
-			await Promise.race([
-				document.fonts.load(`${INSTALL_FONT_SIZE}px ranchers`),
-				new Promise((resolve) => setTimeout(resolve, 3000)),
-			]);
+export function installGoldBitmapFont(): Promise<void> {
+	if (installPromise) return installPromise;
+	installPromise = (async () => {
+		// Glyph'leri Ranchers ile çizebilmek için fontun tarayıcıda yüklü olması şart.
+		// Yavaş/başarısız yüklemede boot'u kilitlememek için timeout ile yarıştırıyoruz.
+		try {
+			if (typeof document !== 'undefined' && document.fonts?.load) {
+				await Promise.race([
+					document.fonts.load(`${INSTALL_FONT_SIZE}px ranchers`),
+					new Promise((resolve) => setTimeout(resolve, 3000)),
+				]);
+			}
+		} catch {
+			// yüklenemezse fallback fontla devam — yine de install ederiz
 		}
-	} catch {
-		// yüklenemezse fallback fontla devam — yine de install ederiz
-	}
 
-	const { BitmapFont } = await import('pixi.js');
+		const { BitmapFont } = await import('pixi.js');
 
-	BitmapFont.install({
-		name: 'gold',
-		// Yazdırılabilir ASCII (rakam, $ . , vb.) + çarpan işareti ×
-		chars: [[' ', '~'], '×'],
-		resolution: INSTALL_RESOLUTION,
-		padding: 4,
-		style: {
-			fontFamily: 'ranchers',
-			fontSize: INSTALL_FONT_SIZE,
-			fill: GOLD_FILL,
-			stroke: { color: GOLD_STROKE, width: GOLD_STROKE_WIDTH, join: 'round' },
-		},
-	});
+		BitmapFont.install({
+			name: 'gold',
+			// Yazdırılabilir ASCII (rakam, $ . , vb.) + çarpan işareti ×
+			chars: [[' ', '~'], '×'],
+			resolution: INSTALL_RESOLUTION,
+			padding: 4,
+			style: {
+				fontFamily: 'ranchers',
+				fontSize: INSTALL_FONT_SIZE,
+				fill: GOLD_FILL,
+				stroke: { color: GOLD_STROKE, width: GOLD_STROKE_WIDTH, join: 'round' },
+			},
+		});
+	})();
+	return installPromise;
 }

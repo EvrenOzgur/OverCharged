@@ -16,6 +16,8 @@ export type SoundEffectName =
 	| 'sfx_bigwin_coinloop'
 	| 'sfx_btn_general'
 	| 'sfx_btn_spin'
+	| 'sfx_btn_step'
+	| 'sfx_btn_step_down'
 	| 'sfx_fs_respins'
 	| 'sfx_multiplier_combine_a'
 	| 'sfx_multiplier_combine_b'

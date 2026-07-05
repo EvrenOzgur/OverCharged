@@ -81,6 +81,11 @@
 			context.stateGame.tumbleBoardBase = [];
 		},
 		tumbleBoardExplode: async ({ explodingPositions }) => {
+			// MODE / skipExplosions: still mark exploded symbols (tumbleBoardRemoveExploded
+			// filters on the 'explosion' state to drop them) but DON'T wait out the
+			// per-symbol explosion spine — the removal broadcast runs synchronously right
+			// after this resolves, so the marked symbols are gone before they ever paint.
+			const skip = context.stateGame.skipExplosions;
 			const getPromises = () => {
 				const uniquePositions = _.uniqBy(explodingPositions, (p) => `${p.reel}_${p.row}`);
 				return uniquePositions.map(async (position) => {
@@ -89,6 +94,8 @@
 					if (reel && reel[symbolIndex]) {
 						const tumbleSymbol = reel[symbolIndex];
 						tumbleSymbol.symbolState = 'explosion';
+
+						if (skip) return;
 
 						// Safeguard: Timeout after 3 seconds if animation doesn't complete
 						await Promise.race([

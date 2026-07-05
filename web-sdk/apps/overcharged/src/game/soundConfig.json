@@ -117,6 +117,24 @@
       "group": "ui",
       "enabled": true
     },
+    "sfx_btn_step": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "ui",
+      "enabled": true
+    },
+    "sfx_btn_step_down": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "ui",
+      "enabled": true
+    },
     "sfx_fs_respins": {
       "volume": 1,
       "rate": 1,

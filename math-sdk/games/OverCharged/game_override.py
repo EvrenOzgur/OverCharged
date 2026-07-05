@@ -1,6 +1,7 @@
 import random
 
-from src.events.events import reveal_event, tumble_board_event
+from src.events.events import reveal_event, tumble_board_event, fs_trigger_event
+from src.events.event_constants import EventConstants
 
 from game_executables import GameExecutables
 
@@ -106,6 +107,68 @@ class GameStateOverride(GameExecutables):
     def assign_special_sym_function(self):
         pass
 
+    def _clamped_added_fs(self, scatter_key: str = "scatter") -> int:
+        """Map the active scatter count to its freespin award, clamping to the
+        highest defined trigger tier.
+
+        The base SDK indexes ``freespin_triggers[self.gametype][count]`` directly
+        (executables.update_freespin_amount / update_fs_retrigger_amt). The 8x8
+        board could in theory show more scatters than the trigger dict defines
+        keys for if the reelstrips are ever rebalanced to carry >1 scatter per
+        column, which would raise a KeyError mid-simulation. With the current
+        reels each column carries a single scatter (max 8 == the top key), so
+        this clamp is purely defensive and changes no live behaviour: a 9+
+        scatter board would simply award the same as an 8-scatter board.
+        """
+        triggers = self.config.freespin_triggers[self.gametype]
+        count = self.count_special_symbols(scatter_key)
+        return triggers[min(count, max(triggers.keys()))]
+
+    def update_freespin_amount(self, scatter_key: str = "scatter") -> None:
+        """Set initial number of spins for a freegame (clamped scatter count)."""
+        added_fs = self._clamped_added_fs(scatter_key)
+        self.tot_fs = added_fs
+        if self.gametype == self.config.basegame_type:
+            basegame_trigger, freegame_trigger = True, False
+        else:
+            basegame_trigger, freegame_trigger = False, True
+        fs_trigger_event(
+            self, added_fs=added_fs, basegame_trigger=basegame_trigger, freegame_trigger=freegame_trigger
+        )
+
+    def update_fs_retrigger_amt(self, scatter_key: str = "scatter") -> None:
+        """Update total freespin amount on retrigger (clamped scatter count)."""
+        added_fs = self._clamped_added_fs(scatter_key)
+        self.tot_fs += added_fs
+        fs_trigger_event(self, added_fs=added_fs, freegame_trigger=True, basegame_trigger=False)
+
+    def end_freespin(self) -> None:
+        """Emit the bonus-end "TOTAL WIN" event with the full round total.
+
+        The base SDK's ``freespin_end_event`` reports only
+        ``win_manager.freegame_wins``, which excludes any win on the base spin
+        that triggered the feature. Because the client labels this screen
+        "TOTAL WIN" and credits the full round total (``final_win`` ==
+        ``running_bet_win``) to the balance, showing only the free-game portion
+        made the screen read low whenever the trigger spin also paid — a visible
+        mismatch against the credited balance.
+
+        Report the full round total instead, and round to cents with
+        ``round(... , 0)`` like every other money event (the base helper used a
+        bare ``int()`` truncation that could also drop a cent). ``winLevel`` is
+        derived from the same clamped amount so the presentation tier matches
+        the number shown.
+        """
+        win_amount = min(self.win_manager.running_bet_win, self.config.wincap)
+        self.book.add_event(
+            {
+                "index": len(self.book.events),
+                "type": EventConstants.FREE_SPIN_END.value,
+                "amount": int(round(win_amount * 100, 0)),
+                "winLevel": self.config.get_win_level(win_amount, "endFeature"),
+            }
+        )
+
     def check_repeat(self) -> None:
         """Checks if the spin failed a criteria constraint at any point."""
         if self.repeat is False:
@@ -118,3 +181,11 @@ class GameStateOverride(GameExecutables):
 
             if self.win_manager.running_bet_win == 0 and self.criteria != "0":
                 self.repeat = True
+
+        # Mirror the base Executables.check_repeat tail: keep the running repeat
+        # tally and the periodic "High repeat count" warning. This override
+        # previously dropped both, so a hard-to-hit criteria would re-roll
+        # silently with no console diagnostic. repeat_count feeds only the
+        # warning (not the RNG seed), so restoring it changes no book output.
+        self.repeat_count += 1
+        self.check_current_repeat_count()

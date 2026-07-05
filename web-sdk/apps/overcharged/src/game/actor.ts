@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { stateBet } from 'state-shared';
+import { stateBet, stateBetDerived } from 'state-shared';
 import { checkIsMultipleRevealEvents } from 'utils-book';
 import { createPrimaryMachines, createIntermediateMachines, createGameActor } from 'utils-xstate';
 
@@ -70,6 +70,14 @@ const primaryMachines = createPrimaryMachines<Bet>({
 			`actor.onPlayGame — RGS returned bet: payoutMult=${(bet as { payoutMultiplier?: number }).payoutMultiplier}, events=${bet.state?.length}`,
 		);
 		await playBet(bet);
+		// A bonus "buy" is a one-shot purchase: revert to BASE once the bought
+		// round has fully played out, so the next manual spin is a normal base
+		// bet rather than another 100× buy. The old Pixi ButtonBuyBonus used to
+		// own this reset; it was lost when FooterMenuOverlay replaced that UI.
+		if (stateBetDerived.activeBetMode()?.type === 'buy') {
+			dbg('actor.onPlayGame — buy round complete, reverting activeBetModeKey → BASE');
+			stateBet.activeBetModeKey = 'BASE';
+		}
 	},
 	checkIsBonusGame: (bet) => checkIsMultipleRevealEvents({ bookEvents: bet.state }),
 });

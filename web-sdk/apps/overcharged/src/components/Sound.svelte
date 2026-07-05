@@ -7,6 +7,8 @@
 		| { type: 'soundLoop'; name: SoundEffectName }
 		| { type: 'soundStop'; name: SoundName }
 		| { type: 'soundFade'; name: SoundName; from: number; to: number; duration: number }
+		| { type: 'soundPressStep' }
+		| { type: 'soundPressStepDown' }
 		| { type: 'soundScatterCounterIncrease' }
 		| { type: 'soundScatterCounterClear' };
 </script>
@@ -109,6 +111,16 @@
 		soundPressBet: () => playWithConfig(
 			() => sound.players.once.play({ name: 'sfx_btn_spin' }),
 			'sfx_btn_spin',
+		),
+		// Bet stepping — sharper clicks, distinct from the general UI click.
+		// "+" rises (rev up), "-" falls (pull back).
+		soundPressStep: () => playWithConfig(
+			() => sound.players.once.play({ name: 'sfx_btn_step' }),
+			'sfx_btn_step',
+		),
+		soundPressStepDown: () => playWithConfig(
+			() => sound.players.once.play({ name: 'sfx_btn_step_down' }),
+			'sfx_btn_step_down',
 		),
 		// scatterCounter
 		soundScatterCounterIncrease: () => (context.stateGame.scatterCounter = context.stateGame.scatterCounter + 1), // prettier-ignore
