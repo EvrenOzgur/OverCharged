@@ -15,13 +15,13 @@
 
 	import { BitmapText } from 'pixi-svelte';
 	import { stateBetDerived } from 'state-shared';
-	import { SECOND } from 'constants-shared/time';
 	import { FadeContainer } from 'components-pixi';
 	import { waitForTimeout } from 'utils-shared/wait';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 
 	import { SYMBOL_SIZE } from '../game/constants';
 	import { getContext } from '../game/context';
+	import { timingConfig } from '../game/timingConfig.svelte';
 
 	type Props = { win: Win };
 
@@ -33,25 +33,27 @@
 
 	let showMultiplier = $state(props.win.mult > 1);
 
-	// update showMultiplier
-	onMount(async () => {
-		await waitForTimeout(SECOND / stateBetDerived.timeScale());
-		showMultiplier = false;
-	});
-
-	// update scale
+	// Combine sequence: hold the "WIN X mult" badge, punch-shrink, swap the
+	// text to the final combined amount exactly at the punch's low point (so
+	// the sound + the number change land on the same beat), then punch back.
+	// Single coordinated timeline — previously this was two independent
+	// onMount timers racing each other, which only looked right at 1x speed
+	// because both delays happened to be the same length; under turbo the
+	// un-scaled one drifted, decoupling the sound/scale-punch from the text
+	// swap it was supposed to land on.
 	onMount(async () => {
 		if (showMultiplier) {
-			await waitForTimeout(SECOND);
+			await waitForTimeout(timingConfig.clusterWinAmount.multiplierBadgeHoldMs / stateBetDerived.timeScale());
+			await scale.set(0.1, { duration: timingConfig.clusterWinAmount.combineScaleDownMs / stateBetDerived.timeScale() });
 			context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_combine_a' });
-			await scale.set(0.1, { duration: 200 / stateBetDerived.timeScale() });
-			await scale.set(1, { duration: 200 / stateBetDerived.timeScale() });
+			showMultiplier = false;
+			await scale.set(1, { duration: timingConfig.clusterWinAmount.combineScaleUpMs / stateBetDerived.timeScale() });
 		}
 	});
 
 	// update y
 	onMount(async () => {
-		await y.set(-SYMBOL_SIZE, { duration: (SECOND * 2) / stateBetDerived.timeScale() });
+		await y.set(-SYMBOL_SIZE, { duration: timingConfig.clusterWinAmount.floatUpDurationMs / stateBetDerived.timeScale() });
 		show = false;
 	});
 </script>

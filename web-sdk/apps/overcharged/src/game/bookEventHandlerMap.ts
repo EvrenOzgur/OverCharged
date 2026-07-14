@@ -8,6 +8,7 @@ import { playBookEvent } from './utils';
 import { winLevelMap, type WinLevel, type WinLevelData } from './winLevelMap';
 import { stateGame, stateGameDerived } from './stateGame.svelte';
 import { SKILL_L3_ASSETS } from './skillAssets';
+import { timingConfig } from './timingConfig.svelte';
 import type { BookEvent, BookEventOfType, BookEventContext } from './typesBookEvent';
 import type { Position, SymbolState } from './types';
 
@@ -47,9 +48,37 @@ function waitForSkipOrTimeout(ms: number): Promise<void> {
 // other wait above) — under continuous Space/turbo skip, `skipAnimation`
 // fires every animation frame and would otherwise let two consecutive
 // tumbles resolve back-to-back with no visible gap between them.
-const MIN_TUMBLE_VIEW_MS = 220;
+// Value lives in timingConfig.tumble.minTumbleViewMs (see game/timingConfig.svelte.ts),
+// scaled by turbo's timeScale so the floor shrinks proportionally like every
+// other tumble wait instead of becoming relatively longer under turbo.
 function waitMinTumbleView(): Promise<void> {
-	return new Promise<void>((resolve) => setTimeout(resolve, MIN_TUMBLE_VIEW_MS));
+	return new Promise<void>((resolve) =>
+		setTimeout(resolve, timingConfig.tumble.minTumbleViewMs / stateBetDerived.timeScale()),
+	);
+}
+
+// ─── Deferred global-multiplier tick-up ────────────────────────────────
+// Math emits `multiplierSymbolActivated` (+ a redundant `updateGlobalMult`
+// echo) right after that tumble step's `winInfo`, but BEFORE the matching
+// `tumbleBoard` event that actually explodes/collects that same win — see
+// game_executables.py's `activate_pending_multipliers` docstring: this
+// ordering is deliberate on the math side (the coin's own visual "collect"
+// flip is deferred all the way to `finalMultiplierApplied`, at the very end
+// of the whole tumble sequence, once nothing is left to explode).
+// But the top-right multiplier BADGE ticking up mid-flash, before that
+// win's symbols have even exploded, reads as premature. We keep the math
+// event order untouched (it's already correct/gated on total_win > 0) and
+// instead defer just the front-end's visual tick-up animation to land at
+// the end of THIS tumble step — i.e. once its own `tumbleBoard` explosion +
+// slide-down has settled — rather than the moment the event arrives.
+let pendingGlobalMultiplierUpdate: number | null = null;
+
+async function flushPendingGlobalMultiplierUpdate() {
+	if (pendingGlobalMultiplierUpdate === null) return;
+	const multiplier = pendingGlobalMultiplierUpdate;
+	pendingGlobalMultiplierUpdate = null;
+	eventEmitter.broadcast({ type: 'globalMultiplierShow' });
+	await eventEmitter.broadcastAsync({ type: 'globalMultiplierUpdate', multiplier });
 }
 
 const winLevelSoundsPlay = ({ winLevelData }: { winLevelData: WinLevelData }) => {
@@ -138,27 +167,28 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'soundScatterCounterClear' });
 	},
 	winInfo: async (bookEvent: BookEventOfType<'winInfo'>) => {
-		const promise1 = async () => {
-			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_winlevel_small' });
-			await animateSymbols({ positions: _.flatten(bookEvent.wins.map((win) => win.positions)) });
-		};
-
-		const promise2 = async () => {
-			await eventEmitter.broadcastAsync({
-				type: 'showClusterWinAmounts',
-				wins: bookEvent.wins.map((win) => {
-					return {
-						win: win.meta.winWithoutMult,
-						mult: win.meta.globalMult,
-						result: win.meta.winWithoutMult * win.meta.globalMult,
-						reel: win.meta.overlay.reel,
-						row: win.meta.overlay.row,
-					};
-				}),
-			});
-		};
-
-		await Promise.all([promise1(), promise2()]);
+		// The floating win-amount labels (cluster win numbers combining with the
+		// multiplier, drifting up, fading out) are a separate visual layer from
+		// the board — they don't need to finish before the next tumble starts.
+		// Only the win-state symbol flash (promise1) gates progression, since
+		// tumbleBoard hides that same board layer right after. Not awaiting
+		// promise2 lets win labels keep floating away WHILE the next cascade's
+		// explosion already begins underneath — this is what makes back-to-back
+		// tumbles feel continuous instead of gated by a multi-second win popup.
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_winlevel_small' });
+		eventEmitter.broadcast({
+			type: 'showClusterWinAmounts',
+			wins: bookEvent.wins.map((win) => {
+				return {
+					win: win.meta.winWithoutMult,
+					mult: win.meta.globalMult,
+					result: win.meta.winWithoutMult * win.meta.globalMult,
+					reel: win.meta.overlay.reel,
+					row: win.meta.overlay.row,
+				};
+			}),
+		});
+		await animateSymbols({ positions: _.flatten(bookEvent.wins.map((win) => win.positions)) });
 	},
 	updateTumbleWin: async (bookEvent: BookEventOfType<'updateTumbleWin'>) => {
 		if (bookEvent.amount > 0) {
@@ -270,6 +300,16 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateUi.freeSpinCounterShow = true;
 	},
 	updateGlobalMult: async (bookEvent: BookEventOfType<'updateGlobalMult'>) => {
+		// Math always emits this right after multiplierSymbolActivated with the
+		// identical value (a redundant sync) — that case is already stashed as
+		// a pending tick-up (see flushPendingGlobalMultiplierUpdate above), so
+		// skip re-processing it here to avoid firing the animation early.
+		// Standalone calls (e.g. free-spin start, syncing a carried-over
+		// multiplier) have no preceding tumble to defer to and still apply
+		// immediately, same as before.
+		if (pendingGlobalMultiplierUpdate !== null && bookEvent.globalMult === pendingGlobalMultiplierUpdate) {
+			return;
+		}
 		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
 		if (bookEvent.globalMult === 1) {
 			eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
@@ -283,13 +323,17 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	multiplierSymbolActivated: async (bookEvent: BookEventOfType<'multiplierSymbolActivated'>) => {
 		// DON'T flip the coin here — the "collect" flip is deferred to the end of
 		// the tumble (finalMultiplierApplied), once nothing is left to explode.
-		// The coin stays frozen on its value (set via the reveal look-ahead). Here
-		// we only keep the running multiplier panel ticking.
+		// The coin stays frozen on its value (set via the reveal look-ahead).
+		// The badge's own tick-up animation is ALSO deferred now — stash it and
+		// let `tumbleBoard` flush it once this same tumble step's explosion +
+		// slide-down has settled (see flushPendingGlobalMultiplierUpdate above).
+		// Internal state updates immediately so any other math-driven reads of
+		// stateGame.globalMultiplier stay correct in the meantime — only the
+		// visible animation is delayed (slot_multi_next, which will show the
+		// new value, isn't the visible layer until the increment animation
+		// actually reveals it).
 		stateGame.globalMultiplier = bookEvent.newGlobalMultiplier;
-		await eventEmitter.broadcastAsync({
-			type: 'globalMultiplierUpdate',
-			multiplier: bookEvent.newGlobalMultiplier,
-		});
+		pendingGlobalMultiplierUpdate = bookEvent.newGlobalMultiplier;
 	},
 	freeSpinEnd: async (bookEvent: BookEventOfType<'freeSpinEnd'>) => {
 		const winLevelData = winLevelMap[bookEvent.winLevel as WinLevel];
@@ -337,6 +381,10 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// the TumbleBoard so the layers overlap instead of leaving a gap.
 		eventEmitter.broadcast({ type: 'boardShow' });
 		await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+		// This tumble step has now visually settled — this is "the end of the
+		// tumble" a multiplier symbol from this step should land on, so flush
+		// any pending badge tick-up here (no-op if this step had none).
+		await flushPendingGlobalMultiplierUpdate();
 		// Let the settled board be visible for a beat before the next tumble
 		// starts exploding — see waitMinTumbleView's comment.
 		await waitMinTumbleView();
@@ -415,6 +463,11 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		]);
 	},
 	finalMultiplierApplied: async (bookEvent: BookEventOfType<'finalMultiplierApplied'>) => {
+		// Safety net: every multiplierSymbolActivated is normally flushed by its
+		// own following tumbleBoard (see flushPendingGlobalMultiplierUpdate),
+		// so this should already be null here — flush defensively in case an
+		// edge case (e.g. a wincap short-circuit) skipped that step.
+		await flushPendingGlobalMultiplierUpdate();
 		// 0. Collect the multiplier coins now that the tumble has fully settled
 		// (nothing left to explode): flip every M coin currently on the board
 		// once. We scan the live board (not the activation positions) so cascaded
@@ -453,7 +506,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 
 		// 5. Short wait for player to "feel" the win — skippable via Space,
 		// and shortened under turbo so fast mode actually feels faster.
-		await waitForSkipOrTimeout(800 / stateBetDerived.timeScale());
+		// Value lives in timingConfig.finalMultiplier.postWinHoldMs.
+		await waitForSkipOrTimeout(timingConfig.finalMultiplier.postWinHoldMs / stateBetDerived.timeScale());
 	},
 	// customised
 	createBonusSnapshot: async (bookEvent: BookEventOfType<'createBonusSnapshot'>) => {

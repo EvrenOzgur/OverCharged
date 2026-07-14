@@ -19,6 +19,7 @@
 	import { Tween } from 'svelte/motion';
 	import { quadOut } from 'svelte/easing';
 
+	import { stateBetDerived } from 'state-shared';
 	import { waitForResolve } from 'utils-shared/wait';
 
 	import TumbleBoardBase from './TumbleBoardBase.svelte';
@@ -26,6 +27,7 @@
 	import BoardMask from './BoardMask.svelte';
 	import { getSymbolY } from '../game/utils';
 	import { getContext } from '../game/context';
+	import { timingConfig } from '../game/timingConfig.svelte';
 
 	const context = getContext();
 
@@ -155,7 +157,7 @@
 							const targetY = getSymbolY(symbolIndex - 1); // Refer to initTumbleBoardBase
 							if (targetY === tumbleSymbol.symbolY.current) return Promise.resolve();
 
-							const bounceDuration = 200;
+							const bounceDuration = timingConfig.tumble.slideDownBounceDurationMs / stateBetDerived.timeScale();
 
 							// We await an `oncomplete` resolver, NOT the set-promise directly.
 							// skipAnimation snaps the position with another set({duration:0}),

@@ -36,6 +36,7 @@
 	import { getBoardConfig, editorState } from '../game/uiLayoutConfig.svelte';
 	import { SYMBOL_SIZE } from '../game/constants';
 	import { SKILL_L3_ASSETS } from '../game/skillAssets';
+	import { timingConfig } from '../game/timingConfig.svelte';
 
 	type AnimationName = 'static' | 'win' | 'reset' | 'increment';
 
@@ -79,7 +80,7 @@
 		globalMultiplierUpdate: async (emitterEvent) => {
 			if (emitterEvent.multiplier === 1 && previousMultiplierValue !== 1) {
 				animationName = 'reset';
-				await waitForTimeout(300);
+				await waitForTimeout(timingConfig.globalMultiplier.resetSoundDelayMs / stateBetDerived.timeScale());
 				context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_reset' });
 				previousMultiplier.set(1);
 				previousMultiplierValue = 1;

@@ -18,6 +18,7 @@ process.env.PUBLIC_CHROMATIC = 'true';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const UI_LAYOUT_FILE = path.resolve(HERE, '../src/game/uiLayout.json');
 const SOUND_CONFIG_FILE = path.resolve(HERE, '../src/game/soundConfig.json');
+const TIMING_CONFIG_FILE = path.resolve(HERE, '../src/game/timingConfig.json');
 
 /**
  * Vite plugin: exposes POST /__ui-layout-save which writes the request body
@@ -100,6 +101,46 @@ function soundConfigSavePlugin(): Plugin {
 	};
 }
 
+/**
+ * Vite plugin: exposes POST /__timing-config-save which writes the request body
+ * (validated JSON) to src/game/timingConfig.json. Used by the Storybook Timing
+ * Editor's "Save" button to persist edits to disk.
+ */
+function timingConfigSavePlugin(): Plugin {
+	return {
+		name: 'overcharged-timing-config-save',
+		configureServer(server) {
+			console.log('[timing-config-save] middleware registered →', TIMING_CONFIG_FILE);
+			server.middlewares.use('/__timing-config-save', async (req, res) => {
+				if (req.method === 'GET') {
+					res.statusCode = 200;
+					res.end('timing-config-save endpoint alive');
+					return;
+				}
+				if (req.method !== 'POST') {
+					res.statusCode = 405;
+					res.end('Method Not Allowed');
+					return;
+				}
+				try {
+					const chunks: Buffer[] = [];
+					for await (const chunk of req) chunks.push(chunk as Buffer);
+					const body = Buffer.concat(chunks).toString('utf8');
+					const parsed = JSON.parse(body);
+					const pretty = JSON.stringify(parsed, null, 2) + '\n';
+					await fs.writeFile(TIMING_CONFIG_FILE, pretty, 'utf8');
+					res.statusCode = 200;
+					res.setHeader('Content-Type', 'application/json');
+					res.end(JSON.stringify({ ok: true, path: TIMING_CONFIG_FILE }));
+				} catch (err) {
+					res.statusCode = 400;
+					res.end(String(err));
+				}
+			});
+		},
+	};
+}
+
 const config: StorybookConfig = {
 	...baseConfig,
 	stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|ts|svelte)'],
@@ -108,6 +149,7 @@ const config: StorybookConfig = {
 		viteConfig.plugins = viteConfig.plugins ?? [];
 		viteConfig.plugins.push(uiLayoutSavePlugin());
 		viteConfig.plugins.push(soundConfigSavePlugin());
+		viteConfig.plugins.push(timingConfigSavePlugin());
 		return viteConfig;
 	},
 };

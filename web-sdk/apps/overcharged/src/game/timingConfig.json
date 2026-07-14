@@ -1,0 +1,18 @@
+{
+  "tumble": {
+    "slideDownBounceDurationMs": 200,
+    "minTumbleViewMs": 220
+  },
+  "clusterWinAmount": {
+    "multiplierBadgeHoldMs": 1000,
+    "combineScaleDownMs": 200,
+    "combineScaleUpMs": 200,
+    "floatUpDurationMs": 2000
+  },
+  "globalMultiplier": {
+    "resetSoundDelayMs": 300
+  },
+  "finalMultiplier": {
+    "postWinHoldMs": 800
+  }
+}
