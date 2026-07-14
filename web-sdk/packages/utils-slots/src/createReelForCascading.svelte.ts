@@ -164,7 +164,7 @@ export function createReelForCascading<TRawSymbol extends object, TSymbolState e
 			if (interrupted) {
 				await reelSymbol.symbolY.set(newSymbolY, { duration: 0 });
 				reelSymbol.symbolState = 'land' as TSymbolState;
-				reelOptions.onSymbolLand({ rawSymbol: reelSymbol.rawSymbol });
+				reelOptions.onSymbolLand({ rawSymbol: reelSymbol.rawSymbol, symbolIndexOfBoard: reelSymbol.symbolIndexOfBoard });
 				if (reelSymbol.symbolIndexOfBoard === reelLengthInBoard - 1) {
 					onSpinFinishing();
 				}
@@ -186,7 +186,7 @@ export function createReelForCascading<TRawSymbol extends object, TSymbolState e
 				delay,
 			});
 			reelSymbol.symbolState = 'land' as TSymbolState;
-			reelOptions.onSymbolLand({ rawSymbol: reelSymbol.rawSymbol });
+			reelOptions.onSymbolLand({ rawSymbol: reelSymbol.rawSymbol, symbolIndexOfBoard: reelSymbol.symbolIndexOfBoard });
 			if (reelSymbol.symbolIndexOfBoard === reelLengthInBoard - 1) {
 				onSpinFinishing();
 			}

@@ -2,6 +2,7 @@ import { setContextEventEmitter, getContextEventEmitter } from 'utils-event-emit
 import { setContextXstate, getContextXstate } from 'utils-xstate';
 import { setContextLayout, getContextLayout } from 'utils-layout';
 import { setContextApp, getContextApp } from 'pixi-svelte';
+import { stateSound } from 'state-shared';
 
 import { eventEmitter, type EmitterEvent } from './eventEmitter';
 import { stateXstate, stateXstateDerived } from './stateXstate';
@@ -18,6 +19,12 @@ export const setContext = () => {
 	setContextLayout({ stateLayout, stateLayoutDerived });
 	setContextApp({ stateApp });
 	setupBetModes();
+
+	// OverCharged-only default: background music starts quieter than SFX/master
+	// (still freely adjustable via the Music Volume slider in Settings). Lives
+	// here (not +layout.svelte) so it also applies in Storybook stories, which
+	// call setContext() directly without going through the SvelteKit layout.
+	stateSound.volumeValueMusic = 35;
 };
 
 export const getContext = () => ({

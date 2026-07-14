@@ -119,8 +119,8 @@
 			'sfx_btn_step',
 		),
 		soundPressStepDown: () => playWithConfig(
-			() => sound.players.once.play({ name: 'sfx_btn_step_down' }),
-			'sfx_btn_step_down',
+			() => sound.players.once.play({ name: 'sfx_btn_step' }),
+			'sfx_btn_step',
 		),
 		// scatterCounter
 		soundScatterCounterIncrease: () => (context.stateGame.scatterCounter = context.stateGame.scatterCounter + 1), // prettier-ignore

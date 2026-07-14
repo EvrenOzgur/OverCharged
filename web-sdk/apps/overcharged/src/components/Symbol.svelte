@@ -6,7 +6,6 @@
 	import type { SymbolState, RawSymbol } from '../game/types';
 	import { SYMBOL_SIZE } from '../game/constants';
 	import { getSymbolInfo } from '../game/utils';
-	import { getContext } from '../game/context';
 
 	type Props = {
 		x?: number;
@@ -18,7 +17,6 @@
 	};
 
 	const props: Props = $props();
-	const context = getContext();
 	const symbolInfo = $derived(getSymbolInfo({ rawSymbol: props.rawSymbol, state: props.state }));
 	const isSprite = $derived(symbolInfo.type === 'sprite');
 	const isMultiplierSymbol = $derived(props.rawSymbol.name === 'M');
@@ -34,13 +32,13 @@
 	// pixi-svelte think the prop changed and triggers a Spine track restart
 	// (visible as a micro-flicker / dark flash). Wrap in $derived so the
 	// callback closures pick up the latest props.
+	//
+	// Wilds intentionally have NO dedicated explosion sound: they explode with
+	// the standard symbol/tumble explosion sound (sfx_multiplier_explosion_b,
+	// broadcast once per tumble in bookEventHandlerMap), same as every other
+	// symbol. So we no longer listen for the spine `wildExplode` event.
 	const spineListener = $derived({
 		complete: props.oncomplete,
-		event: (_: unknown, event: { data?: { name?: string } }) => {
-			if (event.data?.name === 'wildExplode') {
-				context.eventEmitter?.broadcast({ type: 'soundOnce', name: 'sfx_wild_explode' });
-			}
-		},
 	});
 
 	// Idle states (static / postWinStatic) MUST loop — otherwise the Spine

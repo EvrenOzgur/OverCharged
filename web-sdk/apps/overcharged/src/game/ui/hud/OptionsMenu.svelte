@@ -2,6 +2,7 @@
     import { fade, scale } from "svelte/transition";
     import { backOut } from "svelte/easing";
     import { uiStore } from "../../../shared/stores/uiStore.svelte";
+    import { eventEmitter } from "../../eventEmitter";
 
     interface Props {
         onClose: () => void;
@@ -12,6 +13,7 @@
     let { onClose, onInfo, onSettings }: Props = $props();
 
     function handleSoundToggle() {
+        eventEmitter.broadcast({ type: "soundPressGeneral" });
         uiStore.toggleSound();
     }
 

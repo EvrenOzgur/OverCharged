@@ -6,7 +6,7 @@
 		reel: number; // 0 | 1 | 2 | 3 | 4 | 5;
 		row: number; // 1 | 2 | 3 | 4 | 5; // excluding the off top row and the off bottom row
 	};
-	export type Win = RawWin & { oncomplete: () => void };
+	export type Win = RawWin & { oncomplete: () => void; collisionOffset?: number };
 </script>
 
 <script lang="ts">
@@ -64,7 +64,9 @@
 >
 	<BitmapText
 		x={SYMBOL_SIZE * (props.win.reel + 0.5)}
-		y={SYMBOL_SIZE * (props.win.row - 0.5) + y.current}
+		y={SYMBOL_SIZE * (props.win.row - 0.5) +
+			y.current -
+			(props.win.collisionOffset ?? 0) * SYMBOL_SIZE * 0.55}
 		scale={scale.current}
 		text={showMultiplier
 			? `${bookEventAmountToCurrencyString(props.win.win)} X ${props.win.mult}`

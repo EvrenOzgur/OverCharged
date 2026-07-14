@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { recordBookEvent, checkIsMultipleRevealEvents, type BookEventHandlerMap } from 'utils-book';
-import { stateBet, stateBetDerived } from 'state-shared';
+import { stateBet, stateBetDerived, stateUi } from 'state-shared';
 
 import { eventEmitter } from './eventEmitter';
 import { playBookEvent } from './utils';
@@ -42,6 +42,16 @@ function waitForSkipOrTimeout(ms: number): Promise<void> {
 	});
 }
 
+// Minimum time the settled board must stay visible after a tumble, before the
+// next tumble's explosion starts. Deliberately NOT skip-aware (unlike every
+// other wait above) — under continuous Space/turbo skip, `skipAnimation`
+// fires every animation frame and would otherwise let two consecutive
+// tumbles resolve back-to-back with no visible gap between them.
+const MIN_TUMBLE_VIEW_MS = 220;
+function waitMinTumbleView(): Promise<void> {
+	return new Promise<void>((resolve) => setTimeout(resolve, MIN_TUMBLE_VIEW_MS));
+}
+
 const winLevelSoundsPlay = ({ winLevelData }: { winLevelData: WinLevelData }) => {
 	if (winLevelData?.alias === 'max') eventEmitter.broadcastAsync({ type: 'uiHide' });
 	if (winLevelData?.sound?.sfx) {
@@ -50,13 +60,13 @@ const winLevelSoundsPlay = ({ winLevelData }: { winLevelData: WinLevelData }) =>
 	if (winLevelData?.sound?.bgm) {
 		eventEmitter.broadcast({ type: 'soundMusic', name: winLevelData.sound.bgm });
 	}
-	if (winLevelData?.type === 'big') {
-		eventEmitter.broadcast({ type: 'soundLoop', name: 'sfx_bigwin_coinloop' });
-	}
+	// sfx_bigwin_coinloop used to loop here for every big-win-type screen, but it
+	// overlapped with sfx_coincount_loop (Win.svelte's count-up loop, wired for
+	// the same screens) — coincount now owns that role, timed to the actual
+	// count-up instead of the whole win presentation.
 };
 
 const winLevelSoundsStop = () => {
-	eventEmitter.broadcast({ type: 'soundStop', name: 'sfx_bigwin_coinloop' });
 	if (stateBet.activeBetModeKey === 'SUPERSPIN' || stateGame.gameType === 'freegame') {
 		// check if SUPERSPIN, when finishing a bet.
 		eventEmitter.broadcast({ type: 'soundMusic', name: 'bgm_freespin' });
@@ -168,7 +178,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
 		await animateSymbols({ positions: bookEvent.positions });
 		// show free spin intro
-		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_superfreespin' });
+		// sfx_superfreespin used to play here, back-to-back with jng_intro_fs
+		// (transition1) a moment later — overlapping jingles. jng_intro_fs now
+		// owns the whole "entering bonus" transition sound alone.
 		await eventEmitter.broadcastAsync({ type: 'uiHide' });
 		await eventEmitter.broadcastAsync({ type: 'transition' });
 		eventEmitter.broadcast({ type: 'freeSpinIntroShow' });
@@ -197,6 +209,10 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			current: undefined,
 			total: bookEvent.totalFs,
 		});
+		// Drives the footer HUD's bonus bar (TOTAL WIN / FREE SPINS N of M).
+		stateUi.freeSpinCounterCurrent = 0;
+		stateUi.freeSpinCounterTotal = bookEvent.totalFs;
+		stateUi.freeSpinCounterShow = true;
 		await eventEmitter.broadcastAsync({ type: 'uiShow' });
 		await eventEmitter.broadcastAsync({ type: 'drawerButtonShow' });
 		eventEmitter.broadcast({ type: 'drawerFold' });
@@ -206,7 +222,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
 		await animateSymbols({ positions: bookEvent.positions });
 		// show free spin intro
-		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_superfreespin' });
+		// sfx_superfreespin used to play here, back-to-back with jng_intro_fs
+		// (transition1) a moment later — overlapping jingles. jng_intro_fs now
+		// owns the whole "entering bonus" transition sound alone.
 		await eventEmitter.broadcastAsync({ type: 'uiHide' });
 		await eventEmitter.broadcastAsync({ type: 'transition' });
 		eventEmitter.broadcast({ type: 'freeSpinIntroShow' });
@@ -234,6 +252,10 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			current: undefined,
 			total: bookEvent.totalFs,
 		});
+		// Retrigger keeps progress — only the total grows, mirroring the math's
+		// meter-retention behaviour above.
+		stateUi.freeSpinCounterTotal = bookEvent.totalFs;
+		stateUi.freeSpinCounterShow = true;
 		await eventEmitter.broadcastAsync({ type: 'uiShow' });
 	},
 	updateFreeSpin: async (bookEvent: BookEventOfType<'updateFreeSpin'>) => {
@@ -243,6 +265,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			current: bookEvent.amount,
 			total: bookEvent.total,
 		});
+		stateUi.freeSpinCounterCurrent = bookEvent.amount;
+		stateUi.freeSpinCounterTotal = bookEvent.total;
+		stateUi.freeSpinCounterShow = true;
 	},
 	updateGlobalMult: async (bookEvent: BookEventOfType<'updateGlobalMult'>) => {
 		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
@@ -283,6 +308,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		winLevelSoundsStop();
 		eventEmitter.broadcast({ type: 'freeSpinOutroHide' });
 		eventEmitter.broadcast({ type: 'freeSpinCounterHide' });
+		stateUi.freeSpinCounterShow = false;
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
 		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
 		await eventEmitter.broadcastAsync({ type: 'transition' });
@@ -311,6 +337,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// the TumbleBoard so the layers overlap instead of leaving a gap.
 		eventEmitter.broadcast({ type: 'boardShow' });
 		await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+		// Let the settled board be visible for a beat before the next tumble
+		// starts exploding — see waitMinTumbleView's comment.
+		await waitMinTumbleView();
 		eventEmitter.broadcast({ type: 'tumbleBoardHide' });
 		eventEmitter.broadcast({ type: 'tumbleBoardReset' });
 	},
@@ -358,13 +387,13 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	skillActivated: async (bookEvent: BookEventOfType<'skillActivated'>) => {
 		// 1. Play sound
 		const sfxMap: Record<string, string> = {
-			L1: 'sfx_wild_spawn', // Yellow Wilds
-			L2: 'sfx_multiplier_explosion_b', // Green Explode
+			L1: 'sfx_skill_activation',
+			L2: 'sfx_skill_activation',
 			// L3 uses the dedicated skill asset bucket — change the SFX in
 			// `skillAssets.ts` to retarget just the L3 skill path without
 			// affecting M-symbol multiplier activation sounds.
 			L3: SKILL_L3_ASSETS.sfx,
-			L4: 'sfx_bigwin_coinloop', // Red Mega Wild (placeholder)
+			L4: 'sfx_skill_activation',
 		};
 		if (sfxMap[bookEvent.skillType]) {
 			eventEmitter.broadcast({ type: 'soundOnce', name: sfxMap[bookEvent.skillType] });
@@ -399,7 +428,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			});
 		});
 		if (multiplierPositions.length) {
-			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_levelup' });
+			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_win' });
 			await animateSymbols({ positions: multiplierPositions, state: 'win' });
 		}
 

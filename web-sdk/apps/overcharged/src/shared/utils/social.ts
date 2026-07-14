@@ -1,7 +1,11 @@
 // Bridge shim for the FooterMenuPackage's `s()` helper.
-// In the source game `s(realText, socialText)` swaps wording for social-casino
-// builds. OverCharged is a real-money build, so we always return the first
-// variant. Centralised here so a future social build only edits one place.
-export function s(realText: string, _socialText?: string): string {
-	return realText;
+// `s(realText, socialText)` swaps wording for social-casino (stake.us) builds,
+// per Stake's jurisdiction requirements (restricted gambling terms like
+// "bet"/"buy"/"wager" must not appear when the RGS reports socialCasino).
+// stateConfig.jurisdiction is populated from /wallet/authenticate before the
+// game UI mounts (see Authenticate.svelte), so this is safe to read eagerly.
+import { stateConfig } from 'state-shared';
+
+export function s(realText: string, socialText?: string): string {
+	return stateConfig.jurisdiction?.socialCasino ? (socialText ?? realText) : realText;
 }

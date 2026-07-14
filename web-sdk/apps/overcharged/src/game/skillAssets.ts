@@ -8,7 +8,7 @@ import type { SoundName } from './sound';
 // `bookEventHandlerMap.multiplierSymbolActivated` or the default branch
 // of `GlobalMultiplier.globalMultiplierUpdate`.
 export const SKILL_L3_ASSETS = {
-	sfx: 'sfx_multiplier_levelup' as SoundName,
+	sfx: 'sfx_skill_activation' as SoundName,
 	// Animation name that GlobalMultiplier's Spine track plays when the
 	// multiplier change originates from an L3 skill trigger.
 	multiplierAnimation: 'increment' as const,

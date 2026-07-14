@@ -3,6 +3,7 @@
     import { backOut } from "svelte/easing";
     import { autoSpinStore } from "../../../shared/stores/autoSpinStore.svelte";
     import { uiStore } from "../../../shared/stores/uiStore.svelte";
+    import { eventEmitter } from "../../eventEmitter";
 
     interface Props {
         onClose: () => void;
@@ -20,6 +21,11 @@
     function getCountStr(count: number) {
         if (count === -1) return "infinity";
         return count.toString();
+    }
+
+    function handleSelectCount(count: number) {
+        eventEmitter.broadcast({ type: "soundPressGeneral" });
+        selectedCount = count;
     }
 
     function handleStart() {
@@ -108,7 +114,7 @@
                             <button
                                 class="preset-btn"
                                 class:selected={selectedCount === count}
-                                onclick={() => (selectedCount = count)}
+                                onclick={() => handleSelectCount(count)}
                             >
                                 <img
                                     class="default"
@@ -170,7 +176,7 @@
                             <button
                                 class="preset-btn"
                                 class:selected={selectedCount === count}
-                                onclick={() => (selectedCount = count)}
+                                onclick={() => handleSelectCount(count)}
                             >
                                 <img
                                     class="default"

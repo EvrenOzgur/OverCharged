@@ -1,4 +1,5 @@
 import { stateMeta, type BetModeMeta } from 'state-shared';
+import { s } from '../shared/utils/social';
 
 // OverCharged only ships two bet modes: the default base game and a single
 // FREE SPINS bonus buy (see mathConfig.json `betModes`). The shared
@@ -43,20 +44,39 @@ const OVERCHARGED_BET_MODE_META: BetModeMeta = {
 			dialogImage:
 				'https://test-fart-cdn-bucket.s3.ap-southeast-2.amazonaws.com/1_9_97/betModes/bonus_image.webp',
 			dialogVolatility:
-				'https://test-fart-cdn-bucket.s3.ap-southeast-2.amazonaws.com/1_9_97/betModes/volatility/volatility_04.webp',
+				'https://test-fart-cdn-bucket.s3.ap-southeast-2.amazonaws.com/1_9_97/betModes/volatility/volatility_03.webp',
 			volatility:
-				'https://test-fart-cdn-bucket.s3.ap-southeast-2.amazonaws.com/1_9_97/betModes/volatility/volatility_white_04.webp',
+				'https://test-fart-cdn-bucket.s3.ap-southeast-2.amazonaws.com/1_9_97/betModes/volatility/volatility_white_03.webp',
 			button:
 				'https://test-fart-cdn-bucket.s3.ap-southeast-2.amazonaws.com/1_8_97/betModes/button_buy.webp',
 		},
 		text: {
 			title: 'BONUS',
-			dialog:
-				'Triggers FREE SPINS feature when activated for 100x the player bet amount.',
-			description: 'Buy FREE SPINS and jump straight into the bonus round.',
-			button: 'BUY',
-			tickerIdle: 'PLACE YOUR BET',
-			tickerSpin: 'BONUS BUY ACTIVATED',
+			// Not currently rendered by OverCharged's own UI (BonusBuyMenu.svelte
+			// uses its own hardcoded card copy), but kept jurisdiction-compliant
+			// via getters — evaluated lazily on read, after stateConfig.jurisdiction
+			// is populated from /wallet/authenticate, in case anything reads these.
+			get dialog() {
+				return s(
+					'Triggers FREE SPINS feature when activated for 100x the player bet amount.',
+					'Triggers FREE SPINS feature when activated for 100x the player play amount.',
+				);
+			},
+			get description() {
+				return s(
+					'Buy FREE SPINS and jump straight into the bonus round.',
+					'Play FREE SPINS and jump straight into the bonus round.',
+				);
+			},
+			get button() {
+				return s('BUY', 'PLAY');
+			},
+			get tickerIdle() {
+				return s('PLACE YOUR BET', 'COME AND PLAY');
+			},
+			get tickerSpin() {
+				return s('BONUS BUY ACTIVATED', 'BONUS ACTIVATED');
+			},
 			bannerText: '',
 		},
 	},

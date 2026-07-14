@@ -42,14 +42,15 @@
 	// a real round animates. Storybook has no RGS, so instead we replay a local
 	// recorded book — the reels spin/stop and every event sound plays, no RGS.
 	let testSpinning = $state(false);
-	const runBook = async (books: any[]) => {
+	const runBook = async (books: any[], index?: number) => {
 		if (testSpinning) return;
 		testSpinning = true;
 		try {
 			// Ensure the 'gold' bitmap font is fully installed before win/tumble
 			// text renders — otherwise BitmapText falls back to a wrong font.
 			await installGoldBitmapFont();
-			const data = books[randomInteger({ min: 0, max: books.length - 1 })];
+			const i = index ?? randomInteger({ min: 0, max: books.length - 1 });
+			const data = books[i];
 			await playBet({ ...data, state: data.events });
 		} catch (err) {
 			console.error('[SoundEditor] test spin failed', err);
@@ -65,6 +66,10 @@
 		<span class="sts-label">TEST SPIN</span>
 		<button disabled={testSpinning} onclick={() => runBook(baseBooks)}>▶ Base</button>
 		<button disabled={testSpinning} onclick={() => runBook(bonusBooks)}>▶ Bonus</button>
+		<!-- bonus #48: wilds drop naturally into tumbles → sfx_multiplier_landing -->
+		<button disabled={testSpinning} onclick={() => runBook(bonusBooks, 48)}>▶ Wild Drop</button>
+		<!-- base #50: L1 skill (Yellow Wild) → sfx_wild_spawn -->
+		<button disabled={testSpinning} onclick={() => runBook(baseBooks, 50)}>▶ Skill Wild</button>
 	</div>
 
 	<!-- Host: keyboard shortcuts, lifecycle (always active) -->

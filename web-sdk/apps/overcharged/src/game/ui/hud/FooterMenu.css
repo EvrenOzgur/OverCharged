@@ -6,7 +6,7 @@
     transform: translateX(-50%) scale(var(--scale));
     transform-origin: bottom center;
     z-index: 100;
-    font-family: 'Impact', sans-serif;
+    font-family: 'ranchers', sans-serif;
     letter-spacing: 0.04em;
     pointer-events: none;
     /* Let empty space be click-through */
@@ -34,6 +34,12 @@
     justify-content: center;
     position: relative;
     /* ::after hitbox'u için gerekli */
+    outline: none;
+}
+
+.btn:focus,
+.btn:focus-visible {
+    outline: none;
 }
 
 /* Gerçek resim tıklamaları engellemesin */
@@ -281,127 +287,29 @@
 }
 
 /* --- FREESPIN HUD (LANDSCAPE) --- */
+/* Only the turbo button lives here now — TOTAL WIN moved into .middle-part
+   (the same centered slot LAST WIN normally uses) and FREE SPINS was
+   dropped (already shown by the board-side FreeSpinCounter panel). */
 .freespin-hud {
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    /* Asla alt alta inmesinler! */
     align-items: center;
     position: absolute;
-
-    /* Siyah arka planın tam içine, sağ kenara yerleştirir */
     right: 15px;
-    gap: 10px;
-    /* Paneller ile turbo butonu arasındaki boşluk */
-
-    /* İKİNCİ GÖRSELDEKİ GİBİ HER ŞEYİ KÜÇÜLTÜP SİYAH ŞERİDE SIĞDIRMAK İÇİN:
-       Tüm HUD'u (hem paneller hem turbo) tek bir merkezden küçültüyoruz. */
     top: 50%;
-    transform: translateY(-50%) scale(0.55);
-    transform-origin: right center;
-}
-
-.freespin-panels {
-    display: flex;
-    flex-direction: column;
-    /* Alt alta */
-    align-items: center;
-    /* İkinci görseldeki gibi kutuları birbirine yapıştırmak için eksi değer: */
-    gap: 0;
-    z-index: 5;
-    /* Yatay modda boyutu büyütüldü */
-    transform: scale(1.5);
-    transform-origin: right center;
-    /* Panelleri dikeyde biraz yukarı almak için negatif margin eklendi. Gerekirse bu değeri değiştirebilirsiniz. */
-    margin-top: -10px;
-}
-
-.fs-panel {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.total-win-panel {
-    /* Sadece Total Win panelini biraz yukarı çekmek için */
-    transform: translateY(-6px);
-}
-
-.spin-count-panel {
-    /* İki kutuyu birbirine daha da yaklaştırmak ve yapıştırmak için negatif margin */
-    margin-top: -5px;
-}
-
-.fs-bg {
-    display: block;
-    max-width: 100%;
-}
-
-.fs-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    text-shadow: none;
-    /* Text in these white boxes usually has no shadow */
-}
-
-.fs-content.horizontal {
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 0 25px;
-    /* Increase padding so text is not touching edges */
-    box-sizing: border-box;
-}
-
-.fs-label {
-    font-size: 20px;
-    font-weight: 800;
-    line-height: 1;
-    white-space: nowrap;
-    /* Yazının alt satıra geçip basıklaşmasını engeller */
-}
-
-.fs-label.orange {
-    color: #FD9F1C;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-    /* Slight shadow to pop on white */
-}
-
-.fs-label.black {
-    color: #000;
-}
-
-.fs-value {
-    font-size: 28px;
-    font-weight: 900;
-    line-height: 1.1;
-    white-space: nowrap;
-}
-
-.fs-value.black {
-    color: #000;
-}
-
-.fs-value.black-small {
-    color: #000;
-    font-size: 24px;
+    transform: translateY(-50%);
 }
 
 .freespin-hud .fs-turbo {
     position: relative;
-    /* Artık dışarı taşmayacak, flex içinde duracak */
-    /* Ölçeklendirmeyi ana container yapıyor */
-    /* Flexbox height sorununu aşmak için margin yerine doğrudan görseli translateY ile kaydırıyoruz */
-    transform: scale(1.5) translateY(6px);
-    margin: 0;
     z-index: 5;
+}
+
+/* Same specificity (3 classes) as .landscape-ui .btn.turbo-btn so this wins
+   the cascade (it's declared later): that rule's -20px margin-top was tuned
+   for the normal auto+turbo vertical stack; alone in this flex row it just
+   pushes the icon up off true center, so cancel it here. */
+.freespin-hud .btn.fs-turbo {
+    margin-top: 0;
 }
 
 /* --- PORTRAIT --- */
@@ -642,16 +550,4 @@
     font-size: 20px;
 }
 
-/* --- FREESPIN PORTRAIT HUD --- */
-.freespin-panels-portrait {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    z-index: 5;
-    /* Make it pop out of the footer in portrait */
-    transform: scale(0.85);
-    /* Dikey ortalama ayarı */
-    margin-top: 0px;
-}
+/* freespin-panels-portrait removed: TOTAL WIN moved into .last-win-block */

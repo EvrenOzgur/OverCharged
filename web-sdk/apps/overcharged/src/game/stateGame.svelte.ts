@@ -21,7 +21,24 @@ import {
 	SCATTER_LAND_SOUND_MAP,
 } from './constants';
 
-const onSymbolLand = ({ rawSymbol }: { rawSymbol: RawSymbol }) => {
+const onSymbolLand = ({
+	rawSymbol,
+	symbolIndexOfBoard,
+}: {
+	rawSymbol: RawSymbol;
+	symbolIndexOfBoard?: number;
+}) => {
+	// The reel fires onSymbolLand for EVERY raw symbol, including the off-screen
+	// padding rows (top = -1, bottom = BOARD_DIMENSIONS.y). Those must not play
+	// landing sounds or bump the scatter counter — only visible rows count.
+	// (The tumble path already gates padding itself and passes no index → skip.)
+	if (
+		symbolIndexOfBoard !== undefined &&
+		(symbolIndexOfBoard < 0 || symbolIndexOfBoard >= BOARD_DIMENSIONS.y)
+	) {
+		return;
+	}
+
 	if (rawSymbol.name === 'S') {
 		eventEmitter.broadcast({ type: 'soundScatterCounterIncrease' });
 		eventEmitter.broadcast({

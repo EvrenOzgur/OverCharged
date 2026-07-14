@@ -11,7 +11,7 @@
     },
     "bgm_freespin": {
       "volume": 1,
-      "rate": 1,
+      "rate": 1.05,
       "fadeIn": 0,
       "fadeOut": 0,
       "delay": 0,
@@ -25,7 +25,7 @@
       "fadeOut": 0,
       "delay": 0,
       "group": "music",
-      "enabled": true
+      "enabled": false
     },
     "bgm_winlevel_epic": {
       "volume": 1,
@@ -34,7 +34,7 @@
       "fadeOut": 0,
       "delay": 0,
       "group": "music",
-      "enabled": true
+      "enabled": false
     },
     "bgm_winlevel_max": {
       "volume": 1,
@@ -43,7 +43,7 @@
       "fadeOut": 0,
       "delay": 0,
       "group": "music",
-      "enabled": true
+      "enabled": false
     },
     "bgm_winlevel_mega": {
       "volume": 1,
@@ -52,7 +52,7 @@
       "fadeOut": 0,
       "delay": 0,
       "group": "music",
-      "enabled": true
+      "enabled": false
     },
     "bgm_winlevel_superwin": {
       "volume": 1,
@@ -61,7 +61,7 @@
       "fadeOut": 0,
       "delay": 0,
       "group": "music",
-      "enabled": true
+      "enabled": false
     },
     "jng_intro_fs": {
       "volume": 1,
@@ -133,6 +133,24 @@
       "fadeOut": 0,
       "delay": 0,
       "group": "ui",
+      "enabled": true
+    },
+    "sfx_coincount_end": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
+      "enabled": true
+    },
+    "sfx_coincount_loop": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "win",
       "enabled": true
     },
     "sfx_fs_respins": {
@@ -360,6 +378,15 @@
       "group": "win",
       "enabled": true
     },
+    "sfx_skill_activation": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "multiplier",
+      "enabled": true
+    },
     "sfx_superfreespin": {
       "volume": 1,
       "rate": 1,
@@ -379,6 +406,15 @@
       "enabled": true
     },
     "sfx_wild_explode": {
+      "volume": 1,
+      "rate": 1,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "delay": 0,
+      "group": "reel",
+      "enabled": true
+    },
+    "sfx_wild_spawn": {
       "volume": 1,
       "rate": 1,
       "fadeIn": 0,
@@ -527,12 +563,6 @@
     "freeSpinIntroShow": [
       {
         "soundName": "jng_intro_fs",
-        "playType": "once"
-      }
-    ],
-    "globalMultiplierUpdate": [
-      {
-        "soundName": "sfx_multiplier_update",
         "playType": "once"
       }
     ]

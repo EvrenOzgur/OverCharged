@@ -19,7 +19,15 @@
 
 	context.eventEmitter.subscribeOnMount({
 		showClusterWinAmounts: async (emitterEvent) => {
-			wins = emitterEvent.wins.map((rawWin) => ({ ...rawWin, oncomplete: () => {} }));
+			// Wins whose cluster centroid rounds to the same board cell would
+			// otherwise render exactly on top of each other; stagger duplicates.
+			const cellCounts = new Map<string, number>();
+			wins = emitterEvent.wins.map((rawWin) => {
+				const cellKey = `${rawWin.reel},${rawWin.row}`;
+				const collisionOffset = cellCounts.get(cellKey) ?? 0;
+				cellCounts.set(cellKey, collisionOffset + 1);
+				return { ...rawWin, collisionOffset, oncomplete: () => {} };
+			});
 			const gerPromises = () =>
 				wins.map(async (win) => {
 					await waitForResolve((resolve) => (win.oncomplete = resolve));

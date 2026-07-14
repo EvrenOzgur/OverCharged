@@ -8,10 +8,11 @@
      */
     import { fade, scale } from "svelte/transition";
     import { cubicIn, cubicOut } from "svelte/easing";
-    import { stateBet, stateMeta } from "state-shared";
+    import { stateBet, stateConfig, stateMeta } from "state-shared";
     import { numberToCurrencyString } from "utils-shared/amount";
     import { uiStore } from "../../../shared/stores/uiStore.svelte";
     import { eventEmitter } from "../../eventEmitter";
+    import { s } from "../../../shared/utils/social";
 
     interface Props {
         onClose: () => void;
@@ -22,7 +23,7 @@
     let stage = $state<"select" | "confirm">("select");
 
     const BONUS_KEY = "BONUS";
-    const VOLATILITY = 5; // max — OverCharged ships a single (max) volatility
+    const VOLATILITY = 3; // medium, per math config
     const assetPath = "./assets/BonusBuyPage";
 
     const mode = $derived(stateMeta.betModeMeta?.[BONUS_KEY]);
@@ -38,13 +39,20 @@
     // ERR_IPB and the player just gets a generic error modal.
     const affordable = $derived(totalCost <= stateBet.balanceAmount);
 
+    // Social-casino (stake.us) builds must not show "BUY" — the card art has
+    // dedicated btn_play_* assets for this, alongside the real-money btn_buy_*.
+    const buyBtnPrefix = $derived(stateConfig.jurisdiction?.socialCasino ? "btn_play" : "btn_buy");
+
     let resVal = $derived(uiStore.currentResolution.value);
     let scaleFactor = $derived.by(() => {
         switch (resVal) {
             case "desktop": return 1.0;
             case "laptop": return 0.9;
             case "popoutL": return 0.75;
-            case "popoutS": return 0.5;
+            // popoutS is a tiny 400×225 viewport; the "confirm" card (341×473)
+            // is taller than that even at 0.5x (236px), so it overflowed the
+            // bottom. 0.4x keeps the tallest card (~189px) comfortably inside.
+            case "popoutS": return 0.4;
             case "mobileL": return 1.0;
             case "mobileM": return 0.9;
             case "mobileS": return 0.8;
@@ -116,8 +124,8 @@
                     onclick={stage === "select" ? handleSelectBuy : handleConfirmBuy}
                 >
                     <img
-                        src="{assetPath}/{stage === 'select' ? 'btn_buy_small' : 'btn_buy_big'}.png"
-                        alt="Buy"
+                        src="{assetPath}/{buyBtnPrefix}_{stage === 'select' ? 'small' : 'big'}.png"
+                        alt={s("Buy", "Play")}
                     />
                 </button>
             </div>

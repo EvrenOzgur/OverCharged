@@ -25,7 +25,7 @@ class GameConfig(Config):
         self.working_name = "OverCharged"
         self.wincap = 5000.0
         self.win_type = "cluster"
-        self.rtp = 0.9700
+        self.rtp = 0.9500
 
         # Skill System Configurations
         self.skill_thresholds = {
@@ -149,8 +149,22 @@ class GameConfig(Config):
                 is_buybonus=False,
                 distributions=[
                     Distribution(
+                        criteria="wincap",
+                        quota=0.001,
+                        win_criteria=self.wincap,
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"WCAP": 1},
+                            },
+                            "scatter_triggers": {3: 5, 4: 1},
+                            "force_wincap": True,
+                            "force_freegame": True,
+                        },
+                    ),
+                    Distribution(
                         criteria="freegame",
-                        quota=0.003,
+                        quota=0.002,
                         conditions={
                             "reel_weights": {
                                 self.basegame_type: {"BR0": 1},

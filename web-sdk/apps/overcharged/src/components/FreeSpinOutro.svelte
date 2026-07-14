@@ -49,7 +49,6 @@
 <FadeContainer {show}>
 	{#if winLevelData}
 		{@const duration = winLevelData.presentDuration}
-		{@const isBigWin = winLevelData.type === 'big'}
 		<WinCountUpProvider {amount} {duration} oncomplete={() => onCountUpComplete()}>
 			{#snippet children({ countUpAmount, startCountUp, finishCountUp, countUpCompleted })}
 				<OnMount onmount={() => startCountUp()} />
@@ -58,51 +57,38 @@
 
 				<FreeSpinAnimation>
 					{#snippet children({ sizes })}
-						<!-- Header — FreeSpinIntro ile aynı düzen: büyük kazançta altın
-						     "CONGRATULATIONS!" + beyaz "YOU WON"; küçük kazançta beyaz "WIN". -->
-						{#if isBigWin}
-							<Container y={-sizes.width * 0.66}>
-								<BitmapText
-									anchor={{ x: 0.5, y: 0.5 }}
-									text={stateI18nDerived.translate('CONGRATULATIONS!')}
-									style={{
-										fontFamily: 'gold',
-										fontSize: sizes.width * 0.2,
-										fontWeight: 'bold',
-									}}
-								/>
-							</Container>
-							<Container y={-sizes.width * 0.38}>
-								<Text
-									anchor={{ x: 0.5, y: 0.5 }}
-									text={stateI18nDerived.translate('YOU WON')}
-									style={{
-										fontFamily: 'ranchers',
-										fontSize: sizes.width * 0.14,
-										fill: 0xffffff,
-										stroke: { color: 0x000000, width: 5 },
-										align: 'center',
-									}}
-								/>
-							</Container>
-						{:else}
-							<Container y={-sizes.width * 0.5}>
-								<Text
-									anchor={{ x: 0.5, y: 0.5 }}
-									text={stateI18nDerived.translate('WIN')}
-									style={{
-										fontFamily: 'ranchers',
-										fontSize: sizes.width * 0.2,
-										fill: 0xffffff,
-										stroke: { color: 0x000000, width: 6 },
-										align: 'center',
-									}}
-								/>
-							</Container>
-						{/if}
+						<!-- Bonus sonu toplam kazanç ekranı — tüm kazanç seviyelerinde
+						     aynı düzen (üstten alta): altın "CONGRATULATIONS!",
+						     beyaz "YOU WON", ardından tutar. -->
+						<Container y={-sizes.width * 0.5}>
+							<BitmapText
+								anchor={{ x: 0.5, y: 0.5 }}
+								text={stateI18nDerived.translate('CONGRATULATIONS!')}
+								style={{
+									fontFamily: 'gold',
+									fontSize: sizes.width * 0.2,
+									fontWeight: 'bold',
+								}}
+							/>
+						</Container>
+
+						<!-- "YOU WON" — Ranchers font-text -->
+						<Container y={-sizes.width * 0.15}>
+							<Text
+								anchor={{ x: 0.5, y: 0.5 }}
+								text={stateI18nDerived.translate('YOU WON')}
+								style={{
+									fontFamily: 'ranchers',
+									fontSize: sizes.width * 0.2,
+									fill: 0xffffff,
+									stroke: { color: 0x000000, width: 6 },
+									align: 'center',
+								}}
+							/>
+						</Container>
 
 						<!-- Toplam kazanç tutarı (gold = Ranchers bitmap) -->
-						<Container y={0}>
+						<Container y={sizes.width * 0.25}>
 							<ResponsiveBitmapText
 								anchor={{ x: 0.5, y: 0.5 }}
 								style={{
@@ -111,21 +97,6 @@
 								}}
 								text={bookEventAmountToCurrencyString(countUpAmount)}
 								maxWidth={sizes.width}
-							/>
-						</Container>
-
-						<!-- "TOTAL WIN" — Ranchers font-text (eski totalwin.png yerine) -->
-						<Container y={sizes.width * 0.52}>
-							<Text
-								anchor={{ x: 0.5, y: 0.5 }}
-								text={stateI18nDerived.translate('TOTAL WIN')}
-								style={{
-									fontFamily: 'ranchers',
-									fontSize: sizes.width * 0.2,
-									fill: 0xffffff,
-									stroke: { color: 0x000000, width: 6 },
-									align: 'center',
-								}}
 							/>
 						</Container>
 					{/snippet}

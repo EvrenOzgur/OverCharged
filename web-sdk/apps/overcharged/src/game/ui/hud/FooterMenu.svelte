@@ -2,6 +2,7 @@
     import { uiStore } from "../../../shared/stores/uiStore.svelte";
     import { uiState } from "../../../shared/stores/uiStateStore.svelte";
     import { FormatWinAmount } from "../../../shared/utils/currency";
+    import { s } from "../../../shared/utils/social";
     import { bettingState } from "../../logic/BettingState.svelte";
     import "./FooterMenu.css";
 
@@ -11,6 +12,8 @@
         lastWinAmount?: number;
         currency?: string;
         disabled?: boolean;
+        isIdle?: boolean;
+        hideBonusBuy?: boolean;
         turboLevel?: number;
         isAutoMenuOpen?: boolean;
         onIncrease?: () => void;
@@ -28,6 +31,8 @@
         lastWinAmount = 0,
         currency = "USD",
         disabled = false,
+        isIdle = true,
+        hideBonusBuy = false,
         turboLevel = 0,
         isAutoMenuOpen = false,
         onIncrease = () => {},
@@ -139,7 +144,7 @@
     let playSrc = $derived(
         isAutoPlaying
             ? (playHover ? ASSET_DIR + "btn_play_stop_hover.png" : ASSET_DIR + "btn_play_stop.png")
-            : disabled
+            : disabled || !isIdle
               ? ASSET_DIR + "btn_play_disabled.png"
               : playHover
                 ? ASSET_DIR + "btn_play_hover.png"
@@ -158,7 +163,7 @@
         bettingState.currentBetIndex >= bettingState.maxBet,
     ); // Needs actual limit check, simplify for now
     let plusSrc = $derived(
-        disabled
+        disabled || !isIdle
             ? ASSET_DIR + "btn_plus_disabled.png"
             : plusPressed
               ? ASSET_DIR + "btn_plus_pressed.png"
@@ -168,7 +173,7 @@
     );
 
     let minusSrc = $derived(
-        disabled
+        disabled || !isIdle
             ? ASSET_DIR + "btn_minus_disabled.png"
             : minusPressed
               ? ASSET_DIR + "btn_minus_pressed.png"
@@ -219,7 +224,7 @@
         <!-- LANDSCAPE_FOOTER_UI -->
         <div class="landscape-ui">
             <!-- BONUS_BUTTON -->
-            {#if !isFreeSpin}
+            {#if !isFreeSpin && !hideBonusBuy}
                 <button
                     class="btn bonus-button bonus-btn"
                     onmouseenter={() => (bonusHover = true)}
@@ -259,7 +264,12 @@
 
                 <!-- MIDDLE_PART -->
                 <div class="middle-part">
-                    {#if lastWinAmount > 0}
+                    {#if isFreeSpin}
+                        <span class="label-text">TOTAL WIN</span>
+                        <span class="amount-text"
+                            >{FormatWinAmount(uiState.bonusTotalWin, currency)}</span
+                        >
+                    {:else if lastWinAmount > 0}
                         <span class="label-text green">LAST WIN</span>
                         <span class="amount-text"
                             >{FormatWinAmount(lastWinAmount, currency)}</span
@@ -272,7 +282,7 @@
                     {#if !isFreeSpin}
                         <div class="bet-part">
                             <div class="bet-info">
-                                <span class="label-text">BET</span>
+                                <span class="label-text">{s("BET", "PLAY")}</span>
                                 <span class="amount-text"
                                     >{FormatWinAmount(currentBet, currency)}</span
                                 >
@@ -288,7 +298,7 @@
                                     onmousedown={() => (plusPressed = true)}
                                     onmouseup={() => (plusPressed = false)}
                                     onclick={onIncrease}
-                                    {disabled}
+                                    disabled={disabled || !isIdle}
                                 >
                                     <img src={plusSrc} alt="Plus" />
                                 </button>
@@ -302,7 +312,7 @@
                                     onmousedown={() => (minusPressed = true)}
                                     onmouseup={() => (minusPressed = false)}
                                     onclick={onDecrease}
-                                    {disabled}
+                                    disabled={disabled || !isIdle}
                                 >
                                     <img src={minusSrc} alt="Minus" />
                                 </button>
@@ -314,7 +324,7 @@
                                 onmouseenter={() => (playHover = true)}
                                 onmouseleave={() => (playHover = false)}
                                 onclick={onBet}
-                                disabled={disabled && !isAutoPlaying}
+                                disabled={(disabled || !isIdle) && !isAutoPlaying}
                             >
                                 <img src={playSrc} alt="Play" />
                                 {#if isAutoPlaying}
@@ -354,24 +364,7 @@
             <!-- FREE SPIN HUD (Now positioned relative to the entire screen/footer bar) -->
             {#if isFreeSpin}
                 <div class="freespin-hud">
-                    <div class="freespin-panels">
-                        <div class="fs-panel total-win-panel">
-                            <img class="fs-bg" src="{ASSET_DIR}TotalWinBG.png" alt="Total Win BG" />
-                            <div class="fs-content">
-                                <div class="fs-label orange">TOTAL WIN</div>
-                                <div class="fs-value black">{FormatWinAmount(uiState.bonusTotalWin, currency)}</div>
-                            </div>
-                        </div>
-                        <div class="fs-panel spin-count-panel">
-                            <img class="fs-bg" src="{ASSET_DIR}FreeSpinBG.png" alt="Free Spin BG" />
-                            <div class="fs-content horizontal">
-                                <div class="fs-label black">FREE SPINS</div>
-                                <div class="fs-value black-small">{uiState.bonusFreeSpinsCount}/{uiState.bonusTotalFreeSpins}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button 
+                    <button
                         class="btn turbo-btn fs-turbo"
                         onmouseenter={() => (turboHover = true)}
                         onmouseleave={() => (turboHover = false)}
@@ -387,7 +380,12 @@
         <div class="portrait-ui">
             <!-- LAST_WIN_BLOCK -->
             <div class="last-win-block">
-                {#if lastWinAmount > 0}
+                {#if isFreeSpin}
+                    <span class="label-text">TOTAL WIN</span>
+                    <span class="amount-text"
+                        >{FormatWinAmount(uiState.bonusTotalWin, currency)}</span
+                    >
+                {:else if lastWinAmount > 0}
                     <span class="label-text green">LAST WIN</span>
                     <span class="amount-text"
                         >{FormatWinAmount(lastWinAmount, currency)}</span
@@ -428,7 +426,7 @@
                             onmouseenter={() => (playHover = true)}
                             onmouseleave={() => (playHover = false)}
                             onclick={onBet}
-                            disabled={disabled && !isAutoPlaying}
+                            disabled={(disabled || !isIdle) && !isAutoPlaying}
                         >
                             <img src={playSrc} alt="Play" />
                             {#if isAutoPlaying}
@@ -450,26 +448,18 @@
                             <img src={turboSrc} alt="Turbo" />
                         </button>
                     </div>
-                {:else}
-                    <div class="freespin-panels-portrait">
-                        <div class="fs-panel total-win-panel">
-                            <img class="fs-bg" src="{ASSET_DIR}TotalWinBG.png" alt="Total Win BG" />
-                            <div class="fs-content">
-                                <div class="fs-label orange">TOTAL WIN</div>
-                                <div class="fs-value black">{FormatWinAmount(uiState.bonusTotalWin, currency)}</div>
-                            </div>
-                        </div>
-                        <div class="fs-panel spin-count-panel">
-                            <img class="fs-bg" src="{ASSET_DIR}FreeSpinBG.png" alt="Free Spin BG" />
-                            <div class="fs-content horizontal">
-                                <div class="fs-label black">FREE SPINS</div>
-                                <div class="fs-value black-small">{uiState.bonusFreeSpinsCount}/{uiState.bonusTotalFreeSpins}</div>
-                            </div>
-                        </div>
-                    </div>
                 {/if}
 
-                {#if !isFreeSpin}
+                {#if isFreeSpin}
+                    <button
+                        class="btn turbo-btn"
+                        onmouseenter={() => (turboHover = true)}
+                        onmouseleave={() => (turboHover = false)}
+                        onclick={onToggleTurbo}
+                    >
+                        <img src={turboSrc} alt="Turbo" />
+                    </button>
+                {:else if !hideBonusBuy}
                     <button
                         class="btn bonus-btn"
                         onmouseenter={() => (bonusHover = true)}
@@ -478,15 +468,6 @@
                         disabled={disabled && !hasActiveAnte}
                     >
                         <img src={bonusSrc} alt="Bonus" />
-                    </button>
-                {:else}
-                    <button
-                        class="btn turbo-btn"
-                        onmouseenter={() => (turboHover = true)}
-                        onmouseleave={() => (turboHover = false)}
-                        onclick={onToggleTurbo}
-                    >
-                        <img src={turboSrc} alt="Turbo" />
                     </button>
                 {/if}
             </div>
@@ -508,7 +489,7 @@
 
                     <div class="bet-block">
                         <div class="bet-label-container">
-                            <span class="label-text">BET</span>
+                            <span class="label-text">{s("BET", "PLAY")}</span>
                         </div>
                         <div class="bet-info-portrait">
                             <button
@@ -521,7 +502,7 @@
                                 onmousedown={() => (minusPressed = true)}
                                 onmouseup={() => (minusPressed = false)}
                                 onclick={onDecrease}
-                                disabled={disabled || isFreeSpin}
+                                disabled={disabled || isFreeSpin || !isIdle}
                             >
                                 <img src={minusSrc} alt="Minus" />
                             </button>
@@ -538,7 +519,7 @@
                                 onmousedown={() => (plusPressed = true)}
                                 onmouseup={() => (plusPressed = false)}
                                 onclick={onIncrease}
-                                disabled={disabled || isFreeSpin}
+                                disabled={disabled || isFreeSpin || !isIdle}
                             >
                                 <img src={plusSrc} alt="Plus" />
                             </button>

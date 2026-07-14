@@ -9,7 +9,7 @@
 	 * old Pixi `OverchargedUI` footer.
 	 */
 	import { onMount } from 'svelte';
-	import { stateBet, stateBetDerived, stateModal } from 'state-shared';
+	import { stateBet, stateBetDerived, stateConfig, stateModal } from 'state-shared';
 	import { bookEventAmountToNormalisedAmount } from 'utils-shared/amount';
 
 	import { getContext } from '../../game/context';
@@ -87,11 +87,21 @@
 	});
 
 	const balance = $derived(stateBet.balanceAmount);
-	const currentBet = $derived(stateBetDerived.betCost());
+	// HUD bet readout must always show the real per-spin base bet, not the
+	// total charge — during bonus-buy that total is 100x+ the base bet.
+	const currentBet = $derived(stateBet.betAmount);
 	const lastWinAmount = $derived(bookEventAmountToNormalisedAmount(stateBet.winBookEventAmount));
-	// Disable bet controls only when a spin is unaffordable; the play button must
-	// stay live during a spin so it can act as the Stop button.
 	const disabled = $derived(!stateBetDerived.isBetCostAvailable());
+	// Bet +/- and the play button (for a manual single spin) are disabled while
+	// a round is in flight; the play button stays live during autoplay so it can
+	// still act as the Stop button (see FooterMenu.svelte's play-btn disabled expr).
+	const isIdle = $derived(context.stateXstateDerived.isIdle());
+	// Jurisdiction requirement: the Bonus Buy feature must not be offered at
+	// all in social-casino builds (nor where the RGS otherwise disables it) —
+	// matching the retired Pixi ButtonBuyBonus.svelte's `hidden` check.
+	const hideBonusBuy = $derived(
+		stateConfig.jurisdiction?.disabledBuyFeature || stateConfig.jurisdiction?.socialCasino,
+	);
 	const turboLevel = $derived(stateBet.isTurbo ? 1 : 0);
 
 	const onIncrease = () => {
@@ -209,6 +219,8 @@
 		{currentBet}
 		{lastWinAmount}
 		{disabled}
+		{isIdle}
+		{hideBonusBuy}
 		{turboLevel}
 		{onIncrease}
 		{onDecrease}
@@ -273,6 +285,7 @@
 		border-radius: 6px;
 		cursor: pointer;
 		user-select: none;
+		outline: none;
 	}
 
 	.mode-toggle:hover {

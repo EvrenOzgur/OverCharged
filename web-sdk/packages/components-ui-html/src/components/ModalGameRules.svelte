@@ -12,13 +12,18 @@
 	const props: Props = $props();
 
 	// Stake.US (social casino) compliance: certain words are restricted.
-	// "bet" → "stake", "BET" → "SPIN" (UI), "BUY BONUS" → hidden anyway, etc.
+	// "bet" → "play amount", "BET" → "SPIN" (UI), "BUY BONUS" → hidden anyway, etc.
 	// Selected by ?social=true URL param (mirrored to stateUrlDerived.social).
 	const isSocial = $derived(stateUrlDerived.social());
-	// Cluster-pay multiplier wording. "× bet" implies wagering — use "× stake"
-	// in social mode (Stake's own brand, considered non-bet wording).
-	const xUnit = $derived(isSocial ? 'stake' : 'bet');
-	const XUnit = $derived(isSocial ? 'STAKE' : 'BET');
+	// Cluster-pay multiplier wording. "× bet" implies wagering — Stake's
+	// jurisdiction-requirements term table also bans "stake" itself
+	// (stake → play amount), so social mode uses "play amount" instead.
+	const xUnit = $derived(isSocial ? 'play amount' : 'bet');
+	const XUnit = $derived(isSocial ? 'PLAY AMOUNT' : 'BET');
+	// "pay"/"paytable" is also on the restricted list (pay → win), so the
+	// paytable heading and "Cluster Pays" wording swap too in social mode.
+	const paytableLabel = $derived(isSocial ? 'WIN TABLE' : 'PAYTABLE');
+	const clusterPayWord = $derived(isSocial ? 'Wins' : 'Pays');
 
 	// OverCharged symbols are drawn straight from the game's own Spine texture
 	// atlases (the demo `symbolsStatic` sheet was the Stake template's gems).
@@ -116,10 +121,10 @@
 			<h3 class="rules-subtitle">HOW TO PLAY</h3>
 
 			<section class="rules-section">
-				<p>Spin an 8×8 grid. Win by landing <strong>5 or more matching symbols</strong> connected horizontally or vertically (Cluster Pays). Winning symbols are removed and new symbols fall from above — cascades continue until no new wins occur.</p>
+				<p>Spin an 8×8 grid. Win by landing <strong>5 or more matching symbols</strong> connected horizontally or vertically (Cluster {clusterPayWord}). Winning symbols are removed and new symbols fall from above — cascades continue until no new wins occur.</p>
 			</section>
 
-			<h3 class="rules-subtitle">PAYTABLE (× {XUnit})</h3>
+			<h3 class="rules-subtitle">{paytableLabel} (× {XUnit})</h3>
 			<section class="rules-section rules-info">
 				<div class="paytable-header">
 					<span class="paytable-sym">Symbol</span>
@@ -198,11 +203,11 @@
 			<section class="rules-section">
 				<div class="rules-info">
 					{#if isSocial}
-						<div class="rules-info-row"><span><strong>SPIN</strong></span><span>Plays a single round at the selected stake amount. Spacebar also triggers SPIN.</span></div>
+						<div class="rules-info-row"><span><strong>SPIN</strong></span><span>Plays a single round at the selected play amount. Spacebar also triggers SPIN.</span></div>
 						<div class="rules-info-row"><span><strong>TURBO</strong></span><span>Toggle faster spin animations. State persists across rounds.</span></div>
 						<div class="rules-info-row"><span><strong>AUTO SPIN</strong></span><span>Opens the autoplay configuration. Choose number of rounds, optional loss limit and single-win limit, then press START AUTOPLAY to begin. Click again during autoplay to stop.</span></div>
-						<div class="rules-info-row"><span><strong>STAKE ± </strong></span><span>Decrease / increase the current stake amount through the available stake levels.</span></div>
-						<div class="rules-info-row"><span><strong>MENU</strong></span><span>Opens the side drawer with INFO (this dialog), PAYTABLE, SETTINGS, SOUND ON/OFF, and EXIT.</span></div>
+						<div class="rules-info-row"><span><strong>PLAY AMOUNT ± </strong></span><span>Decrease / increase the current play amount through the available play levels.</span></div>
+						<div class="rules-info-row"><span><strong>MENU</strong></span><span>Opens the side drawer with INFO (this dialog), {paytableLabel}, SETTINGS, SOUND ON/OFF, and EXIT.</span></div>
 						<div class="rules-info-row"><span><strong>SETTINGS</strong></span><span>Adjust master volume, music, SFX, and turbo/quick spin preferences.</span></div>
 						<div class="rules-info-row"><span><strong>SOUND ON/OFF</strong></span><span>Mute or unmute all game audio.</span></div>
 						<div class="rules-info-row"><span><strong>SPACE (hold)</strong></span><span>Hold the spacebar to repeatedly spin until released (quick-spin mode).</span></div>
@@ -225,7 +230,7 @@
 				{#if isSocial}
 					<div class="mode-block">
 						<strong>BASE</strong>
-						<span class="rules-desc">Standard play. Cost: the player's selected stake amount. RTP 97.00%. Maximum win 5,000× stake.</span>
+						<span class="rules-desc">Standard play. Cost: the player's selected play amount. RTP 97.00%. Maximum win 5,000× play amount.</span>
 					</div>
 					<!-- Bonus mode hidden entirely in social mode (ButtonBuyBonus is also hidden via jurisdiction.disabledBuyFeature). -->
 				{:else}
@@ -249,7 +254,7 @@
 				<div class="rules-info-row"><span>Maximum Win</span><span>5,000× {xUnit}</span></div>
 				<div class="rules-info-row"><span>Maximum Win Hit Rate</span><span>1 in 500,000</span></div>
 				<div class="rules-info-row"><span>Hit Rate of Non-Zero Wins</span><span>1 in 3.4</span></div>
-				<div class="rules-info-row"><span>Reels</span><span>8 × 8 (Cluster Pays)</span></div>
+				<div class="rules-info-row"><span>Reels</span><span>8 × 8 (Cluster {clusterPayWord})</span></div>
 				<div class="rules-info-row"><span>Minimum Win Cluster</span><span>5 connected symbols</span></div>
 				<div class="rules-info-row"><span>Provider</span><span>Stake Engine</span></div>
 			</section>

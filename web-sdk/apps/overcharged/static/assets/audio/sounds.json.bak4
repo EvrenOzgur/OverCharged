@@ -1,0 +1,425 @@
+{
+  "sprite": {
+    "bgm_freespin": [
+      0.0,
+      17454.53514739229,
+      true
+    ],
+    "bgm_main": [
+      17484.53514739229,
+      17454.53514739229,
+      true
+    ],
+    "bgm_winlevel_big": [
+      34969.070294784586,
+      8000.0,
+      true
+    ],
+    "bgm_winlevel_epic": [
+      42999.070294784586,
+      8000.0,
+      true
+    ],
+    "bgm_winlevel_max": [
+      51029.070294784586,
+      8000.0,
+      true
+    ],
+    "bgm_winlevel_mega": [
+      59059.070294784586,
+      8000.0,
+      true
+    ],
+    "bgm_winlevel_superwin": [
+      67089.07029478459,
+      8000.0,
+      true
+    ],
+    "jng_intro_fs": [
+      75119.07029478459,
+      4286.190476190476
+    ],
+    "sfx_anticipation": [
+      79435.26077097506,
+      59333.1746031746,
+      true
+    ],
+    "sfx_anticipation_start": [
+      138798.43540816326,
+      1000.0
+    ],
+    "sfx_bigwin_coinloop": [
+      139828.43540816326,
+      4000.0,
+      true
+    ],
+    "sfx_btn_general": [
+      143858.43540816326,
+      1131.7913832199547
+    ],
+    "sfx_btn_spin": [
+      145020.2267913832,
+      835.3514739229025
+    ],
+    "sfx_fs_respins": [
+      145885.5783170068,
+      4062.4717
+    ],
+    "sfx_multiplier_combine_a": [
+      149978.05001700678,
+      349.9773
+    ],
+    "sfx_multiplier_combine_b": [
+      150358.0273170068,
+      1045.8277
+    ],
+    "sfx_multiplier_explosion_a": [
+      151433.85501700678,
+      769.2517
+    ],
+    "sfx_multiplier_explosion_b": [
+      152233.1067170068,
+      1591.904761904762
+    ],
+    "sfx_multiplier_explosion_c": [
+      153855.01133786846,
+      1202.2449
+    ],
+    "sfx_multiplier_landing": [
+      155087.25623786845,
+      2361.7687074829932
+    ],
+    "sfx_multiplier_reset": [
+      157479.02494535144,
+      300.0
+    ],
+    "sfx_multiplier_up": [
+      157809.02494535144,
+      1499.229
+    ],
+    "sfx_multiplier_update": [
+      159338.25394535143,
+      4500.0
+    ],
+    "sfx_multiplier_win": [
+      163868.25396825394,
+      3791.6553
+    ],
+    "sfx_reel_stop_1": [
+      167689.90926825398,
+      719.2743764172336
+    ],
+    "sfx_reel_stop_2": [
+      168439.18364104306,
+      246.6667
+    ],
+    "sfx_reel_stop_3": [
+      168715.85034104306,
+      240.9977
+    ],
+    "sfx_reel_stop_4": [
+      168986.848041043,
+      241.9728
+    ],
+    "sfx_reel_stop_5": [
+      169258.82084104305,
+      239.8639
+    ],
+    "sfx_royals_landing": [
+      169528.68484104305,
+      1199.2063
+    ],
+    "sfx_scatter_reveal": [
+      170757.89114104302,
+      1487.3696
+    ],
+    "sfx_scatter_stop_1": [
+      172275.26068684805,
+      1440.0
+    ],
+    "sfx_scatter_stop_2": [
+      173745.26068684805,
+      1440.0
+    ],
+    "sfx_scatter_stop_3": [
+      175215.26068684805,
+      1440.0
+    ],
+    "sfx_scatter_stop_4": [
+      176685.26068684805,
+      1440.0
+    ],
+    "sfx_scatter_stop_5": [
+      178155.26068684805,
+      1440.0
+    ],
+    "sfx_scatter_win": [
+      179625.26068684805,
+      1992.9705
+    ],
+    "sfx_scatter_win_v2": [
+      181648.23128684805,
+      3670.3401
+    ],
+    "sfx_superfreespin": [
+      185348.57138684802,
+      6000.0
+    ],
+    "sfx_symbols_landing": [
+      191378.57138684802,
+      1202.585
+    ],
+    "sfx_wild_explode": [
+      192611.15638684804,
+      1401.2245
+    ],
+    "sfx_winlevel_end": [
+      194042.38088684806,
+      1998.9116
+    ],
+    "sfx_winlevel_nice": [
+      196071.29248684805,
+      1474.263
+    ],
+    "sfx_winlevel_small": [
+      197575.55548684802,
+      1320.0
+    ],
+    "sfx_winlevel_standard": [
+      198925.55543741494,
+      1250.0
+    ],
+    "sfx_winlevel_substantial": [
+      200205.55543741494,
+      2490.2948
+    ],
+    "sfx_youwon_panel": [
+      202725.85023741497,
+      1300.0
+    ],
+    "tumble_win_1": [
+      204055.85023741497,
+      996.2358
+    ],
+    "tumble_win_2": [
+      205082.08603741493,
+      1134.6485
+    ],
+    "tumble_win_3": [
+      206246.73463741495,
+      1134.8073
+    ],
+    "tumble_win_4": [
+      207411.54183741493,
+      998.7982
+    ],
+    "tumble_win_5": [
+      208440.34003741495,
+      989.5918
+    ],
+    "sfx_btn_step": [
+      209459.93183741494,
+      148.02721088435374
+    ],
+    "sfx_btn_step_down": [
+      209637.9590482993,
+      100.0
+    ],
+    "sfx_wild_spawn": [
+      209767.9590482993,
+      550.0
+    ],
+    "sfx_coincount_loop": [
+      210347.95900204085,
+      3710.9523809523807,
+      true
+    ],
+    "sfx_coincount_end": [
+      214088.91138299325,
+      1807.7551020408164
+    ],
+    "sfx_skill_activation": [
+      215926.6666666667,
+      5840.0
+    ]
+  },
+  "src": [
+    "./assets/audio/sounds.wav"
+  ],
+  "config": {
+    "bgm_freespin": {
+      "volume": 0.75
+    },
+    "bgm_main": {
+      "volume": 0.75
+    },
+    "bgm_winlevel_big": {
+      "volume": 0.75
+    },
+    "bgm_winlevel_epic": {
+      "volume": 0.75
+    },
+    "bgm_winlevel_max": {
+      "volume": 0.75
+    },
+    "bgm_winlevel_mega": {
+      "volume": 0.75
+    },
+    "bgm_winlevel_superwin": {
+      "volume": 0.75
+    },
+    "jng_intro_fs": {
+      "volume": 0.75
+    },
+    "sfx_anticipation": {
+      "volume": 0.75
+    },
+    "sfx_anticipation_start": {
+      "volume": 0.75
+    },
+    "sfx_bigwin_coinloop": {
+      "volume": 0.75
+    },
+    "sfx_btn_general": {
+      "volume": 0.75
+    },
+    "sfx_btn_spin": {
+      "volume": 0.75
+    },
+    "sfx_fs_respins": {
+      "volume": 0.75
+    },
+    "sfx_multiplier_combine_a": {
+      "volume": 0.75
+    },
+    "sfx_multiplier_combine_b": {
+      "volume": 0.75
+    },
+    "sfx_multiplier_explosion_a": {
+      "volume": 0.75
+    },
+    "sfx_multiplier_explosion_b": {
+      "volume": 0.75
+    },
+    "sfx_multiplier_explosion_c": {
+      "volume": 0.75
+    },
+    "sfx_multiplier_landing": {
+      "volume": 1.0
+    },
+    "sfx_multiplier_reset": {
+      "volume": 0.75
+    },
+    "sfx_multiplier_up": {
+      "volume": 0.75
+    },
+    "sfx_multiplier_update": {
+      "volume": 0.75
+    },
+    "sfx_multiplier_win": {
+      "volume": 0.75
+    },
+    "sfx_reel_stop_1": {
+      "volume": 0.75
+    },
+    "sfx_reel_stop_2": {
+      "volume": 0.75
+    },
+    "sfx_reel_stop_3": {
+      "volume": 0.75
+    },
+    "sfx_reel_stop_4": {
+      "volume": 0.75
+    },
+    "sfx_reel_stop_5": {
+      "volume": 0.75
+    },
+    "sfx_royals_landing": {
+      "volume": 0.75
+    },
+    "sfx_scatter_reveal": {
+      "volume": 0.75
+    },
+    "sfx_scatter_stop_1": {
+      "volume": 1.0
+    },
+    "sfx_scatter_stop_2": {
+      "volume": 1.0
+    },
+    "sfx_scatter_stop_3": {
+      "volume": 1.0
+    },
+    "sfx_scatter_stop_4": {
+      "volume": 1.0
+    },
+    "sfx_scatter_stop_5": {
+      "volume": 1.0
+    },
+    "sfx_scatter_win": {
+      "volume": 0.75
+    },
+    "sfx_scatter_win_v2": {
+      "volume": 0.75
+    },
+    "sfx_superfreespin": {
+      "volume": 0.75
+    },
+    "sfx_symbols_landing": {
+      "volume": 0.75
+    },
+    "sfx_wild_explode": {
+      "volume": 0.75
+    },
+    "sfx_winlevel_end": {
+      "volume": 0.75
+    },
+    "sfx_winlevel_nice": {
+      "volume": 0.75
+    },
+    "sfx_winlevel_small": {
+      "volume": 0.75
+    },
+    "sfx_winlevel_standard": {
+      "volume": 0.75
+    },
+    "sfx_winlevel_substantial": {
+      "volume": 0.75
+    },
+    "sfx_youwon_panel": {
+      "volume": 0.75
+    },
+    "tumble_win_1": {
+      "volume": 0.75
+    },
+    "tumble_win_2": {
+      "volume": 0.75
+    },
+    "tumble_win_3": {
+      "volume": 0.75
+    },
+    "tumble_win_4": {
+      "volume": 0.75
+    },
+    "tumble_win_5": {
+      "volume": 0.75
+    },
+    "sfx_btn_step": {
+      "volume": 0.75
+    },
+    "sfx_btn_step_down": {
+      "volume": 0.75
+    },
+    "sfx_wild_spawn": {
+      "volume": 1.0
+    },
+    "sfx_coincount_loop": {
+      "volume": 0.75
+    },
+    "sfx_coincount_end": {
+      "volume": 0.75
+    },
+    "sfx_skill_activation": {
+      "volume": 1.0
+    }
+  }
+}
