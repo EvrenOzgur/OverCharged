@@ -47,3 +47,40 @@ export const bookEventAmountToCurrencyString = (bookEventAmount: number) => {
 	const normalisedAmount = bookEventAmountToNormalisedAmount(bookEventAmount);
 	return numberToCurrencyString(normalisedAmount);
 };
+
+// Win-specific formatting: Stake lowered the min bet to $0.01, so a small win
+// (e.g. a low multiplier on a $0.01 bet) can be worth a fraction of a cent —
+// fixed 2-decimal formatting rounds those down to "$0.00" even though the
+// win is nonzero. Win displays (round win, spin win, tumble win, total win,
+// replay playback) need up to 4 decimals, extending only as far as needed
+// (no forced trailing zeros beyond 2). Balance and bet amount stay 2-decimal
+// via numberToCurrencyString/bookEventAmountToCurrencyString above — do not
+// use these for anything other than a win amount.
+const NO_LOCALISATION_WIN_DECIMALS = (value: number): number => {
+	const rounded4 = Math.round(value * 10000) / 10000;
+	for (let decimals = 2; decimals < 4; decimals++) {
+		const scale = 10 ** decimals;
+		if (Math.round(rounded4 * scale) / scale === rounded4) return decimals;
+	}
+	return 4;
+};
+
+export const numberToWinCurrencyString = (value: number) => {
+	if (stateBet.currency in NO_LOCALISATION_CURRENCY_MAP) {
+		const decimals = NO_LOCALISATION_WIN_DECIMALS(numberToFloat(value));
+		return `${NO_LOCALISATION_CURRENCY_MAP[stateBet.currency]} ${numberToFloat(value).toFixed(decimals)}`;
+	}
+
+	return stateI18n.i18n.number(value, {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 4,
+		style: 'currency',
+		currency: stateBet.currency,
+		// numberingSystem: 'latn',
+	});
+};
+
+export const bookEventAmountToWinCurrencyString = (bookEventAmount: number) => {
+	const normalisedAmount = bookEventAmountToNormalisedAmount(bookEventAmount);
+	return numberToWinCurrencyString(normalisedAmount);
+};

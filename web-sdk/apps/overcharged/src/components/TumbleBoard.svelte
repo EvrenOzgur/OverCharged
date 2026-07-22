@@ -102,7 +102,7 @@
 						// Safeguard: Timeout after 3 seconds if animation doesn't complete
 						await Promise.race([
 							waitForResolve((resolve) => (tumbleSymbol.oncomplete = resolve)),
-							new Promise((resolve) => setTimeout(resolve, 3000))
+							new Promise((resolve) => setTimeout(resolve, 3000)),
 						]);
 					}
 				});

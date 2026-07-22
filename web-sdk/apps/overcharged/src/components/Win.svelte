@@ -11,7 +11,7 @@
 	import { Container } from 'pixi-svelte';
 	import { FadeContainer, WinCountUpProvider, ResponsiveBitmapText } from 'components-pixi';
 	import { waitForResolve, waitForTimeout } from 'utils-shared/wait';
-	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
+	import { bookEventAmountToWinCurrencyString } from 'utils-shared/amount';
 	import { CanvasSizeRectangle, MainContainer } from 'components-layout';
 	import { OnMount } from 'components-shared';
 
@@ -74,7 +74,7 @@
 								<ResponsiveBitmapText
 									anchor={0.5}
 									maxWidth={2130}
-									text={bookEventAmountToCurrencyString(countUpAmount)}
+									text={bookEventAmountToWinCurrencyString(countUpAmount)}
 									style={{
 										fontFamily: 'gold',
 										fontSize: SYMBOL_SIZE * 3.6,
@@ -89,7 +89,7 @@
 								anchor={0.5}
 								maxWidth={context.stateLayoutDerived.canvasSizes().width /
 									context.stateLayoutDerived.mainLayout().scale}
-								text={bookEventAmountToCurrencyString(countUpAmount)}
+								text={bookEventAmountToWinCurrencyString(countUpAmount)}
 								style={{
 									fontFamily: 'gold',
 									fontSize: SYMBOL_SIZE,

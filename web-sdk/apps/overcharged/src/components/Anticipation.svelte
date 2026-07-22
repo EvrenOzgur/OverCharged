@@ -6,6 +6,7 @@
 	import { REEL_PADDING, SYMBOL_SIZE, BOARD_DIMENSIONS } from '../game/constants';
 	import BoardContainer from './BoardContainer.svelte';
 	import BoardMask from './BoardMask.svelte';
+	import HideSpineSlot from './HideSpineSlot.svelte';
 
 	type Props = {
 		reel: Reel;
@@ -64,5 +65,10 @@
 				},
 			}}
 		/>
+		<!-- `anticipation_loop` animates slot `glow2`'s color through bright
+		     green keyframes (28f11d/3fe729/43d532/4fd821) — reads as a green
+		     arc sweeping the reel while waiting on a scatter. `glow` (the
+		     other glow slot) stays white/neutral, left alone. -->
+		<HideSpineSlot slotNames={['glow2']} />
 	</SpineProvider>
 </BoardContainer>

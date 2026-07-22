@@ -18,6 +18,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { stateBet, stateUrlDerived } from 'state-shared';
+	import { API_AMOUNT_MULTIPLIER } from 'constants-shared/bet';
+	import { numberToWinCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
 	import { playBookEvents } from '../game/utils';
 
@@ -126,32 +128,62 @@
 			: 1,
 	);
 	const totalSpent = $derived((Number(displayAmount) * Number(costMultiplier)).toFixed(2));
+	// Stake replay spec — "Show results": bet cost, payout multiplier, and win
+	// amount must all be visible before the user presses Start Replay, not
+	// just after playback. payoutMultiplier is the plain round multiplier
+	// (e.g. 0, 1.25, 5); payout on lastBet is scaled the same way amount is
+	// (see Authenticate.svelte's initReplay), so divide back down to a plain
+	// currency float before formatting.
+	const payoutMultiplier = $derived(
+		typeof (stateBet.lastBet as any)?.payoutMultiplier === 'number'
+			? (stateBet.lastBet as any).payoutMultiplier
+			: 0,
+	);
+	const totalWinAmount = $derived(
+		typeof (stateBet.lastBet as any)?.payout === 'number'
+			? (stateBet.lastBet as any).payout / API_AMOUNT_MULTIPLIER
+			: 0,
+	);
 </script>
 
 {#if ready && phase !== 'playing'}
 	<div class="replay-overlay">
 		<div class="replay-panel">
 			{#if phase === 'ready'}
-				<div class="replay-title">{stateUrlDerived.social() ? 'Spin Replay' : 'Bet Replay'}</div>
-				<div class="replay-row">
-					<span class="replay-label">Mode</span>
-					<span class="replay-value">{modeLabel}</span>
-				</div>
-				<div class="replay-row">
-					<span class="replay-label">{stateUrlDerived.social() ? 'Stake' : 'Bet'}</span>
-					<span class="replay-value">{currency} {displayAmount}</span>
-				</div>
-				{#if Number(costMultiplier) !== 1}
-					<div class="replay-row">
-						<span class="replay-label">Cost ×</span>
-						<span class="replay-value">{costMultiplier}</span>
+				<div class="replay-title-pill">{stateUrlDerived.social() ? 'Spin Replay' : 'Replay'}</div>
+				<div class="replay-box">
+					<div class="replay-grid">
+						<div class="replay-cell">
+							<span class="replay-label">Mode</span>
+							<span class="replay-value">{modeLabel}</span>
+						</div>
+						<div class="replay-cell">
+							<span class="replay-label">{stateUrlDerived.social() ? 'Stake' : 'Bet'}</span>
+							<span class="replay-value">{currency} {displayAmount}</span>
+						</div>
+						<div class="replay-cell">
+							<span class="replay-label">Cost Mult</span>
+							<span class="replay-value">{costMultiplier}×</span>
+						</div>
+						<div class="replay-cell">
+							<span class="replay-label">Payout</span>
+							<span class="replay-value">{payoutMultiplier}×</span>
+						</div>
 					</div>
+				</div>
+				<div class="replay-box replay-box-results">
 					<div class="replay-row">
-						<span class="replay-label">Total Spent</span>
+						<span class="replay-label">Total Cost</span>
 						<span class="replay-value">{currency} {totalSpent}</span>
 					</div>
-				{/if}
-				<button class="replay-button" onclick={startReplay}>Start Replay</button>
+					<div class="replay-row replay-row-win">
+						<span class="replay-label">Total Win</span>
+						<span class="replay-value">{numberToWinCurrencyString(totalWinAmount)}</span>
+					</div>
+				</div>
+				<button class="replay-button" onclick={startReplay}>
+					<span class="replay-button-icon">▶</span> Start Replay
+				</button>
 			{:else}
 				<div class="replay-title">Replay Finished</div>
 				<button class="replay-button" onclick={playAgain}>Play Again</button>
@@ -172,11 +204,13 @@
 		font-family: 'ranchers', sans-serif;
 	}
 	.replay-panel {
-		min-width: 280px;
-		padding: 24px 32px;
-		background: linear-gradient(180deg, #1a1a1e, #0d0d10);
-		border: 1px solid #4a4a4e;
-		border-radius: 8px;
+		position: relative;
+		min-width: 320px;
+		padding: 28px 24px 24px;
+		margin-top: 20px;
+		background: #16161a;
+		border: 1px solid #333338;
+		border-radius: 16px;
 		color: #fff;
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
 	}
@@ -189,34 +223,85 @@
 		letter-spacing: 0.05em;
 		text-transform: uppercase;
 	}
+	.replay-title-pill {
+		position: absolute;
+		top: -20px;
+		left: 50%;
+		transform: translateX(-50%);
+		padding: 8px 20px;
+		background: #1e1e23;
+		border: 1px solid #3a3a40;
+		border-radius: 999px;
+		font-size: 13px;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: #fff;
+		white-space: nowrap;
+	}
+	.replay-box {
+		margin-top: 18px;
+		padding: 14px 18px;
+		border: 1px solid #303036;
+		border-radius: 10px;
+	}
+	.replay-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		row-gap: 14px;
+	}
+	.replay-cell {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+	.replay-box-results {
+		padding: 0;
+		overflow: hidden;
+	}
 	.replay-row {
 		display: flex;
 		justify-content: space-between;
-		padding: 6px 0;
+		align-items: center;
+		padding: 12px 18px;
 		font-size: 14px;
 	}
+	.replay-row-win {
+		background: rgba(57, 255, 20, 0.1);
+	}
 	.replay-label {
-		color: #999;
+		color: #8a8a90;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
 	}
 	.replay-value {
 		color: #fff;
-		font-weight: 600;
+		font-weight: 700;
+		font-size: 16px;
 	}
 	.replay-button {
-		display: block;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
 		width: 100%;
 		margin-top: 20px;
-		padding: 12px 16px;
+		padding: 14px 16px;
 		background: #39ff14;
-		color: #000;
+		color: #0d0d10;
 		border: none;
-		border-radius: 4px;
+		border-radius: 8px;
 		font-weight: 700;
-		font-size: 14px;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		font-size: 15px;
+		text-transform: none;
+		letter-spacing: 0.02em;
 		cursor: pointer;
 		transition: background 120ms ease;
+	}
+	.replay-button-icon {
+		font-size: 12px;
 	}
 	.replay-button:hover {
 		background: #4dff2e;

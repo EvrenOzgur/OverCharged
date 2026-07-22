@@ -3,7 +3,7 @@
 
 	import { SpineProvider, SpineTrack, SpineSlot } from 'pixi-svelte';
 	import { ResponsiveBitmapText } from 'components-pixi';
-	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
+	import { bookEventAmountToWinCurrencyString } from 'utils-shared/amount';
 
 	import { SYMBOL_SIZE } from '../game/constants';
 
@@ -42,7 +42,7 @@
 				fontFamily: 'gold',
 				fontSize: 0.65 * SYMBOL_SIZE,
 			}}
-			text={bookEventAmountToCurrencyString(amount.current)}
+			text={bookEventAmountToWinCurrencyString(amount.current)}
 			maxWidth={props.width}
 		/>
 	</SpineSlot>

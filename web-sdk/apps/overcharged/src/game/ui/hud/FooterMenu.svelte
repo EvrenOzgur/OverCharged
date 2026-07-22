@@ -1,7 +1,7 @@
 <script lang="ts">
     import { uiStore } from "../../../shared/stores/uiStore.svelte";
     import { uiState } from "../../../shared/stores/uiStateStore.svelte";
-    import { FormatWinAmount } from "../../../shared/utils/currency";
+    import { FormatWinAmount, FormatWinAmountPrecise } from "../../../shared/utils/currency";
     import { s } from "../../../shared/utils/social";
     import { bettingState } from "../../logic/BettingState.svelte";
     import "./FooterMenu.css";
@@ -267,12 +267,12 @@
                     {#if isFreeSpin}
                         <span class="label-text">TOTAL WIN</span>
                         <span class="amount-text"
-                            >{FormatWinAmount(uiState.bonusTotalWin, currency)}</span
+                            >{FormatWinAmountPrecise(uiState.bonusTotalWin, currency)}</span
                         >
                     {:else if lastWinAmount > 0}
                         <span class="label-text green">LAST WIN</span>
                         <span class="amount-text"
-                            >{FormatWinAmount(lastWinAmount, currency)}</span
+                            >{FormatWinAmountPrecise(lastWinAmount, currency)}</span
                         >
                     {/if}
                 </div>
@@ -383,12 +383,12 @@
                 {#if isFreeSpin}
                     <span class="label-text">TOTAL WIN</span>
                     <span class="amount-text"
-                        >{FormatWinAmount(uiState.bonusTotalWin, currency)}</span
+                        >{FormatWinAmountPrecise(uiState.bonusTotalWin, currency)}</span
                     >
                 {:else if lastWinAmount > 0}
                     <span class="label-text green">LAST WIN</span>
                     <span class="amount-text"
-                        >{FormatWinAmount(lastWinAmount, currency)}</span
+                        >{FormatWinAmountPrecise(lastWinAmount, currency)}</span
                     >
                 {/if}
             </div>

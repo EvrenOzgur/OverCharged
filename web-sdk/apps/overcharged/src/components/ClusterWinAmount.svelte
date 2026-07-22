@@ -17,7 +17,7 @@
 	import { stateBetDerived } from 'state-shared';
 	import { FadeContainer } from 'components-pixi';
 	import { waitForTimeout } from 'utils-shared/wait';
-	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
+	import { bookEventAmountToWinCurrencyString } from 'utils-shared/amount';
 
 	import { SYMBOL_SIZE } from '../game/constants';
 	import { getContext } from '../game/context';
@@ -71,8 +71,8 @@
 			(props.win.collisionOffset ?? 0) * SYMBOL_SIZE * 0.55}
 		scale={scale.current}
 		text={showMultiplier
-			? `${bookEventAmountToCurrencyString(props.win.win)} X ${props.win.mult}`
-			: bookEventAmountToCurrencyString(props.win.result)}
+			? `${bookEventAmountToWinCurrencyString(props.win.win)} X ${props.win.mult}`
+			: bookEventAmountToWinCurrencyString(props.win.result)}
 		anchor={0.5}
 		style={{
 			fontFamily: 'gold',

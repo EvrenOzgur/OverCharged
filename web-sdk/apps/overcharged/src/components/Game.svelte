@@ -4,7 +4,7 @@
 	import { EnablePixiExtension } from 'components-pixi';
 	import { EnableHotkey, OnHotkey, EnableSpaceHold } from 'components-shared';
 	import { MainContainer } from 'components-layout';
-	import { App } from 'pixi-svelte';
+	import { App, Container } from 'pixi-svelte';
 	import { stateModal, stateBetDerived } from 'state-shared';
 
 	import { UI } from 'components-ui-pixi';
@@ -270,9 +270,15 @@
 				<GlobalMultiplier />
 			</MainContainer>
 
-			<MainContainer>
+			<MainContainer sortableChildren={true}>
 				<TumbleBoard />
-				<ClusterWinAmounts />
+				<!-- Explicit zIndex (parent has sortableChildren) so the floating win
+				     amount always paints above tumbling/settling symbols — template
+				     order alone wasn't reliably enough (see bonus-round screenshot:
+				     amount text rendering under a symbol as it floats up). -->
+				<Container zIndex={10}>
+					<ClusterWinAmounts />
+				</Container>
 				<!-- Pre-highlight overlay sits over the board, under SkillMeter. -->
 				<SkillPreHighlight />
 				<BoardContainer>

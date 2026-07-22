@@ -20,11 +20,19 @@
 	const symbolInfo = $derived(getSymbolInfo({ rawSymbol: props.rawSymbol, state: props.state }));
 	const isSprite = $derived(symbolInfo.type === 'sprite');
 	const isMultiplierSymbol = $derived(props.rawSymbol.name === 'M');
-	// Kazanan sembollerde (S/M hariç) anticipation spine'ının `payframe`
-	// animasyonu — parlayan kazanç çerçevesi.
+	// Kazanan sembollerde (S/M/W hariç) anticipation spine'ının `payframe`
+	// animasyonu — parlayan kazanç çerçevesi. Wild kendi `wildFrame`
+	// animasyonunu kullanıyor (aşağıda). `explosion` hariç: sembol patlarken
+	// halka artık dönmesin, sadece win/postWinStatic'te görünsün.
 	const showWinFrame = $derived(
-		['win', 'postWinStatic', 'explosion'].includes(props.state) &&
-			!['S', 'M'].includes(props.rawSymbol.name),
+		['win', 'postWinStatic'].includes(props.state) &&
+			!['S', 'M', 'W'].includes(props.rawSymbol.name),
+	);
+	// Wild sembollerde anticipation spine'ının `wildFrame` animasyonu —
+	// diğer kazanan sembollerin payframe'inden ayrı, wild'a özel çerçeve.
+	const showWildFrame = $derived(
+		['win', 'postWinStatic'].includes(props.state) &&
+			props.rawSymbol.name === 'W',
 	);
 
 	// Stable listener — defining it inline in the SymbolSpine props would
@@ -37,9 +45,7 @@
 	// the standard symbol/tumble explosion sound (sfx_multiplier_explosion_b,
 	// broadcast once per tumble in bookEventHandlerMap), same as every other
 	// symbol. So we no longer listen for the spine `wildExplode` event.
-	const spineListener = $derived({
-		complete: props.oncomplete,
-	});
+	const spineListener = $derived({ complete: () => props.oncomplete?.() });
 
 	// Idle states (static / postWinStatic) MUST loop — otherwise the Spine
 	// animation plays once and freezes on its end frame, which for many
@@ -74,5 +80,13 @@
 {#if showWinFrame}
 	<SpineProvider x={props.x} y={props.y} key="anticipation" width={SYMBOL_SIZE * 0.13}>
 		<SpineTrack trackIndex={0} animationName={'payframe'} loop />
+	</SpineProvider>
+{/if}
+
+<!-- Wild'a özel parlayan çerçeve (wildFrame) — payframe ile aynı mekanizma,
+     farklı animasyon. -->
+{#if showWildFrame}
+	<SpineProvider x={props.x} y={props.y} key="anticipation" width={SYMBOL_SIZE * 0.13}>
+		<SpineTrack trackIndex={0} animationName={'wildFrame'} loop />
 	</SpineProvider>
 {/if}

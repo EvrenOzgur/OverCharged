@@ -274,15 +274,45 @@ class GameExecutables(Executables):
         exploded_positions = []
         low_tiers = {"L1", "L2", "L3", "L4"}
 
+        # Any M coin currently on the board must be collected as part of this
+        # skill's guaranteed activation, not left to the normal win-triggered
+        # path below. get_clusters_update_wins() / activate_pending_multipliers()
+        # only count an M when total_win > 0 for that tumble step — a gate that
+        # exists to stop M's from getting a "free" ride on a genuinely empty
+        # NATURAL tumble (see that function's docstring). This skill's own
+        # explosion always reports totalWin=0 (it's a board-clear, not a payout),
+        # so without this, an M sitting on the board when L2 fires would fall
+        # into that same gate and never get counted — it would still visually
+        # get swept up in the explosion and later "collected" for show at
+        # finalMultiplierApplied, but its value would silently never reach
+        # global_multiplier. Since the skill is a guaranteed, player-visible
+        # activation (not an empty whiff), it should collect any M outright.
+        activated_symbols = []
+        multiplier_added = 0
+
         for reel_idx, reel in enumerate(self.board):
             for row_idx, sym in enumerate(reel):
                 if sym.name in low_tiers:
                     sym.explode = True
                     exploded_positions.append({"reel": reel_idx, "row": row_idx})
                     self.skill_meters[sym.name] += 1
-                    
+                elif sym.name == "M" and not hasattr(sym, "processed_multiplier"):
+                    val = sym.get_attribute("multiplier")
+                    if val and val > 0:
+                        multiplier_added += val
+                        sym.processed_multiplier = True
+                        activated_symbols.append({"reel": reel_idx, "row": row_idx + 1, "value": val})
+
         emit_skill_activated_event(self, "L2", {"positions": exploded_positions, "count": len(exploded_positions)})
-        
+
+        if multiplier_added > 0:
+            if self.global_multiplier == 1:
+                self.global_multiplier = multiplier_added
+            else:
+                self.global_multiplier += multiplier_added
+            emit_multiplier_symbol_activated_event(self, activated_symbols)
+            update_global_mult_event(self)
+
         # Correct way to tumble without paying: 
         # Set win_data with the positions so tumble_game_board knows what to remove
         self.win_data = {

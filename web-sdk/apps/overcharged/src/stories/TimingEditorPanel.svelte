@@ -11,7 +11,16 @@
 		});
 	}
 
-	type Field = { label: string; key: string; get: () => number; set: (v: number) => void; hint?: string };
+	type Field = {
+		label: string;
+		key: string;
+		get: () => number;
+		set: (v: number) => void;
+		hint?: string;
+		min?: number;
+		max?: number;
+		step?: number;
+	};
 
 	const sections: { title: string; fields: Field[] }[] = [
 		{
@@ -30,6 +39,31 @@
 					get: () => timingConfig.tumble.minTumbleViewMs,
 					set: (v) => (timingConfig.tumble.minTumbleViewMs = v),
 					hint: 'How long the settled board holds before the next tumble starts exploding.',
+				},
+			],
+		},
+		{
+			title: 'Symbol animation speed',
+			fields: [
+				{
+					label: 'Win flash speed',
+					key: 'symbolAnimationSpeedWin',
+					get: () => timingConfig.symbolAnimationSpeed.win,
+					set: (v) => (timingConfig.symbolAnimationSpeed.win = v),
+					hint: 'Spine timeScale multiplier for the win-flash state (declared duration 1.333s). Higher = faster.',
+					min: 0.5,
+					max: 3,
+					step: 0.05,
+				},
+				{
+					label: 'Explosion speed',
+					key: 'symbolAnimationSpeedExplosion',
+					get: () => timingConfig.symbolAnimationSpeed.explosion,
+					set: (v) => (timingConfig.symbolAnimationSpeed.explosion = v),
+					hint: 'Spine timeScale multiplier for the explosion state (declared duration 0.9s). Higher = faster.',
+					min: 0.5,
+					max: 3,
+					step: 0.05,
 				},
 			],
 		},
@@ -113,17 +147,17 @@
 							<input
 								id={`te-${field.key}`}
 								type="range"
-								min="0"
-								max="4000"
-								step="10"
+								min={field.min ?? 0}
+								max={field.max ?? 4000}
+								step={field.step ?? 10}
 								value={field.get()}
 								oninput={(e) => field.set(Number((e.target as HTMLInputElement).value))}
 							/>
 							<input
 								class="te-num"
 								type="number"
-								min="0"
-								step="10"
+								min={field.min ?? 0}
+								step={field.step ?? 10}
 								value={field.get()}
 								oninput={(e) => field.set(Number((e.target as HTMLInputElement).value))}
 							/>

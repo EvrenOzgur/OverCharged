@@ -12,6 +12,7 @@
     import { numberToCurrencyString } from "utils-shared/amount";
     import { uiStore } from "../../../shared/stores/uiStore.svelte";
     import { eventEmitter } from "../../eventEmitter";
+    import { bettingState } from "../../logic/BettingState.svelte";
     import { s } from "../../../shared/utils/social";
 
     interface Props {
@@ -31,6 +32,22 @@
     const totalCost = $derived(stateBet.betAmount * costMultiplier);
     const costText = $derived(numberToCurrencyString(totalCost));
     const title = $derived(mode?.text?.title || "BONUS");
+
+    // Bet +/- — lets the player size their buy without leaving the card.
+    // costText above re-derives from stateBet.betAmount automatically.
+    const sortedBetOptions = $derived([...stateConfig.betAmountOptions].sort((a, b) => a - b));
+    const smallestBet = $derived(sortedBetOptions[0]);
+    const biggestBet = $derived(sortedBetOptions[sortedBetOptions.length - 1]);
+    const betText = $derived(numberToCurrencyString(stateBet.betAmount));
+
+    function handleDecreaseBet() {
+        eventEmitter.broadcast({ type: "soundPressStepDown" });
+        bettingState.decreaseBet();
+    }
+    function handleIncreaseBet() {
+        eventEmitter.broadcast({ type: "soundPressStep" });
+        bettingState.increaseBet();
+    }
 
     // Affordability gate: the bonus buy debits bet × costMultiplier (100×) in a
     // single play. The shared isBetCostAvailable() only sees the BASE (1×) cost
@@ -99,7 +116,22 @@
             />
 
             <div class="bb-content">
-                <h2 class="bb-title">{title}</h2>
+                <div class="bb-title-row">
+                    <button
+                        class="bb-step"
+                        aria-label="Decrease bet"
+                        disabled={stateBet.betAmount === smallestBet}
+                        onclick={handleDecreaseBet}
+                    >−</button>
+                    <h2 class="bb-title">{title}</h2>
+                    <button
+                        class="bb-step"
+                        aria-label="Increase bet"
+                        disabled={stateBet.betAmount === biggestBet}
+                        onclick={handleIncreaseBet}
+                    >+</button>
+                </div>
+                <span class="bb-bet-amount">{betText}</span>
 
                 <div class="bb-volatility">
                     <img src="{assetPath}/volatility{VOLATILITY}.png" alt="volatility" />
@@ -253,6 +285,51 @@
     .bb-buy:disabled:hover,
     .bb-buy:disabled:active {
         transform: none;
+    }
+
+    .bb-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .bb-step {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 2px solid #1b1b1b;
+        background: #fff;
+        color: #1b1b1b;
+        font-family: 'ranchers', sans-serif;
+        font-size: 18px;
+        line-height: 1;
+        padding: 0;
+        cursor: pointer;
+        transition: transform 0.1s, opacity 0.1s;
+    }
+    .bb-step:hover:not(:disabled) {
+        transform: scale(1.08);
+    }
+    .bb-step:active:not(:disabled) {
+        transform: scale(0.92);
+    }
+    .bb-step:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+
+    .bb-bet-amount {
+        min-width: 64px;
+        font-family: 'ranchers', sans-serif;
+        font-size: 16px;
+        color: #1b1b1b;
+        line-height: 1;
     }
 
     .bb-insufficient {

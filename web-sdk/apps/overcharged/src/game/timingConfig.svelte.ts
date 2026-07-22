@@ -8,8 +8,10 @@
  *
  * Scope: these are the JS-driven wait/tween durations that pace the tumble
  * cascade (explosion → slide down → settle → win amounts → multiplier
- * apply). Per-symbol explosion/land animations themselves are Spine assets
- * and aren't tunable here — only the waits/tweens the code controls are.
+ * apply). Per-symbol explosion/land Spine animations aren't editable here
+ * (that requires touching the asset), but their *playback speed* is — see
+ * `symbolAnimationSpeed`, a timeScale multiplier applied on top of the
+ * existing turbo timeScale in SymbolSpineMain.svelte.
  */
 
 import initial from './timingConfig.json';
@@ -22,6 +24,12 @@ export type TimingConfig = {
 		slideDownBounceDurationMs: number;
 		/** Minimum time the settled board stays visible before the next tumble's explosion starts. */
 		minTumbleViewMs: number;
+	};
+	symbolAnimationSpeed: {
+		/** Spine timeScale multiplier for the 'win' flash state (declared duration 1.333s). */
+		win: number;
+		/** Spine timeScale multiplier for the 'explosion' state (declared duration 0.9s). */
+		explosion: number;
 	};
 	clusterWinAmount: {
 		/** How long a per-cluster win's multiplier badge stays up before the combine punch. */

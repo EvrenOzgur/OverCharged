@@ -61,10 +61,15 @@
 
 						reelSymbol.symbolState = state;
 
-						// Safety timeout: 2000ms max wait for animation complete
+						// Safety net in case the spine 'complete' event doesn't fire (e.g. track
+						// interrupted). Longest declared symbol animation is 'win' at 1.333s, so
+						// 1700ms gives ~28% headroom without adding a needless extra ~700ms wait
+						// on every winning tumble step (the old 2000ms cap always won the race
+						// against 'win' in practice, turning its 1.333s animation into a de facto
+						// 2s wait).
 						await Promise.race([
 							waitForResolve((resolve) => (reelSymbol.oncomplete = resolve)),
-							new Promise((resolve) => setTimeout(resolve, 2000))
+							new Promise((resolve) => setTimeout(resolve, 1700)),
 						]);
 
 						if (state === 'win') {

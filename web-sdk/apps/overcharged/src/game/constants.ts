@@ -124,20 +124,57 @@ const LOW_SYMBOL_SIZE = 0.9;
 const SPECIAL_SYMBOL_SIZE = 1;
 
 const SPIN_OPTIONS_SHARED = {
+	// Multiplies a per-reel padding size that ACCUMULATES across reels
+	// (createReelForCascading's fallIn: wait = reelFallInDelay * (paddingSize
+	// / reelLength - 1), and paddingSize itself is a running total via
+	// board.reduce). Temporarily back at the ORIGINAL 80ms so the user can
+	// re-verify whether this is even the right lever for "columns landing
+	// too close together" before tuning further.
 	reelFallInDelay: 80,
 	reelPaddingMultiplierNormal: 1.25,
+	// Paired back with reelFallInDelay's original value above — see that
+	// comment. Whatever reelFallInDelay ends up at after re-verification,
+	// this needs to move inversely to keep the anticipation suspense
+	// duration constant (waitToStartFallingIn in createReelForCascading.svelte.ts
+	// is `reelFallInDelay * (paddingSize/reelLength - 1)`, and this
+	// multiplier drives paddingSize for anticipated reels specifically).
 	reelPaddingMultiplierAnticipated: 18,
-	reelFallOutDelay: 145,
+	// Per-reel stagger before a reel's symbols start falling out on a new spin
+	// (delay = reelFallOutDelay * reelIndex). This value was sized for a
+	// typical 5-reel board; OverCharged has 8 reels, so at the old 145ms the
+	// last reel didn't even START leaving until 145*7=1015ms in — the board
+	// sits fully empty (old symbols gone, new ones not requested yet: the
+	// RGS play call only starts once this whole preSpin phase resolves, see
+	// createPrimaryMachines.ts's `newGame` actor) for over a second before
+	// any network latency is even added. 40ms keeps a visible wave-clear
+	// effect while cutting that dead time by ~700ms (last reel: 40*7=280ms).
+	reelFallOutDelay: 40,
 };
 
 export const SPIN_OPTIONS_DEFAULT = {
 	...SPIN_OPTIONS_SHARED,
-	symbolFallInSpeed: 3.5,
+	// Actual visual fall speed (px/ms) once a reel commits to landing — this is
+	// the real lever for "columns dropping too fast", separate from
+	// reelFallInDelay above (which only controls the WAIT before a reel starts
+	// landing, not how fast it falls once it does). Slowed from 3.5 to 1.5 so
+	// the landing reads at a calmer pace (turbo's SPIN_OPTIONS_FAST, below, is
+	// untouched and stays snappy).
+	symbolFallInSpeed: 1.5,
 	symbolFallInInterval: 30,
-	symbolFallInBounceSpeed: 0.15,
+	symbolFallInBounceSpeed: 0.07,
 	symbolFallInBounceSizeMulti: 0.5,
-	symbolFallOutSpeed: 3.5,
-	symbolFallOutInterval: 20,
+	// How fast each reel clears its OLD symbols on a new spin, and the
+	// per-symbol stagger within that. This matters beyond just the fall-out
+	// visual: createEnhanceBoardSpin.ts's `spin()` gates EVERY reel's fall-in
+	// (including the first) behind a single `Promise.all` that waits for ALL
+	// reels to finish clearing and reach 'hanging' — so the slowest reel
+	// (reel 7, with the largest reelFallOutDelay stagger) sets how long the
+	// WHOLE board sits empty before even the first column can start landing.
+	// Sped this up (3.5->5.5 speed, 20->10ms interval) to shrink that shared
+	// wait, rather than reelFallOutDelay's per-reel stagger which is already
+	// tight.
+	symbolFallOutSpeed: 5.5,
+	symbolFallOutInterval: 10,
 };
 
 export const SPIN_OPTIONS_FAST = {

@@ -59,7 +59,19 @@ const primaryMachines = createPrimaryMachines<Bet>({
 		);
 		if ((stateBet.isTurbo && stateXstateDerived.isAutoBetting()) || stateBet.isSpaceHold) return;
 		stateBet.winBookEventAmount = 0;
-		await stateGameDerived.enhancedBoard.preSpin({});
+		// Deliberately NOT awaited: createPrimaryMachines.ts's `newGame` actor
+		// runs `await onNewGameStart(); await handleRequestBet(...)` in strict
+		// sequence, so awaiting the full fallOut animation here means the
+		// /wallet/play request doesn't even start until every reel has
+		// finished visually clearing — stacking full network latency on top
+		// of the clear animation, with the board empty the whole time. Firing
+		// preSpin without awaiting lets the RGS call start immediately,
+		// overlapping with the clear animation instead of waiting for it.
+		// Still safe: `enhancedBoard.spin()` (called once the reveal event
+		// arrives) awaits each reel's own `readyToSpin` before doing
+		// anything, so fall-in still correctly waits for fall-out to finish
+		// if the network responds first.
+		stateGameDerived.enhancedBoard.preSpin({}).catch(() => {});
 	},
 	onNewGameError: () => {
 		dbg('actor.onNewGameError — /wallet/play failed, settling board');

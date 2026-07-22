@@ -3,6 +3,10 @@
     "slideDownBounceDurationMs": 200,
     "minTumbleViewMs": 220
   },
+  "symbolAnimationSpeed": {
+    "win": 1,
+    "explosion": 1
+  },
   "clusterWinAmount": {
     "multiplierBadgeHoldMs": 1000,
     "combineScaleDownMs": 200,
