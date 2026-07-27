@@ -492,9 +492,7 @@ export async function saveUiLayoutConfig(): Promise<boolean> {
 			body: exportUiLayoutConfig(),
 		});
 		return res.ok;
-	} catch (err) {
-		// eslint-disable-next-line no-console
-		console.error('[uiLayoutConfig] save failed', err);
+	} catch {
 		return false;
 	}
 }
@@ -529,6 +527,10 @@ export const editorState = $state({
 	activeVariant: 'desktop' as LayoutVariant,
 	/** Active resolution preset index, -1 = auto (use window size) */
 	activePreset: -1,
+	/** Explicit opt-in to preview normally-hidden, event-driven UI (e.g. the
+	 *  free-spin counter) while editing. Kept separate from `enabled` so
+	 *  entering the editor doesn't unconditionally mount extra content. */
+	previewFreeSpinCounter: false,
 });
 
 /** Get the editor's forced layout type, or null for auto-detection. */
@@ -745,16 +747,32 @@ export function getAllSelectedIds(): string[] {
  */
 const registry = new Map<string, UiElementTransform>();
 
+/** Reactive mirror of `registry`'s keys, so UI (e.g. the toolbar's element
+ *  picker) can list currently-mounted elements and pick one by name — needed
+ *  for elements that are hard/impossible to click directly on canvas (e.g.
+ *  sit behind the board's own interactive hit area on some presets). */
+export const registeredElementIds = $state<string[]>([]);
+
 export function registerEditableElement(id: string, transform: UiElementTransform) {
 	registry.set(id, transform);
+	if (!registeredElementIds.includes(id)) registeredElementIds.push(id);
 }
 
 export function unregisterEditableElement(id: string) {
 	registry.delete(id);
+	const idx = registeredElementIds.indexOf(id);
+	if (idx >= 0) registeredElementIds.splice(idx, 1);
 }
 
 export function getEditableElement(id: string): UiElementTransform | undefined {
 	return registry.get(id);
+}
+
+/** Explicitly select an element by id (e.g. from a picker list) instead of
+ *  clicking it on canvas. Clears any multi-selection. */
+export function selectElementById(id: string) {
+	editorState.multiSelected.length = 0;
+	editorState.selected = id || null;
 }
 
 // ── Background layer helpers ─────────────────────────────────────

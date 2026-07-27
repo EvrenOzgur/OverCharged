@@ -214,8 +214,7 @@ export async function saveSoundConfig(): Promise<boolean> {
 			body: exportSoundConfig(),
 		});
 		return res.ok;
-	} catch (err) {
-		console.error('[soundConfig] save failed', err);
+	} catch {
 		return false;
 	}
 }

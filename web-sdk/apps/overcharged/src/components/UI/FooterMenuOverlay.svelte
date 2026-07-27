@@ -96,12 +96,11 @@
 	// a round is in flight; the play button stays live during autoplay so it can
 	// still act as the Stop button (see FooterMenu.svelte's play-btn disabled expr).
 	const isIdle = $derived(context.stateXstateDerived.isIdle());
-	// Jurisdiction requirement: the Bonus Buy feature must not be offered at
-	// all in social-casino builds (nor where the RGS otherwise disables it) —
-	// matching the retired Pixi ButtonBuyBonus.svelte's `hidden` check.
-	const hideBonusBuy = $derived(
-		stateConfig.jurisdiction?.disabledBuyFeature || stateConfig.jurisdiction?.socialCasino,
-	);
+	// Only the RGS-driven `disabledBuyFeature` flag actually gates the feature.
+	// social-casino builds keep the button — BonusBuyMenu.svelte already swaps
+	// in the compliant btn_play_* art + play-safe copy for that case (see its
+	// buyBtnPrefix / s() usage) instead of hiding the entry point entirely.
+	const hideBonusBuy = $derived(Boolean(stateConfig.jurisdiction?.disabledBuyFeature));
 	const turboLevel = $derived(stateBet.isTurbo ? 1 : 0);
 
 	const onIncrease = () => {
@@ -264,7 +263,19 @@
 		position: fixed;
 		pointer-events: none;
 		z-index: 50;
-		overflow: hidden;
+		/* Was `overflow: hidden`. This box is sized to the MEASURED canvas rect
+		   (see `box` above), but FooterMenu's portrait layout uses a fixed-px
+		   design (.portrait-ui { width: 400px }, per-preset --scale) that isn't
+		   derived from that same measurement — on some real device/embed sizes
+		   (observed: a narrow-tall preview reporting ~415×812) the rendered
+		   footer ends up a few px taller than the measured box, and `hidden`
+		   was silently deleting the bottom row (BALANCE/BET) instead of just
+		   trimming stray overflow. `visible` still renders at the same
+		   position — since this box already sits at the canvas's true edges,
+		   the worst case is a few px bleeding past the ideal box, which stays
+		   on-screen instead of disappearing. No effect where content already
+		   fit inside the box (desktop/landscape/mobileM/mobileS). */
+		overflow: visible;
 	}
 
 	/* TEST/MODE toggle: re-enables pointer events on itself (root is click-through).

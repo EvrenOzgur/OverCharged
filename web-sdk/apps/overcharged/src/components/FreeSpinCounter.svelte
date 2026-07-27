@@ -23,16 +23,37 @@
 		height: panelWidth / PANEL_RATIO_DESKTOP,
 	});
 	const scale = 1;
-	const position = $derived({
-		x:
-			context.stateGameDerived.boardLayout().x -
-			context.stateGameDerived.boardLayout().width * 0.5 -
-			panelSizes.width -
-			SYMBOL_SIZE * 0.7,
-		y:
-			context.stateGameDerived.boardLayout().y -
-			context.stateGameDerived.boardLayout().height * 0.5,
-	});
+	// Portrait: the board spans ~the full canvas width (no side gutter like
+	// landscape has), so the desktop/landscape formula below — parking the
+	// panel OUTSIDE the board's left edge — pushes it off-canvas entirely
+	// (this is why it was gated off for portrait in Game.svelte). Instead,
+	// park it INSIDE the board's top-right corner, lifted above the grid into
+	// the character banner zone (mirrors the mana-bar cluster on the left).
+	const position = $derived(
+		context.stateLayoutDerived.layoutType() === 'portrait'
+			? {
+					x:
+						context.stateGameDerived.boardLayout().x +
+						context.stateGameDerived.boardLayout().width * 0.5 -
+						panelSizes.width -
+						SYMBOL_SIZE * 0.3,
+					y:
+						context.stateGameDerived.boardLayout().y -
+						context.stateGameDerived.boardLayout().height * 0.5 -
+						panelSizes.height -
+						SYMBOL_SIZE * 0.5,
+				}
+			: {
+					x:
+						context.stateGameDerived.boardLayout().x -
+						context.stateGameDerived.boardLayout().width * 0.5 -
+						panelSizes.width -
+						SYMBOL_SIZE * 0.7,
+					y:
+						context.stateGameDerived.boardLayout().y -
+						context.stateGameDerived.boardLayout().height * 0.5,
+				},
+	);
 
 	const fontSize = SYMBOL_SIZE * 0.275;
 

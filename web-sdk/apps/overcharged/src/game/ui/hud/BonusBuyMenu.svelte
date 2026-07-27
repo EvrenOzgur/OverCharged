@@ -141,7 +141,7 @@
                     <p class="bb-line">7+ free spins</p>
                     <span class="bb-cost">{costText}</span>
                 {:else}
-                    <p class="bb-line">This will cost</p>
+                    <p class="bb-line">{s("This will cost", "This will use")}</p>
                     <span class="bb-cost">{costText}</span>
                     <p class="bb-line">from your balance</p>
                 {/if}

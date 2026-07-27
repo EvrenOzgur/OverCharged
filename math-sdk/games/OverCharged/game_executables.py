@@ -180,8 +180,59 @@ class GameExecutables(Executables):
         if self.accumulated_base_win == 0:
             return
 
+        # Sweep up any M still on the board that never coincided with a same-step
+        # win (e.g. it dropped in on what turned out to be the last tumble step,
+        # and nothing else matched that step, so the loop ended before it got
+        # another chance — see _execute_tumble_sequence's while condition).
+        # Safe here specifically because we're past the accumulated_base_win==0
+        # guard: this spin already has a real win, so this can't be used to
+        # inflate global_multiplier for free on a whiff spin (the exact exploit
+        # the total_win>0 gate in get_clusters_update_wins was added to close).
+        from game_events import emit_multiplier_symbol_activated_event
+        activated_symbols = []
+        multiplier_added = 0
+        for reel_idx, reel in enumerate(self.board):
+            for row_idx, symbol in enumerate(reel):
+                if symbol.name == "M" and not hasattr(symbol, "processed_multiplier"):
+                    val = symbol.get_attribute("multiplier")
+                    if val and val > 0:
+                        multiplier_added += val
+                        symbol.processed_multiplier = True
+                        activated_symbols.append({"reel": reel_idx, "row": row_idx + 1, "value": val})
+
+        # Padding lookahead symbols (top_symbols/bottom_symbols, from the SDK's
+        # include_padding lookahead-row mechanism) are shown to the player in
+        # the reveal event exactly like a board M, but get_clusters_update_wins
+        # never evaluates them — only a later tumble that pulls one into
+        # self.board would. If a reel with a surviving M never explodes for the
+        # rest of the spin, that M's value would otherwise be silently lost on
+        # a spin that already won, despite looking identical to a real M the
+        # whole time. Sweep both lists here too, same as the board sweep above.
+        if getattr(self.config, "include_padding", False):
+            for reel_idx, symbol in enumerate(getattr(self, "top_symbols", [])):
+                if symbol.name == "M" and not hasattr(symbol, "processed_multiplier"):
+                    val = symbol.get_attribute("multiplier")
+                    if val and val > 0:
+                        multiplier_added += val
+                        symbol.processed_multiplier = True
+                        activated_symbols.append({"reel": reel_idx, "row": 0, "value": val})
+            for reel_idx, symbol in enumerate(getattr(self, "bottom_symbols", [])):
+                if symbol.name == "M" and not hasattr(symbol, "processed_multiplier"):
+                    val = symbol.get_attribute("multiplier")
+                    if val and val > 0:
+                        multiplier_added += val
+                        symbol.processed_multiplier = True
+                        activated_symbols.append({"reel": reel_idx, "row": len(self.board[reel_idx]) + 1, "value": val})
+
+        if multiplier_added > 0:
+            if self.global_multiplier == 1:
+                self.global_multiplier = multiplier_added
+            else:
+                self.global_multiplier += multiplier_added
+            emit_multiplier_symbol_activated_event(self, activated_symbols)
+
         final_win = self.accumulated_base_win * self.global_multiplier
-        
+
         # Update spin win with the final multiplied value
         # Subtract accumulated_base_win because it was already added to spin_win in raw form
         added_win = final_win - self.accumulated_base_win
@@ -244,11 +295,14 @@ class GameExecutables(Executables):
         from game_events import emit_skill_activated_event
         
         num_wilds = random.randint(2, 7)
-        # Find all non-wild spots
+        # Find all non-wild, non-M spots. M is a collectible multiplier coin,
+        # not an ordinary paying symbol — no skill may overwrite/destroy one
+        # sitting on the board (it could still be carrying an uncollected
+        # multiplier value).
         available_spots = []
         for reel_idx, reel in enumerate(self.board):
             for row_idx, sym in enumerate(reel):
-                if sym.name != "W":
+                if sym.name != "W" and sym.name != "M":
                     available_spots.append((reel_idx, row_idx))
         
         # Select random spots
@@ -357,10 +411,30 @@ class GameExecutables(Executables):
         
         max_r = self.config.num_reels - 3
         max_c = self.config.num_rows[0] - 3
-        
-        top_l_r = random.randint(0, max_r)
-        top_l_c = random.randint(0, max_c)
-        
+
+        # Only consider a top-left position valid if its full 3x3 footprint
+        # doesn't cover any M symbol — same rule as L1 (trigger_yellow_skill):
+        # no skill may overwrite/destroy an M sitting on the board.
+        valid_positions = []
+        for r in range(max_r + 1):
+            for c in range(max_c + 1):
+                covers_m = any(
+                    self.board[r + r_offset][c + c_offset].name == "M"
+                    for r_offset in range(3)
+                    for c_offset in range(3)
+                )
+                if not covers_m:
+                    valid_positions.append((r, c))
+
+        if not valid_positions:
+            # Every possible 3x3 footprint covers at least one M — extremely
+            # unlikely, but skip placing wilds this trigger rather than
+            # destroy one.
+            emit_skill_activated_event(self, "L4", {"positions": []})
+            return
+
+        top_l_r, top_l_c = random.choice(valid_positions)
+
         wilds_placed = []
         for r_offset in range(3):
             for c_offset in range(3):

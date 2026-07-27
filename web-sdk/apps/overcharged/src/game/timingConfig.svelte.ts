@@ -118,8 +118,7 @@ export async function saveTimingConfig(): Promise<boolean> {
 			body: exportTimingConfig(),
 		});
 		return res.ok;
-	} catch (err) {
-		console.error('[timingConfig] save failed', err);
+	} catch {
 		return false;
 	}
 }

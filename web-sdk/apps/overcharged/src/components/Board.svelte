@@ -100,9 +100,16 @@
 	context.stateGameDerived.enhancedBoard.readyToSpinEffect();
 </script>
 
-{#if show}
-	<BoardContainer>
-		<BoardMask />
-		<BoardBase />
-	</BoardContainer>
-{/if}
+<!-- Always mounted; `visible` toggles Pixi-level rendering only. This used to
+     be `{#if show}` (full conditional mount) — unmounting/remounting the
+     whole board on every boardHide/boardShow (once per tumble step, right
+     as boardSettle swaps in the new settled symbols) destroyed and recreated
+     EVERY symbol's Spine instance, which flashes back to its setup pose for
+     an instant on remount — a whole-board flicker, not just the symbols that
+     actually dropped. Keeping it mounted and only hiding it preserves each
+     Spine instance's state across the hide/show, so only symbols whose state
+     genuinely changes (the falling ones) show any visual transition. -->
+<BoardContainer visible={show}>
+	<BoardMask />
+	<BoardBase />
+</BoardContainer>

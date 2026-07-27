@@ -15,9 +15,21 @@ class GameState(GameStateOverride):
         if self.win_data["totalWin"] == 0:
             skills_active = self.process_skills()
 
-        while (self.win_data["totalWin"] > 0 or len(self.win_data.get("wins", [])) > 0 or skills_active) and not self.wincap_triggered:
+        while self.win_data["totalWin"] > 0 or len(self.win_data.get("wins", [])) > 0 or skills_active:
             if self.win_data["totalWin"] > 0 or len(self.win_data.get("wins", [])) > 0:
                 self.tumble_game_board()
+                # wincap_triggered may already be True here: evaluate_wincap()
+                # runs at the end of the PRECEDING emit_tumble_win_events()
+                # call, i.e. right after the win we are about to explode was
+                # announced via winInfo. The tumble_game_board() call above
+                # always explodes that already-announced win first - only
+                # AFTER that do we stop searching for further wins. Checking
+                # wincap here (instead of in the while condition, as before)
+                # is what fixes the bug where a wincap-crossing win got its
+                # winInfo flash but never its matching tumbleBoard explosion,
+                # leaving the symbols stuck on screen forever.
+                if self.wincap_triggered:
+                    break
                 self.get_clusters_update_wins()
                 self.emit_tumble_win_events()
                 self.activate_pending_multipliers()

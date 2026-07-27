@@ -168,26 +168,7 @@
 	// and override the track when the predicate matches.
 	const subs: Array<() => void> = [];
 
-	// [BG-ANIM-DEBUG] always-on logging for the character layer so transition
-	// timing issues (normal_to_hulk skipping, retrigger re-firing, etc.) are
-	// diagnosable in a Stake replay without a code change. Cheap — fires only
-	// on track state mutations, not every frame.
-	const dbgLayer = layer.id;
-	const dbg = (msg: string, extra?: Record<string, unknown>) => {
-		try {
-			console.log(`[BG-ANIM-DEBUG ${dbgLayer}] ${msg}`, extra ?? '');
-		} catch {
-			// noop
-		}
-	};
-
 	function applyTrigger(trackIndex: number, animationName: string, loop: boolean) {
-		const prev = trackStates.get(trackIndex);
-		dbg(`applyTrigger track=${trackIndex} anim=${animationName} loop=${loop}`, {
-			prevAnim: prev?.animationName,
-			effectiveGameType: effectiveGameType(),
-			sustainedGameType,
-		});
 		const nextState: TrackState = { animationName, loop };
 		// Mark this track as having an in-flight non-looping trigger so a
 		// gameType edge during the animation does not stomp it via
@@ -201,10 +182,6 @@
 
 	function returnTrackToBaseline(trackIndex: number) {
 		const baseline = resolveBaseline(trackIndex);
-		dbg(`returnTrackToBaseline track=${trackIndex} → ${baseline.animationName}`, {
-			loop: baseline.loop,
-			effectiveGameType: effectiveGameType(),
-		});
 		activeTriggerTracks.delete(trackIndex);
 		const next = new Map(trackStates);
 		next.set(trackIndex, baseline);

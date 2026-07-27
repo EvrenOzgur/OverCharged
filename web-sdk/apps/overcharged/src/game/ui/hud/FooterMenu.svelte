@@ -90,13 +90,6 @@
         }
     });
 
-    $effect(() => {
-        console.log(
-            `%c[FooterMenu] Yerleşim ayarlandı: Çözünürlük Preset = ${resVal} | Mod = ${isLandscape ? "Yatay (Landscape)" : "Dikey (Portrait)"} | Scale = ${scale}`,
-            "color: #3b82f6; font-weight: bold;",
-        );
-    });
-
     import { autoSpinStore } from "../../../shared/stores/autoSpinStore.svelte";
 
     let hasActiveAnte = $derived(

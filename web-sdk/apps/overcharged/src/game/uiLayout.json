@@ -311,6 +311,28 @@
         "activeGlowIntensity": 0.55,
         "bgAlpha": 0.4
       }
+    },
+    "freeSpinCounter": {
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "rotation": 0,
+      "style": {
+        "textOverride": "",
+        "fontColor": "#999999",
+        "valueColor": "#ffffff",
+        "fontSize": 1,
+        "backgroundColor": "#1a1a1e",
+        "borderColor": "#4a4a4e",
+        "activeColor": "#39ff14",
+        "alpha": 1,
+        "visible": true,
+        "bgType": "color",
+        "bgSpriteKey": "",
+        "bgSpineKey": "",
+        "bgSpineAnim": "",
+        "bgSpineLoop": true
+      }
     }
   },
   "bgLayers": [
@@ -474,8 +496,8 @@
     "boardPaddingX": 0,
     "boardPaddingY": 0,
     "showBoardFrame": true,
-    "multiplierBgX": 0,
-    "multiplierBgY": 0,
+    "multiplierBgX": -6,
+    "multiplierBgY": -4,
     "multiplierBgWidth": 1164,
     "multiplierBgHeight": 911
   },
@@ -688,6 +710,28 @@
         "x": 104,
         "y": -136,
         "scale": 0.78
+      },
+      "freeSpinCounter": {
+        "x": -50,
+        "y": 0,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
       }
     },
     "1024x576": {
@@ -922,6 +966,28 @@
           "valueColor": "#ffffff",
           "fontSize": 1,
           "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "freeSpinCounter": {
+        "x": 0,
+        "y": 0,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
           "borderColor": "#4a4a4e",
           "activeColor": "#39ff14",
           "alpha": 1,
@@ -1176,6 +1242,28 @@
           "bgSpineAnim": "",
           "bgSpineLoop": true
         }
+      },
+      "freeSpinCounter": {
+        "x": 0,
+        "y": 0,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
       }
     },
     "425x812": {
@@ -1410,6 +1498,28 @@
           "valueColor": "#ffffff",
           "fontSize": 1,
           "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "freeSpinCounter": {
+        "x": 0,
+        "y": 0,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
           "borderColor": "#4a4a4e",
           "activeColor": "#39ff14",
           "alpha": 1,
@@ -1664,6 +1774,28 @@
           "bgSpineAnim": "",
           "bgSpineLoop": true
         }
+      },
+      "freeSpinCounter": {
+        "x": 0,
+        "y": 0,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
       }
     },
     "375x667": {
@@ -1898,6 +2030,28 @@
           "valueColor": "#ffffff",
           "fontSize": 1,
           "backgroundColor": "#242428",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
+        }
+      },
+      "freeSpinCounter": {
+        "x": 0,
+        "y": 0,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
           "borderColor": "#4a4a4e",
           "activeColor": "#39ff14",
           "alpha": 1,
@@ -2221,6 +2375,28 @@
           "hoverGlowIntensity": 0.6,
           "activeGlowIntensity": 0.55,
           "bgAlpha": 0.4
+        }
+      },
+      "freeSpinCounter": {
+        "x": 0,
+        "y": 0,
+        "scale": 1,
+        "rotation": 0,
+        "style": {
+          "textOverride": "",
+          "fontColor": "#999999",
+          "valueColor": "#ffffff",
+          "fontSize": 1,
+          "backgroundColor": "#1a1a1e",
+          "borderColor": "#4a4a4e",
+          "activeColor": "#39ff14",
+          "alpha": 1,
+          "visible": true,
+          "bgType": "color",
+          "bgSpriteKey": "",
+          "bgSpineKey": "",
+          "bgSpineAnim": "",
+          "bgSpineLoop": true
         }
       }
     }

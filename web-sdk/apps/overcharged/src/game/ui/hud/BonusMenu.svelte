@@ -149,7 +149,6 @@
     }
 
     function handleActionClick(option: BonusOption, canAfford: boolean, e?: Event) {
-        // console.log(`[BonusMenu] handleActionClick fired. option: ${option.id}, canAfford: ${canAfford}, dragDistance: ${dragDistance}, isToggle: ${option.isToggle}, active: ${bettingState.activeFeatureId}`);
         if (dragDistance > 5) {
             e?.stopPropagation();
             e?.preventDefault();
@@ -161,15 +160,11 @@
             // Confirm
             if (option.isToggle) {
                 if (bettingState.activeFeatureId === option.id) {
-                    console.log(`[BonusMenu] disabling ${option.id}`);
                     onDisable();
                     selectedOption = null;
                 } else if (canAfford) {
-                    console.log(`[BonusMenu] enabling ${option.id}`);
                     onBuySpecialBonus(option.id);
                     selectedOption = null;
-                } else {
-                    console.log(`[BonusMenu] Cannot afford ${option.id}`);
                 }
             } else {
                 if (canAfford) {

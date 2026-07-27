@@ -51,7 +51,14 @@
 		{@const duration = winLevelData.presentDuration}
 		<WinCountUpProvider {amount} {duration} oncomplete={() => onCountUpComplete()}>
 			{#snippet children({ countUpAmount, startCountUp, finishCountUp, countUpCompleted })}
-				<OnMount onmount={() => startCountUp()} />
+				<OnMount
+					onmount={async () => {
+						context.eventEmitter.broadcast({ type: 'soundLoop', name: 'sfx_coincount_loop' });
+						await startCountUp();
+						context.eventEmitter.broadcast({ type: 'soundStop', name: 'sfx_coincount_loop' });
+						context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_coincount_end' });
+					}}
+				/>
 
 				<CanvasSizeRectangle backgroundColor={0x000000} backgroundAlpha={0.5} />
 

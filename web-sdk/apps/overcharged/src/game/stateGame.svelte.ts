@@ -128,9 +128,19 @@ const boardRaw = () =>
 	board.map((reel) => reel.reelState.symbols.map((reelSymbol) => reelSymbol.rawSymbol));
 
 const tumbleBoardCombined = () => {
+	// tumbleReelBase is boardRaw() (padded frame: [topPadding, ...visible, bottomPadding])
+	// with exploded slots filtered out — its first element is still that stale
+	// top-padding symbol. Newly-dropped symbols belong AFTER it (they fill the
+	// visible rows the explosions vacated), not before: prepending them in
+	// front of the padding shifts the whole reel by one, pushing the newest
+	// symbol into the masked padding slot and leaking the stale padding symbol
+	// into a real visible row — a phantom symbol with no relation to math's
+	// actual board, which is what let mismatched/uncleared clusters appear.
 	const tumbleBoardCombined = stateGame.tumbleBoardBase.map((tumbleReelBase, reelIndex) => {
 		const tumbleReelAdding = stateGame.tumbleBoardAdding[reelIndex] ?? [];
-		return [...tumbleReelAdding, ...tumbleReelBase];
+		if (tumbleReelAdding.length === 0) return tumbleReelBase;
+		const [topPadding, ...survivors] = tumbleReelBase;
+		return [topPadding, ...tumbleReelAdding, ...survivors];
 	});
 
 	return tumbleBoardCombined;

@@ -200,9 +200,15 @@
 	});
 </script>
 
-{#if show}
-	<BoardContainer>
-		<BoardMask />
-		<TumbleBoardBase />
-	</BoardContainer>
-{/if}
+<!-- Always mounted; `visible` toggles Pixi-level rendering only (see
+     Board.svelte for the matching fix + full rationale). Critically, this
+     also lets tumbleBoardInit populate fresh TumbleSymbol data — and let
+     their Spine instances mount/settle — WHILE this layer is still
+     invisible, so the "flash to setup pose" every fresh Spine mount does is
+     never actually seen (see bookEventHandlerMap.ts's tumbleBoard handler,
+     which now waits a couple of frames after tumbleBoardInit before firing
+     tumbleBoardShow). -->
+<BoardContainer visible={show}>
+	<BoardMask />
+	<TumbleBoardBase />
+</BoardContainer>

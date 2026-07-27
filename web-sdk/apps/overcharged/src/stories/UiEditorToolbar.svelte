@@ -1,9 +1,18 @@
 <script lang="ts">
 	import { gridState } from './editorGrid.svelte';
 	import { clipboardState, copySelected, pasteToSelected, resetSelected } from './editorClipboard.svelte';
-	import { editorState, RESOLUTION_PRESETS, getActivePreset, ensurePresetConfig } from '../game/uiLayoutConfig.svelte';
+	import {
+		editorState,
+		RESOLUTION_PRESETS,
+		getActivePreset,
+		ensurePresetConfig,
+		registeredElementIds,
+		selectElementById,
+	} from '../game/uiLayoutConfig.svelte';
 	import { pushSnapshot } from './editorHistory.svelte';
 	import UiExportImport from './UiExportImport.svelte';
+
+	const sortedElementIds = $derived([...registeredElementIds].sort());
 
 	function selectPreset(idx: number) {
 		editorState.activePreset = idx;
@@ -43,6 +52,29 @@
 		{#if activePreset}
 			<span class="preset-info">{activePreset.layoutType}</span>
 		{/if}
+	</div>
+
+	<div class="toolbar-sep"></div>
+
+	<!-- Element picker: select by name instead of clicking on canvas — needed
+	     for elements that sit behind/inside another element's hit area on some
+	     presets (e.g. the free-spin counter overlapping the board on mobile). -->
+	<div class="toolbar-group">
+		<span class="toolbar-label">Element</span>
+		<select
+			class="preset-select"
+			value={editorState.selected ?? ''}
+			onchange={(e) => selectElementById((e.currentTarget as HTMLSelectElement).value)}
+		>
+			<option value="">(none)</option>
+			{#each sortedElementIds as id}
+				<option value={id}>{id}</option>
+			{/each}
+		</select>
+		<label class="toggle-small">
+			<input type="checkbox" bind:checked={editorState.previewFreeSpinCounter} />
+			Preview FS Counter
+		</label>
 	</div>
 
 	<div class="toolbar-sep"></div>

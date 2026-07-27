@@ -16,7 +16,6 @@
 	is active. The Game canvas underneath is fully visible so animations play.
 -->
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { stateBet, stateUrlDerived } from 'state-shared';
 	import { API_AMOUNT_MULTIPLIER } from 'constants-shared/bet';
 	import { numberToWinCurrencyString } from 'utils-shared/amount';
@@ -33,28 +32,6 @@
 	// state and the playback would be ignored.
 	const ready = $derived(context.stateApp?.loaded === true);
 
-	// [REPLAY-DEBUG] always-on logging. Replay sessions are rare and intentional,
-	// so we don't gate behind a toggle — they help diagnose Stake replay-link
-	// regressions (auth bypass, event load, playback) at a glance.
-	onMount(() => {
-		console.log('[REPLAY-DEBUG] ReplayOverlay mounted', {
-			isReplayMode: stateUrlDerived.isReplayMode(),
-			params,
-			lastBetExists: !!stateBet.lastBet,
-			stateLength: (stateBet.lastBet as { state?: unknown[] })?.state?.length,
-			currency: stateBet.currency,
-			betAmount: stateBet.betAmount,
-		});
-	});
-
-	$effect(() => {
-		console.log('[REPLAY-DEBUG] phase change →', phase);
-	});
-
-	$effect(() => {
-		console.log('[REPLAY-DEBUG] ready =', ready, 'stateApp.loaded=', context.stateApp?.loaded);
-	});
-
 	async function startReplay() {
 		const events = stateBet.lastBet?.state;
 		// Expose to DevTools for manual inspection (`__replay` in console).
@@ -64,15 +41,7 @@
 			firstEvent: events?.[0],
 			eventTypes: events?.map?.((e: { type: string }) => e?.type),
 		};
-		console.log('[REPLAY-DEBUG] Start Replay clicked', {
-			eventCount: events?.length ?? 0,
-			mode: (stateBet.lastBet as { mode?: string })?.mode ?? params.mode,
-			payoutMultiplier: (stateBet.lastBet as { payoutMultiplier?: number })?.payoutMultiplier,
-			costMultiplier: (stateBet.lastBet as { costMultiplier?: number })?.costMultiplier,
-			eventTypes: events?.slice?.(0, 10).map?.((e: { type: string }) => e?.type),
-		});
 		if (!events?.length) {
-			console.warn('[REPLAY-DEBUG] startReplay aborted — no state in lastBet');
 			return;
 		}
 		// Keep the activeBetModeKey in the canonical uppercase form. Math SDK
@@ -84,7 +53,6 @@
 			'BASE'
 		).toUpperCase();
 		phase = 'playing';
-		const t0 = performance.now();
 		try {
 			// Bypass `resumeBet` → gameActor entirely. The resumeBet machine
 			// triggers `requestEndRound` after playback (live-spin cleanup),
@@ -92,17 +60,14 @@
 			// directly drives the renderer through bookEventHandlerMap with no
 			// /wallet/* side effects.
 			await playBookEvents(events as never);
-			const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
-			console.log(`[REPLAY-DEBUG] playback DONE in ${elapsed}s`);
-		} catch (err) {
-			console.error('[REPLAY-DEBUG] playback FAILED', err);
+		} catch {
+			// swallow — phase still resolves to 'finished' below
 		} finally {
 			phase = 'finished';
 		}
 	}
 
 	function playAgain() {
-		console.log('[REPLAY-DEBUG] Play Again clicked');
 		// Re-run from the top by replaying the same event stream.
 		void startReplay();
 	}

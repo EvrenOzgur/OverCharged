@@ -33,36 +33,37 @@ class GameStateOverride(GameExecutables):
             symObject.assign_attribute({"multiplier": val})
         return symObject
 
+    def _roll_m_symbol(self, symbol):
+        """Resolve one unresolved M: convert it to a random low-tier (spawn-rate
+        failure) or lock in its multiplier value (survivor). Returns the
+        replacement symbol if converted, otherwise None. Shared by the board
+        pass and the padding-buffer pass below so both go through the exact
+        same odds and the exact same "m_resolved" marking."""
+        low_tiers = ["L1", "L2", "L3", "L4"]
+        if random.random() >= self.config.m_spawn_rate:
+            return self.create_symbol(random.choice(low_tiers))
+        val = random.choices(
+            list(self.config.multiplier_weights.keys()),
+            weights=list(self.config.multiplier_weights.values()),
+            k=1,
+        )[0]
+        symbol.assign_attribute({"m_resolved": True, "multiplier": val})
+        return None
+
     def _resolve_m_spawns(self, sync_new_symbols: bool = False) -> None:
         # Run the M spawn-rate filter and keep self.board, new_symbols_from_tumble
         # and top_symbols consistent so reveal/tumbleBoard events reflect the
         # symbols the math layer will actually evaluate. Without this sync the
         # client would display an M that the math engine silently converted.
-        low_tiers = ["L1", "L2", "L3", "L4"]
         replacements = {}
         for reel_idx, reel in enumerate(self.board):
             for row_idx, symbol in enumerate(reel):
                 if symbol.name != "M" or hasattr(symbol, "m_resolved"):
                     continue
-                if random.random() >= self.config.m_spawn_rate:
-                    replacement = self.create_symbol(random.choice(low_tiers))
+                replacement = self._roll_m_symbol(symbol)
+                if replacement is not None:
                     self.board[reel_idx][row_idx] = replacement
                     replacements[id(symbol)] = replacement
-                else:
-                    # Surviving M: assign its multiplier value here so the reveal /
-                    # tumbleBoard event serializes `"multiplier": <int>` instead of
-                    # the boolean True set by Symbol.__init__. Without this the
-                    # client renders the symbol but cannot show its X-value badge
-                    # on spins where the M never gets activated (no win to apply).
-                    val = random.choices(
-                        list(self.config.multiplier_weights.keys()),
-                        weights=list(self.config.multiplier_weights.values()),
-                        k=1,
-                    )[0]
-                    symbol.assign_attribute({"m_resolved": True, "multiplier": val})
-
-        if not replacements:
-            return
 
         if sync_new_symbols and hasattr(self, "new_symbols_from_tumble"):
             for reel_idx, new_syms in enumerate(self.new_symbols_from_tumble):
@@ -75,6 +76,31 @@ class GameStateOverride(GameExecutables):
                 if id(top) in replacements:
                     self.top_symbols[reel_idx] = replacements[id(top)]
 
+        # Padding lookahead symbols (top_symbols/bottom_symbols) are created by
+        # the base SDK's create_board_reelstrips via the same create_symbol()
+        # override, so an M can land there too — but get_clusters_update_wins()
+        # only ever scans self.board, never these two lists. Left unresolved, a
+        # padding M keeps whatever raw (unfiltered, un-rolled) value it got at
+        # creation and is serialized into the reveal event looking exactly like
+        # a real, biddable M — yet if its reel never explodes for the rest of
+        # the spin, it never enters self.board, is never evaluated, and its
+        # value is silently lost even on a spin that otherwise won. Resolving
+        # it here, the same way board M's are resolved, keeps every M the
+        # player is shown on equal footing: it either fails its spawn roll (and
+        # is shown as its converted low-tier instead of M) or survives with a
+        # locked multiplier value — never a permanently-unresolved phantom.
+        if self.config.include_padding:
+            for reel_idx, top in enumerate(getattr(self, "top_symbols", [])):
+                if top.name == "M" and not hasattr(top, "m_resolved"):
+                    replacement = self._roll_m_symbol(top)
+                    if replacement is not None:
+                        self.top_symbols[reel_idx] = replacement
+            for reel_idx, bottom in enumerate(getattr(self, "bottom_symbols", [])):
+                if bottom.name == "M" and not hasattr(bottom, "m_resolved"):
+                    replacement = self._roll_m_symbol(bottom)
+                    if replacement is not None:
+                        self.bottom_symbols[reel_idx] = replacement
+
     def draw_board(self, emit_event: bool = True, trigger_symbol: str = "scatter") -> None:
         super().draw_board(emit_event=False, trigger_symbol=trigger_symbol)
         self._resolve_m_spawns()
@@ -83,8 +109,49 @@ class GameStateOverride(GameExecutables):
 
     def tumble_game_board(self):
         self.tumble_board()
+        self._fix_new_symbols_from_tumble_offset()
         self._resolve_m_spawns(sync_new_symbols=True)
         tumble_board_event(self)
+
+    def _fix_new_symbols_from_tumble_offset(self) -> None:
+        """Correct a base-SDK off-by-one: with include_padding=True (as here),
+        Tumble.tumble_board() reports the WRONG symbol as "new" for a reel's
+        very first inserted slot each time that reel had an explosion — it
+        puts the freshly-created NEXT self.top_symbols (which hasn't entered
+        self.board at all yet, it's queued for a FUTURE tumble) into
+        new_symbols_from_tumble, instead of the symbol that actually just
+        moved from the OLD self.top_symbols into self.board.
+
+        Concretely (verified empirically): for a reel with N exploding
+        positions, self.board[reel][:N] ends up holding the N real symbols
+        that just landed, but new_symbols_from_tumble[reel] ends up
+        containing the new lookahead top_symbols first and is missing the
+        real last one — i.e. it's shifted by one relative to self.board.
+
+        new_symbols_from_tumble is exactly what tumble_board_event() (below)
+        serializes as the tumbleBoard book event's `newSymbols` — the data
+        the client renders as "just fell into place". Left uncorrected, the
+        client displays a symbol that is not actually the one math just
+        scored at that position, for the first landed symbol of every
+        exploding reel, every tumble. This is invisible for ordinary symbols
+        (any symbol looks as valid as any other to a player) but glaring for
+        an M (multiplier) coin, since its value is directly checkable against
+        the round's total — this was the exact bug reported and chased for a
+        while as a "multiplier collection" issue, when the real defect was
+        this display/score mismatch.
+
+        Fix: for every reel that had new symbols drop in this tumble,
+        replace the reported slice with the ACTUAL leading slice of
+        self.board (which tumble_board() already correctly populated) —
+        restoring a direct positional correspondence. Must run BEFORE
+        _resolve_m_spawns(sync_new_symbols=True) so that function's
+        id()-based replacement lookups operate against the corrected (real)
+        symbol references.
+        """
+        for reel_idx, new_syms in enumerate(self.new_symbols_from_tumble):
+            n = len(new_syms)
+            if n > 0:
+                self.new_symbols_from_tumble[reel_idx] = list(self.board[reel_idx][:n])
 
     def reset_book(self):
         # Reset global values used across multiple projects
@@ -103,6 +170,16 @@ class GameStateOverride(GameExecutables):
         # runs once on FS entry, so the flag stays True for the rest of the
         # session after the first trigger (see update_freespin note).
         self.red_skill_used = False
+        # global_multiplier is only reset in reset_book (once per BASE round),
+        # not here — so a multiplier collected during the triggering base
+        # spin's own tumbles (right before/as the scatter landed) was carrying
+        # straight into the free-spin session instead of starting fresh at 1x.
+        # reset_fs_spin runs exactly once, on FS entry (not per individual free
+        # spin — see update_freespin, which resets accumulated_base_win every
+        # free spin but deliberately leaves global_multiplier alone so it can
+        # keep accumulating ACROSS the free spins within this session). This is
+        # the correct single point to zero it going INTO the session.
+        self.global_multiplier = 1
 
     def assign_special_sym_function(self):
         pass

@@ -116,7 +116,7 @@
 					<span class="multiplier-icon">M</span>
 					<div class="special-text">
 						<span class="special-label">MULTIPLIER</span>
-						<span class="special-desc">Increases the Global Multiplier when part of a cascade. Does not pay independently.</span>
+						<span class="special-desc">Adds its value to the Global Multiplier whenever a spin produces a win. Does not pay independently.</span>
 					</div>
 				</div>
 			</div>

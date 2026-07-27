@@ -57,6 +57,26 @@ function waitMinTumbleView(): Promise<void> {
 	);
 }
 
+// Wait one rendered frame (used by `tumbleBoard` to let freshly-mounted Spine
+// instances settle off-screen before reveal — see its handler below). Bounded
+// with a timeout fallback: if requestAnimationFrame never fires (tab/iframe
+// loses visibility, gets throttled, etc.) this must not hang the whole tumble
+// sequence forever — the exact same failure class every other wait in this
+// file is already guarded against (see waitForResolve/Promise.race usage in
+// TumbleBoard.svelte and the "Svelte Tween skip orphan hang" precedent).
+function waitFrame(): Promise<void> {
+	return new Promise<void>((resolve) => {
+		let done = false;
+		const finish = () => {
+			if (done) return;
+			done = true;
+			resolve();
+		};
+		requestAnimationFrame(finish);
+		setTimeout(finish, 250);
+	});
+}
+
 // ─── Deferred global-multiplier tick-up ────────────────────────────────
 // Math emits `multiplierSymbolActivated` (+ a redundant `updateGlobalMult`
 // echo) right after that tumble step's `winInfo`, but BEFORE the matching
@@ -227,6 +247,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// (transition1) a moment later — overlapping jingles. jng_intro_fs now
 		// owns the whole "entering bonus" transition sound alone.
 		await eventEmitter.broadcastAsync({ type: 'uiHide' });
+		// EXPERIMENTAL: try sfx_winlevel_end during the base->bonus transition
+		// animation, right as it starts.
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_winlevel_end' });
 		await eventEmitter.broadcastAsync({ type: 'transition' });
 		eventEmitter.broadcast({ type: 'freeSpinIntroShow' });
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'jng_intro_fs' });
@@ -376,9 +399,24 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'drawerButtonHide' });
 	},
 	tumbleBoard: async (bookEvent: BookEventOfType<'tumbleBoard'>) => {
-		eventEmitter.broadcast({ type: 'boardHide' });
-		eventEmitter.broadcast({ type: 'tumbleBoardShow' });
+		// TumbleBoardBase rebuilds a fresh TumbleSymbol (fresh Tween, fresh
+		// Spine mount) for EVERY symbol on tumbleBoardInit — not just the
+		// exploding/falling ones — so every one of them briefly flashes to
+		// its Spine setup pose the instant it first becomes visible (a
+		// whole-board flicker, not just the falling symbols). TumbleBoard is
+		// rendered ON TOP of Board (see Game.svelte), so hiding/showing Board
+		// around this moment can't mask it — whatever paints on the TumbleBoard
+		// layer is what the player sees regardless of Board's own visibility.
+		// Instead: init the data while TumbleBoard is still invisible
+		// (tumbleBoardInit no longer implies tumbleBoardShow), let its fresh
+		// Spine instances settle for a couple of frames off-screen, THEN
+		// reveal it — so the flash-to-setup-pose happens before anyone can
+		// see it.
 		eventEmitter.broadcast({ type: 'tumbleBoardInit', addingBoard: bookEvent.newSymbols });
+		await waitFrame();
+		await waitFrame();
+		eventEmitter.broadcast({ type: 'tumbleBoardShow' });
+		eventEmitter.broadcast({ type: 'boardHide' });
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
 		await eventEmitter.broadcastAsync({
 			type: 'tumbleBoardExplode',
