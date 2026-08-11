@@ -159,9 +159,18 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
 
-		// Immediate reset of meters and multiplier for base game spins to improve UX
+		// Immediate reset of meters and multiplier for base game spins to improve UX.
+		// Per-key assignment (not `skillMeters = {...}`) — replacing the whole object
+		// tears down and reconnects every effect that reads `skillMeters[key]` at
+		// once (all 4 keys' proxy identity changes together), which raced Tween
+		// retargeting in SkillMeterDriver and tripped Svelte 5's infinite-effect
+		// guard. Assigning each key individually keeps the object's own identity
+		// stable, so only the keys whose value actually changed re-notify.
 		if (bookEvent.gameType === 'basegame') {
-			stateGame.skillMeters = { L1: 0, L2: 0, L3: 0, L4: 0 };
+			stateGame.skillMeters.L1 = 0;
+			stateGame.skillMeters.L2 = 0;
+			stateGame.skillMeters.L3 = 0;
+			stateGame.skillMeters.L4 = 0;
 			stateGame.globalMultiplier = 1;
 		}
 
@@ -264,7 +273,12 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// Math resets skill meters in `reset_fs_spin` on FS entry; mirror that
 		// here so the UI does not carry base-game meter values into the first
 		// FS spin. Retriggers keep their meters (see `freeSpinRetrigger`).
-		stateGame.skillMeters = { L1: 0, L2: 0, L3: 0, L4: 0 };
+		// Per-key assignment, not a full `skillMeters = {...}` replacement — see
+		// the identical note on the `reveal` handler's basegame reset above.
+		stateGame.skillMeters.L1 = 0;
+		stateGame.skillMeters.L2 = 0;
+		stateGame.skillMeters.L3 = 0;
+		stateGame.skillMeters.L4 = 0;
 		eventEmitter.broadcast({ type: 'freeSpinIntroHide' });
 		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
 		await eventEmitter.broadcastAsync({

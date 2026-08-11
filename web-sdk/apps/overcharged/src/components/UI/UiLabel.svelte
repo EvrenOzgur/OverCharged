@@ -93,29 +93,21 @@
 			{ offset: 15, color: wellFill }, // inner well
 		];
 		for (const band of bands) {
-			g.beginFill(band.color, 1);
-			g.drawRoundedRect(
+			g.roundRect(
 				band.offset,
 				band.offset,
 				W - band.offset * 2,
 				H - band.offset * 2,
 				Math.max(0, RADIUS - band.offset),
-			);
-			g.endFill();
+			).fill({ color: band.color, alpha: 1 });
 		}
 
 		// Top glossy specular highlights — gives the metallic "reflective" feel.
-		g.beginFill(0xffffff, 0.35);
-		g.drawEllipse(W / 2, 8, W * 0.42, 3.5);
-		g.endFill();
-		g.beginFill(0xffffff, 0.6);
-		g.drawEllipse(W / 2, 5, W * 0.22, 1.8);
-		g.endFill();
+		g.ellipse(W / 2, 8, W * 0.42, 3.5).fill({ color: 0xffffff, alpha: 0.35 });
+		g.ellipse(W / 2, 5, W * 0.22, 1.8).fill({ color: 0xffffff, alpha: 0.6 });
 
 		// Bottom rim shadow.
-		g.beginFill(0x000000, 0.18);
-		g.drawEllipse(W / 2, H - 8, W * 0.45, 5);
-		g.endFill();
+		g.ellipse(W / 2, H - 8, W * 0.45, 5).fill({ color: 0x000000, alpha: 0.18 });
 	}
 
 	const isWin = $derived(props.label.toLowerCase().includes('win'));

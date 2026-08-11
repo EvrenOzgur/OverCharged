@@ -58,12 +58,22 @@ export function detectWebGL() {
 	return -1;
 }
 
-export const preloadFont = () =>
+// `typekitId: false` skips loading entirely — for apps (e.g. OverCharged) that
+// self-host their UI font via @font-face instead of Adobe Fonts/Typekit. Load
+// environments with a strict CSP (Stake's sandbox) block the Typekit script
+// outright, so for those apps this call was pure dead weight: it still
+// resolved via the `inactive` timeout, but only after WebFontLoader's several-
+// second wait, needlessly delaying app init behind a font nothing renders with.
+export const preloadFont = (typekitId: string | false = 'aba0ebl') =>
 	new Promise<void>((resolve) => {
+		if (typekitId === false) {
+			resolve();
+			return;
+		}
 		try {
 			WebFont.load({
 				typekit: {
-					id: 'aba0ebl',
+					id: typekitId,
 				},
 				active: () => {
 					resolve();

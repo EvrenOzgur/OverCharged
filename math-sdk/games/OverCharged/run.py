@@ -113,13 +113,29 @@ if __name__ == "__main__":
 
     num_threads = 8
     rust_threads = 8
-    batching_size = 50000
+    # Was 50000. With 100k sims / 8 threads = 12.5k sims/thread, that's above
+    # the per-thread share, so write_json() built ONE giant in-memory string
+    # for a thread's entire 12.5k-sim batch before compressing it (see
+    # write_data.py:264-273 — combined_data = "\n".join(...) over the whole
+    # gamestate.library, all at once). Fine for "base"/"bonus"/"ante", but
+    # "super" mode's forced 5-7 scatters means every one of its ~12.5k sims
+    # is a full 12-18 spin FS session (vs "bonus"'s ~7-10 spins) — with all 8
+    # threads hitting that peak simultaneously on this 16GB machine, one
+    # worker's compress() call hit MemoryError (see run_trackb3.log) and the
+    # rest of the pool hung forever waiting on the dead process. Lowering
+    # this below a thread's ~12.5k share (12500/2500 = 5 repeats) caps each
+    # write_json() call to ~2500 sims, cutting peak per-thread memory ~5x —
+    # same total sim count, just flushed in smaller chunks.
+    batching_size = 2500
     compression = True
     profiling = False
 
     num_sim_args = {
         "base": int(1e5),
         "bonus": int(1e5),
+        "ante": int(1e5),
+        "super": int(1e5),
+        "multiplier": int(1e5),
     }
 
     run_conditions = {
@@ -128,7 +144,7 @@ if __name__ == "__main__":
         "run_analysis": True,
         "run_format_checks": True,
     }
-    target_modes = ["base", "bonus"]
+    target_modes = ["base", "bonus", "ante", "super", "multiplier"]
 
     config = GameConfig()
     gamestate = GameState(config)

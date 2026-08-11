@@ -107,27 +107,19 @@
 			{ ratio: 0.79, color: wellFill },
 		];
 		for (const ring of rings) {
-			g.beginFill(ring.color, 1);
-			g.drawCircle(0, 0, R * ring.ratio);
-			g.endFill();
+			g.circle(0, 0, R * ring.ratio).fill({ color: ring.color, alpha: 1 });
 		}
 
 		const wellR = R * 0.79;
 
 		// ─── Step 2: Rim bottom-shadow ellipse (softer) ──────────────
-		g.beginFill(0x000000, 0.15);
-		g.drawEllipse(0, R * 0.55, R * 0.98, R * 0.45);
-		g.endFill();
+		g.ellipse(0, R * 0.55, R * 0.98, R * 0.45).fill({ color: 0x000000, alpha: 0.15 });
 
 		// ─── Step 3: Inner-well TOP inset shadow (much softer) ───────
-		g.beginFill(0x000000, 0.18);
-		g.drawEllipse(0, -wellR * 0.62, wellR * 0.95, wellR * 0.26);
-		g.endFill();
+		g.ellipse(0, -wellR * 0.62, wellR * 0.95, wellR * 0.26).fill({ color: 0x000000, alpha: 0.18 });
 
 		// ─── Step 4: Bottom bounce light ─────────────────────────────
-		g.beginFill(baseColor, 0.18);
-		g.drawEllipse(0, wellR * 0.45, wellR * 0.75, wellR * 0.3);
-		g.endFill();
+		g.ellipse(0, wellR * 0.45, wellR * 0.75, wellR * 0.3).fill({ color: baseColor, alpha: 0.18 });
 
 		// ─── Step 5: Icon-area halo glow ─────────────────────────────
 		const haloR = wellR * 0.85;
@@ -139,20 +131,14 @@
 			{ r: haloR * 0.4, alpha: 0.26 },
 		];
 		for (const halo of haloRings) {
-			g.beginFill(baseColor, halo.alpha);
-			g.drawCircle(0, 0, halo.r);
-			g.endFill();
+			g.circle(0, 0, halo.r).fill({ color: baseColor, alpha: halo.alpha });
 		}
 
 		// ─── Step 6: Top rim specular ────────────────────────────────
-		g.beginFill(0xffffff, 0.55);
-		g.drawEllipse(0, -R * 0.78, R * 0.55, R * 0.13);
-		g.endFill();
+		g.ellipse(0, -R * 0.78, R * 0.55, R * 0.13).fill({ color: 0xffffff, alpha: 0.55 });
 
 		// ─── Step 7: Secondary tight specular ────────────────────────
-		g.beginFill(0xffffff, 0.75);
-		g.drawEllipse(0, -R * 0.84, R * 0.25, R * 0.05);
-		g.endFill();
+		g.ellipse(0, -R * 0.84, R * 0.25, R * 0.05).fill({ color: 0xffffff, alpha: 0.75 });
 	}
 </script>
 

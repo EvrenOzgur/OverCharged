@@ -1,10 +1,11 @@
 <script lang="ts">
     /*
-     * Bonus-buy flow using the BonusBuyPage card art.
-     *   Stage 1 (select)  → card_small + BUY  (opens from the footer bonus button)
-     *   Stage 2 (confirm) → card_big   + BUY  (final confirmation)
-     * Confirm calls onConfirm(), which performs the real purchase
-     * (activeBetModeKey = BONUS + broadcast 'bet') in FooterMenuOverlay.
+     * Bonus-buy flow using the BonusBuyPage card art, now covering three
+     * purchasable tiers (mathConfig.json betModes: bonus / super / multiplier):
+     *   Stage 1 (select)  → tier tabs + card_small + BUY (opens from the footer bonus button)
+     *   Stage 2 (confirm) → card_big + BUY (final confirmation of the selected tier)
+     * Confirm calls onConfirm(tierKey), which performs the real purchase
+     * (activeBetModeKey = tierKey + broadcast 'bet') in FooterMenuOverlay.
      */
     import { fade, scale } from "svelte/transition";
     import { cubicIn, cubicOut } from "svelte/easing";
@@ -17,21 +18,37 @@
 
     interface Props {
         onClose: () => void;
-        onConfirm: () => void;
+        onConfirm: (tierKey: string) => void;
     }
     let { onClose, onConfirm }: Props = $props();
 
     let stage = $state<"select" | "confirm">("select");
 
-    const BONUS_KEY = "BONUS";
-    const VOLATILITY = 3; // medium, per math config
+    // Three Bonus Buy tiers, cheapest first. Volatility art (1-5) is purely
+    // cosmetic — higher tiers use a "hotter" volatility image since they
+    // guarantee a stronger starting condition, not because of a precise
+    // measured value.
+    const TIERS = [
+        { key: "BONUS", line: () => "7+ free spins", volatility: 3 },
+        { key: "SUPER", line: () => "12-18 free spins + Yellow skill head start", volatility: 4 },
+        { key: "MULTIPLIER", line: () => "Starts at 5x Global Multiplier", volatility: 5 },
+    ] as const;
+    let selectedKey = $state<(typeof TIERS)[number]["key"]>("BONUS");
+    const selectedTier = $derived(TIERS.find((t) => t.key === selectedKey)!);
+
     const assetPath = "./assets/BonusBuyPage";
 
-    const mode = $derived(stateMeta.betModeMeta?.[BONUS_KEY]);
+    const mode = $derived(stateMeta.betModeMeta?.[selectedKey]);
     const costMultiplier = $derived(mode?.costMultiplier ?? 100);
     const totalCost = $derived(stateBet.betAmount * costMultiplier);
     const costText = $derived(numberToCurrencyString(totalCost));
-    const title = $derived(mode?.text?.title || "BONUS");
+    const title = $derived(mode?.text?.title || selectedKey);
+
+    function handleSelectTier(key: (typeof TIERS)[number]["key"]) {
+        if (stage !== "select") return;
+        eventEmitter.broadcast({ type: "soundPressGeneral" });
+        selectedKey = key;
+    }
 
     // Bet +/- — lets the player size their buy without leaving the card.
     // costText above re-derives from stateBet.betAmount automatically.
@@ -84,7 +101,7 @@
     }
     function handleConfirmBuy() {
         if (!affordable) return;
-        onConfirm();
+        onConfirm(selectedKey);
         onClose();
     }
 </script>
@@ -100,7 +117,7 @@
     <!-- Resolution scale lives on the stage so it never conflicts with the
          card's own scale transition. -->
     <div class="bb-stage" style="transform: scale({scaleFactor});">
-    {#key stage}
+    {#key stage + selectedKey}
         <div
             class="bb-card {stage}"
             in:scale={{ delay: 200, duration: 240, start: 0.6, opacity: 0, easing: cubicOut }}
@@ -116,6 +133,19 @@
             />
 
             <div class="bb-content">
+                {#if stage === "select"}
+                    <div class="bb-tabs">
+                        {#each TIERS as tier (tier.key)}
+                            <button
+                                class="bb-tab"
+                                class:active={selectedKey === tier.key}
+                                onclick={() => handleSelectTier(tier.key)}
+                            >
+                                {stateMeta.betModeMeta?.[tier.key]?.text?.title || tier.key}
+                            </button>
+                        {/each}
+                    </div>
+                {/if}
                 <div class="bb-title-row">
                     <button
                         class="bb-step"
@@ -134,11 +164,11 @@
                 <span class="bb-bet-amount">{betText}</span>
 
                 <div class="bb-volatility">
-                    <img src="{assetPath}/volatility{VOLATILITY}.png" alt="volatility" />
+                    <img src="{assetPath}/volatility{selectedTier.volatility}.png" alt="volatility" />
                 </div>
 
                 {#if stage === "select"}
-                    <p class="bb-line">7+ free spins</p>
+                    <p class="bb-line">{selectedTier.line()}</p>
                     <span class="bb-cost">{costText}</span>
                 {:else}
                     <p class="bb-line">{s("This will cost", "This will use")}</p>
@@ -285,6 +315,40 @@
     .bb-buy:disabled:hover,
     .bb-buy:disabled:active {
         transform: none;
+    }
+
+    .bb-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        width: 100%;
+    }
+
+    .bb-tab {
+        flex: 1;
+        min-width: 0;
+        padding: 3px 2px;
+        font-family: 'ranchers', sans-serif;
+        font-size: 9px;
+        line-height: 1.1;
+        letter-spacing: 0.2px;
+        color: #1b1b1b;
+        background: rgba(27, 27, 27, 0.08);
+        border: 1px solid rgba(27, 27, 27, 0.25);
+        border-radius: 4px;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: background 0.1s, border-color 0.1s, transform 0.1s;
+    }
+    .bb-tab:hover {
+        transform: scale(1.03);
+    }
+    .bb-tab.active {
+        color: #fff;
+        background: #1b1b1b;
+        border-color: #1b1b1b;
     }
 
     .bb-title-row {

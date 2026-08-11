@@ -9,7 +9,7 @@
 	 * old Pixi `OverchargedUI` footer.
 	 */
 	import { onMount } from 'svelte';
-	import { stateBet, stateBetDerived, stateConfig, stateModal } from 'state-shared';
+	import { stateBet, stateBetDerived, stateConfig, stateMeta, stateModal } from 'state-shared';
 	import { bookEventAmountToNormalisedAmount } from 'utils-shared/amount';
 
 	import { getContext } from '../../game/context';
@@ -154,13 +154,20 @@
 		stateBetDerived.updateIsTurbo(!stateBet.isTurbo, { persistent: true });
 	};
 
-	// TEST/MODE toggle: flips stateGame.skipExplosions. When ON, every spin
-	// auto-skips the symbol explosion animations + the green L2 explosion burst
-	// so the final board is reached fast (see TumbleBoard / Board handlers).
-	const skipExplosions = $derived(context.stateGame.skipExplosions);
-	const onToggleMode = () => {
+	// OVERCHARGED MODE — persistent ante-bet toggle (math bet mode "ante",
+	// type: 'activate' in betModes.ts). Costs 1.25x the base stake per spin
+	// in exchange for a ~2x natural Free Spins trigger rate. Stays active
+	// across spins (including autoplay) until the player toggles it off —
+	// mirrors onToggleTurbo's persistent on/off pattern, not a one-shot buy
+	// like BONUS. Gated to idle only: it changes the RGS bet cost, so it
+	// must not be switched mid-round (unlike Turbo, which is purely a
+	// client-side animation-speed flag and safe to flip anytime).
+	const overchargedModeActive = $derived(stateBet.activeBetModeKey === 'ANTE');
+	const overchargedModeCost = $derived(stateMeta.betModeMeta?.ANTE?.costMultiplier ?? 1.25);
+	const onToggleOverchargedMode = () => {
+		if (!isIdle) return;
 		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
-		context.stateGame.skipExplosions = !context.stateGame.skipExplosions;
+		stateBet.activeBetModeKey = overchargedModeActive ? 'BASE' : 'ANTE';
 	};
 
 	// Menu → OptionsMenu hub (Info + Sound). Autoplay → AutoSpinMenu picker.
@@ -178,10 +185,11 @@
 		bonusMenuOpen = true;
 	};
 
-	// Final confirm: mirrors the SDK's ModalBuyBonusConfirm — switch to the BONUS
-	// buy mode and place the (100×) bet that enters the feature directly.
-	const onBonusConfirm = () => {
-		stateBet.activeBetModeKey = 'BONUS';
+	// Final confirm: mirrors the SDK's ModalBuyBonusConfirm — switch to whichever
+	// Bonus Buy tier the player selected in BonusBuyMenu (BONUS / SUPER /
+	// MULTIPLIER) and place the bet that enters that feature directly.
+	const onBonusConfirm = (tierKey: string) => {
+		stateBet.activeBetModeKey = tierKey;
 		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
 		context.eventEmitter.broadcast({ type: 'bet' });
 	};
@@ -230,15 +238,18 @@
 		{onBonusBuy}
 	/>
 
-	<!-- TEST/MODE toggle — standalone DOM button (asset-free). Skips explosion
-	     animations every spin so QA can reach the result fast. -->
+	<!-- OVERCHARGED MODE — persistent ante-bet toggle. Standalone DOM button
+	     (asset-free, same corner slot the old debug MODE toggle used to sit
+	     in) since FooterMenu is a fixed-prop package component with no free
+	     button slot of its own. -->
 	<button
-		class="mode-toggle"
-		class:active={skipExplosions}
-		onclick={onToggleMode}
-		title="Patlama animasyonlarını atla (test modu)"
+		class="overcharged-mode-toggle"
+		class:active={overchargedModeActive}
+		disabled={!isIdle}
+		onclick={onToggleOverchargedMode}
+		title="{overchargedModeCost}x bet — ~2x Free Spins trigger chance. Stays active until you turn it off."
 	>
-		MODE{skipExplosions ? ' ●' : ''}
+		⚡ OVERCHARGED{overchargedModeActive ? ' ●' : ''}
 	</button>
 </div>
 
@@ -278,35 +289,45 @@
 		overflow: visible;
 	}
 
-	/* TEST/MODE toggle: re-enables pointer events on itself (root is click-through).
-	   Anchored top-left of the game area, out of the way of the footer chrome. */
-	.mode-toggle {
+	/* OVERCHARGED MODE toggle: re-enables pointer events on itself (root is
+	   click-through). Anchored top-left of the game area, out of the way of
+	   the footer chrome. */
+	.overcharged-mode-toggle {
 		position: absolute;
 		top: 8px;
 		left: 8px;
 		pointer-events: auto;
-		padding: 4px 10px;
+		padding: 5px 12px;
 		font:
 			700 12px/1 system-ui,
 			sans-serif;
 		letter-spacing: 0.5px;
-		color: #cde6d2;
+		color: #d9e6cd;
 		background: rgba(0, 0, 0, 0.55);
-		border: 1px solid rgba(0, 255, 0, 0.35);
+		border: 1px solid rgba(180, 255, 60, 0.4);
 		border-radius: 6px;
 		cursor: pointer;
 		user-select: none;
 		outline: none;
+		transition:
+			background 0.15s,
+			border-color 0.15s,
+			box-shadow 0.15s;
 	}
 
-	.mode-toggle:hover {
-		border-color: rgba(0, 255, 0, 0.7);
+	.overcharged-mode-toggle:hover:not(:disabled) {
+		border-color: rgba(180, 255, 60, 0.8);
 	}
 
-	.mode-toggle.active {
+	.overcharged-mode-toggle:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.overcharged-mode-toggle.active {
 		color: #0a0a0a;
-		background: #00d23a;
-		border-color: #00ff00;
-		box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+		background: linear-gradient(135deg, #b4ff3c, #39ff14);
+		border-color: #b4ff3c;
+		box-shadow: 0 0 10px rgba(180, 255, 60, 0.7);
 	}
 </style>

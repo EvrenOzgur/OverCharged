@@ -80,11 +80,10 @@
 				const a = alpha.current;
 				if (a <= 0) return;
 				// Soft outer glow
-				g.beginFill(color, a * 0.25);
 				for (const p of positions) {
 					const x = getSymbolX(p.reel) - SYMBOL_SIZE * 0.5;
 					const y = getSymbolY(p.row) - SYMBOL_SIZE * 0.5;
-					g.drawRoundedRect(
+					g.roundRect(
 						x - 4,
 						y - 4,
 						SYMBOL_SIZE + 8,
@@ -92,23 +91,21 @@
 						10,
 					);
 				}
-				g.endFill();
+				g.fill({ color, alpha: a * 0.25 });
 				// Inner solid pulse
-				g.beginFill(color, a * 0.55);
 				for (const p of positions) {
 					const x = getSymbolX(p.reel) - SYMBOL_SIZE * 0.46;
 					const y = getSymbolY(p.row) - SYMBOL_SIZE * 0.46;
-					g.drawRoundedRect(x, y, SYMBOL_SIZE * 0.92, SYMBOL_SIZE * 0.92, 6);
+					g.roundRect(x, y, SYMBOL_SIZE * 0.92, SYMBOL_SIZE * 0.92, 6);
 				}
-				g.endFill();
+				g.fill({ color, alpha: a * 0.55 });
 				// Border for "outline" emphasis
-				g.lineStyle(2, color, a * 0.9);
 				for (const p of positions) {
 					const x = getSymbolX(p.reel) - SYMBOL_SIZE * 0.46;
 					const y = getSymbolY(p.row) - SYMBOL_SIZE * 0.46;
-					g.drawRoundedRect(x, y, SYMBOL_SIZE * 0.92, SYMBOL_SIZE * 0.92, 6);
+					g.roundRect(x, y, SYMBOL_SIZE * 0.92, SYMBOL_SIZE * 0.92, 6);
 				}
-				g.lineStyle(0);
+				g.stroke({ width: 2, color, alpha: a * 0.9 });
 			}}
 		/>
 	</BoardContainer>

@@ -1,9 +1,10 @@
 import random
 
-from src.events.events import reveal_event, tumble_board_event, fs_trigger_event
+from src.events.events import reveal_event, tumble_board_event, fs_trigger_event, update_global_mult_event
 from src.events.event_constants import EventConstants
 
 from game_executables import GameExecutables
+from game_events import emit_skill_meters_update_event
 
 
 class GameStateOverride(GameExecutables):
@@ -180,6 +181,31 @@ class GameStateOverride(GameExecutables):
         # keep accumulating ACROSS the free spins within this session). This is
         # the correct single point to zero it going INTO the session.
         self.global_multiplier = 1
+
+        # "super" bonus buy: half-fill the L1 (yellow) meter so the session
+        # opens with a markedly better chance of an early Wild-drop trigger
+        # than the usual cold start. reset_fs_spin runs AFTER fs_trigger_event
+        # (which zeroes the client's meter bars via freeSpinTrigger), so this
+        # explicit UPDATE event is what actually shows the pre-fill — setting
+        # self.skill_meters alone would only affect the math, not the display.
+        #
+        # getattr (not self.betmode directly): the base State.__init__ calls
+        # reset_fs_spin() once at construction time, before run_sims.py has
+        # set gamestate.betmode for any mode — self.betmode doesn't exist yet
+        # at that point, so a direct attribute access throws AttributeError.
+        betmode = getattr(self, "betmode", None)
+        if betmode == "super":
+            self.skill_meters["L1"] = self.config.skill_thresholds["L1"] // 2
+            emit_skill_meters_update_event(self)
+
+        # "multiplier" bonus buy: start the session's global multiplier
+        # elevated instead of the usual 1x baseline. update_global_mult_event
+        # called standalone (no preceding tumble) is the documented client
+        # path for syncing a carried-over/initial multiplier at free-spin
+        # start (see bookEventHandlerMap.ts's updateGlobalMult handler).
+        if betmode == "multiplier":
+            self.global_multiplier = 5
+            update_global_mult_event(self)
 
     def assign_special_sym_function(self):
         pass

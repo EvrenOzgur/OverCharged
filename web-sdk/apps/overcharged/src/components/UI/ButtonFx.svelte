@@ -170,9 +170,7 @@
 			{ r: baseR * 0.85, alpha: 0.36 },
 		];
 		for (const ring of rings) {
-			g.beginFill(glowColor, ring.alpha);
-			g.drawCircle(0, 0, ring.r);
-			g.endFill();
+			g.circle(0, 0, ring.r).fill({ color: glowColor, alpha: ring.alpha });
 		}
 	}
 
@@ -182,16 +180,12 @@
 		const w = width + padding * 2;
 		const h = height + padding * 2;
 		const r = radius + padding;
-		g.lineStyle(ringWidth, ringColor, 1);
-		g.drawRoundedRect(-w / 2, -h / 2, w, h, r);
-		g.lineStyle(0);
+		g.roundRect(-w / 2, -h / 2, w, h, r).stroke({ width: ringWidth, color: ringColor, alpha: 1 });
 	}
 
 	function drawShineMask(g: PIXI.Graphics) {
 		g.clear();
-		g.beginFill(0xffffff, 1);
-		g.drawRoundedRect(-width / 2, -height / 2, width, height, radius);
-		g.endFill();
+		g.roundRect(-width / 2, -height / 2, width, height, radius).fill({ color: 0xffffff, alpha: 1 });
 	}
 
 	function drawShine(g: PIXI.Graphics) {
@@ -200,14 +194,12 @@
 		const overshoot = height * 0.35;
 		const hHalf = height / 2 + overshoot;
 		const skew = stripeW * 0.5;
-		g.beginFill(0xffffff, 1);
-		g.drawPolygon([
+		g.poly([
 			-stripeW / 2 - skew, -hHalf,
 			stripeW / 2 - skew, -hHalf,
 			stripeW / 2 + skew, hHalf,
 			-stripeW / 2 + skew, hHalf,
-		]);
-		g.endFill();
+		]).fill({ color: 0xffffff, alpha: 1 });
 	}
 
 	const shinePosX = $derived(shineX.current * (width * 0.8));

@@ -61,7 +61,20 @@
 	// edits via this registry, so it must always point at the CURRENTLY rendered
 	// object — otherwise scale/rotation edits in a non-desktop preset silently
 	// mutate the stale (mount-time) object and have no visible effect.
+	//
+	// Gated behind `editorState.enabled`: the registry only exists to serve the
+	// Storybook layout-editor panels (stories/UiLayoutInspector.svelte etc.) —
+	// nothing outside the editor reads it. Registering unconditionally meant
+	// every one of the ~12 UI elements re-ran this effect on every resize-driven
+	// recompute of `transform` (its parent's `getActiveVariantConfig()` allocates
+	// a brand new object per element while interpolating between resolution
+	// presets), churning this same `registeredElementIds` array from all of them
+	// in the same flush — during a layout-heavy moment (e.g. the free-spin
+	// intro's gameType transition) that was enough to blow Svelte's effect flush
+	// guard (effect_update_depth_exceeded). Skipping this entirely when the
+	// editor isn't open removes that churn from the production reactive graph.
 	$effect(() => {
+		if (!editorState.enabled) return;
 		registerEditableElement(id, transform);
 		return () => unregisterEditableElement(id);
 	});
@@ -175,12 +188,17 @@
 
 		// Always draw a (nearly) transparent fill so the Graphics has a real hit area.
 		const isHighlighted = isSelected || isMultiSelected || dragging;
-		g.beginFill(isMultiSelected ? 0x14aaff : 0x39ff14, showOutline ? (dragging ? 0.18 : 0.08) : 0.001);
+		g.rect(rect.x, rect.y, rect.w, rect.h).fill({
+			color: isMultiSelected ? 0x14aaff : 0x39ff14,
+			alpha: showOutline ? (dragging ? 0.18 : 0.08) : 0.001,
+		});
 		if (showOutline) {
-			g.lineStyle(2, isHighlighted ? (isMultiSelected && !isSelected ? 0x14aaff : 0x39ff14) : 0xffffff, 1);
+			g.rect(rect.x, rect.y, rect.w, rect.h).stroke({
+				width: 2,
+				color: isHighlighted ? (isMultiSelected && !isSelected ? 0x14aaff : 0x39ff14) : 0xffffff,
+				alpha: 1,
+			});
 		}
-		g.drawRect(rect.x, rect.y, rect.w, rect.h);
-		g.endFill();
 	}
 </script>
 

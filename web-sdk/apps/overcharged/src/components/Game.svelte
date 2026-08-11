@@ -214,7 +214,13 @@
 	});
 </script>
 
-<App>
+<!-- webFontTypekitId=false: OverCharged self-hosts its UI font (Ranchers, via
+     @font-face in app.html) instead of Adobe Fonts/Typekit. Stake's sandbox
+     CSP blocks the Typekit script outright anyway, so the default id here
+     was pure dead weight — App's underlying InitialiseApplication awaited it
+     before creating the PIXI.Application, so every load paid WebFontLoader's
+     multi-second inactive-timeout for a font nothing on screen uses. -->
+<App webFontTypekitId={false}>
 	<EnableSound />
 	<EnableHotkey />
 	<!-- Hold Space = quick-repeat bet (turbo on while held). Previously mounted

@@ -74,20 +74,13 @@
 		const maxR = Math.hypot(mainLayout.width, mainLayout.height) * 0.5;
 
 		// Outer faint glow band.
-		g.lineStyle(0);
-		g.beginFill(color, alpha * 0.12);
-		g.drawCircle(cx, cy, maxR * scale);
-		g.endFill();
+		g.circle(cx, cy, maxR * scale).fill({ color, alpha: alpha * 0.12 });
 
 		// Inner brighter ring.
-		g.lineStyle(6, color, alpha * 0.6);
-		g.drawCircle(cx, cy, maxR * scale * 0.55);
-		g.lineStyle(0);
+		g.circle(cx, cy, maxR * scale * 0.55).stroke({ width: 6, color, alpha: alpha * 0.6 });
 
 		// Hot core.
-		g.beginFill(color, alpha * 0.35);
-		g.drawCircle(cx, cy, maxR * scale * 0.18);
-		g.endFill();
+		g.circle(cx, cy, maxR * scale * 0.18).fill({ color, alpha: alpha * 0.35 });
 	}
 </script>
 

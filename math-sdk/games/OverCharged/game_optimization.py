@@ -59,7 +59,144 @@ class OptimizationSetup:
                     bias_weights=[0.4],
                 ).return_dict(),
             },
+            # "ante" ("OVERCHARGED MODE"): same total 0.95 RTP budget as base,
+            # reshuffled so freegame contributes roughly double its base share
+            # (0.3624 -> 0.7248) to land a ~2x natural trigger rate (hr 200 ->
+            # 100), funded by shrinking basegame's share correspondingly
+            # (0.5778 -> 0.2154). wincap stays identical to base — the forced
+            # wincap tail isn't part of the ante-bet trade-off.
+            "ante": {
+                "conditions": {
+                    "wincap": ConstructConditions(rtp=0.0098, av_win=5000, search_conditions=5000).return_dict(),
+                    "0": ConstructConditions(rtp=0, av_win=0, search_conditions=0).return_dict(),
+                    "freegame": ConstructConditions(
+                        rtp=0.7248, hr=100, search_conditions={"symbol": "scatter"}
+                    ).return_dict(),
+                    "basegame": ConstructConditions(hr=3.5, rtp=0.2154).return_dict(),
+                },
+                "scaling": ConstructScaling(
+                    [
+                        {"criteria": "basegame", "scale_factor": 1.2, "win_range": (1, 2), "probability": 1.0},
+                        {"criteria": "basegame", "scale_factor": 1.5, "win_range": (10, 20), "probability": 1.0},
+                        {
+                            "criteria": "freegame",
+                            "scale_factor": 0.8,
+                            "win_range": (1000, 2000),
+                            "probability": 1.0,
+                        },
+                        {
+                            "criteria": "freegame",
+                            "scale_factor": 1.2,
+                            "win_range": (3000, 4000),
+                            "probability": 1.0,
+                        },
+                    ]
+                ).return_dict(),
+                "parameters": ConstructParameters(
+                    num_show=5000,
+                    num_per_fence=10000,
+                    min_m2m=4,
+                    max_m2m=8,
+                    pmb_rtp=1.0,
+                    sim_trials=5000,
+                    test_spins=[50, 100, 200],
+                    test_weights=[0.3, 0.4, 0.3],
+                    score_type="rtp",
+                ).return_dict(),
+                "distribution_bias": ConstructFenceBias(
+                    applied_criteria=["basegame"],
+                    bias_ranges=[(0.5, 1.5)],
+                    bias_weights=[0.4],
+                ).return_dict(),
+            },
             "bonus": {
+                "conditions": {
+                    "wincap": ConstructConditions(rtp=0.0098, av_win=5000, search_conditions=5000).return_dict(),
+                    "freegame": ConstructConditions(rtp=0.9402, hr="x").return_dict(),
+                },
+                "scaling": ConstructScaling(
+                    [
+                        {
+                            "criteria": "freegame",
+                            "scale_factor": 0.9,
+                            "win_range": (20, 50),
+                            "probability": 1.0,
+                        },
+                        {
+                            "criteria": "freegame",
+                            "scale_factor": 0.8,
+                            "win_range": (1000, 2000),
+                            "probability": 1.0,
+                        },
+                        {
+                            "criteria": "freegame",
+                            "scale_factor": 1.2,
+                            "win_range": (3000, 4000),
+                            "probability": 1.0,
+                        },
+                    ]
+                ).return_dict(),
+                "parameters": ConstructParameters(
+                    num_show=5000,
+                    num_per_fence=10000,
+                    min_m2m=4,
+                    max_m2m=8,
+                    pmb_rtp=1.0,
+                    sim_trials=5000,
+                    test_spins=[10, 20, 50],
+                    test_weights=[0.6, 0.2, 0.2],
+                    score_type="rtp",
+                ).return_dict(),
+            },
+            # "super" and "multiplier": same force-freegame shape as "bonus"
+            # (only wincap + freegame criteria, no basegame/"0" — every round
+            # enters free spins). Same aggregate RTP split as "bonus" too
+            # (0.0098 wincap + 0.9402 freegame = 0.95) — the systematically
+            # higher payouts from each mode's starting boost (more scatters
+            # for "super", 5x global_multiplier floor for "multiplier") get
+            # absorbed by the optimizer re-weighting the generated pool
+            # toward its lower tail to still land on the same 0.95 target,
+            # exactly like "ante" did for its own boosted freegame frequency.
+            "super": {
+                "conditions": {
+                    "wincap": ConstructConditions(rtp=0.0098, av_win=5000, search_conditions=5000).return_dict(),
+                    "freegame": ConstructConditions(rtp=0.9402, hr="x").return_dict(),
+                },
+                "scaling": ConstructScaling(
+                    [
+                        {
+                            "criteria": "freegame",
+                            "scale_factor": 0.9,
+                            "win_range": (20, 50),
+                            "probability": 1.0,
+                        },
+                        {
+                            "criteria": "freegame",
+                            "scale_factor": 0.8,
+                            "win_range": (1000, 2000),
+                            "probability": 1.0,
+                        },
+                        {
+                            "criteria": "freegame",
+                            "scale_factor": 1.2,
+                            "win_range": (3000, 4000),
+                            "probability": 1.0,
+                        },
+                    ]
+                ).return_dict(),
+                "parameters": ConstructParameters(
+                    num_show=5000,
+                    num_per_fence=10000,
+                    min_m2m=4,
+                    max_m2m=8,
+                    pmb_rtp=1.0,
+                    sim_trials=5000,
+                    test_spins=[10, 20, 50],
+                    test_weights=[0.6, 0.2, 0.2],
+                    score_type="rtp",
+                ).return_dict(),
+            },
+            "multiplier": {
                 "conditions": {
                     "wincap": ConstructConditions(rtp=0.0098, av_win=5000, search_conditions=5000).return_dict(),
                     "freegame": ConstructConditions(rtp=0.9402, hr="x").return_dict(),

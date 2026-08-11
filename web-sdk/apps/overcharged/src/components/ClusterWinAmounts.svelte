@@ -14,6 +14,19 @@
 	const context = getContext();
 
 	let wins: Win[] = $state([]);
+	// Stable primitive identity for each win label. Comparing/removing by
+	// object reference (`w !== win`) broke silently — an element read back
+	// out of a `$state` array is a reactive PROXY, which is not reference-
+	// equal to the plain object originally pushed in (Svelte warns about
+	// this: `state_proxy_equality_mismatch`). That made the filter below a
+	// no-op: completed win labels were never actually removed, so `wins`
+	// only ever grew for the rest of the round — accumulating more and more
+	// live FadeContainer/effect instances the longer a (bonus) round ran,
+	// until Svelte's reactive system buckled under the pile-up
+	// (`effect_update_depth_exceeded`, minutes into a long free-spin
+	// session). Comparing by this `id` instead sidesteps proxy identity
+	// entirely.
+	let nextWinId = 0;
 
 	context.eventEmitter.subscribeOnMount({
 		// Not awaited by the caller (winInfo fires this and moves on) — batches
@@ -34,9 +47,10 @@
 				const cellKey = `${rawWin.reel},${rawWin.row}`;
 				const collisionOffset = cellCounts.get(cellKey) ?? 0;
 				cellCounts.set(cellKey, collisionOffset + 1);
-				const win: Win = { ...rawWin, collisionOffset, oncomplete: () => {} };
+				const id = nextWinId++;
+				const win: Win = { ...rawWin, id, collisionOffset, oncomplete: () => {} };
 				win.oncomplete = () => {
-					wins = wins.filter((w) => w !== win);
+					wins = wins.filter((w) => w.id !== id);
 				};
 				return win;
 			});
@@ -51,7 +65,7 @@
 </script>
 
 <BoardContainer>
-	{#each wins as win}
+	{#each wins as win (win.id)}
 		<ClusterWinAmount {win} />
 	{/each}
 </BoardContainer>

@@ -12,6 +12,8 @@
 	import { getContext } from '../game/context';
 	import { SYMBOL_SIZE } from '../game/constants';
 	import { anchorToPivot, BitmapText, Container, Sprite, type Sizes } from 'pixi-svelte';
+	import { editorState, getActiveVariantConfig } from '../game/uiLayoutConfig.svelte';
+	import DraggableInEditor from './UI/DraggableInEditor.svelte';
 
 	const context = getContext();
 	const PANEL_KEY_DESKTOP = 'Frame_FSCounter.png';
@@ -69,6 +71,25 @@
 	});
 	const counterPosition = $derived({ x: titleSizes.width / 2, y: titleSizes.height });
 
+	// Layout-editor wiring: lets this panel be dragged/positioned like any
+	// other UI element, with its OWN x/y saved per resolution preset (id
+	// "freeSpinCounter", scaffolded per-preset in uiLayout.json) — same as
+	// gameName/amountWin/etc., rather than one value shared across all
+	// presets. Previewed on demand — it's normally invisible outside an
+	// active free-spin round — via the toolbar's "Preview FS Counter" toggle.
+	const liveLayout = $derived({
+		width: context.stateLayoutDerived.canvasSizes().width,
+		height: context.stateLayoutDerived.canvasSizes().height,
+		layoutType: context.stateLayoutDerived.layoutType(),
+	});
+	const cfg = $derived(getActiveVariantConfig(liveLayout));
+	const ancestorScale = $derived(context.stateLayoutDerived.mainLayout().scale);
+
+	const previewing = $derived(editorState.enabled && editorState.previewFreeSpinCounter && !show);
+	const effectiveShow = $derived(show || previewing);
+	const displayCurrent = $derived(previewing ? 1 : current);
+	const displayTotal = $derived(previewing ? 7 : total);
+
 	context.eventEmitter.subscribeOnMount({
 		freeSpinCounterShow: () => (show = true),
 		freeSpinCounterHide: () => (show = false),
@@ -80,35 +101,39 @@
 </script>
 
 <MainContainer>
-	<FadeContainer {show} {...position} {scale}>
-		<Sprite key={panelKey} {...panelSizes} />
-		<Container
-			x={panelSizes.width * 0.5}
-			y={panelSizes.height * 0.48}
-			pivot={anchorToPivot({
-				sizes: textContainerSizes,
-				anchor: { x: 0.5, y: 0.5 },
-			})}
-		>
-			<BitmapText
-				text={'FREE SPIN'}
-				style={{
-					fontFamily: 'gold',
-					fontSize,
-					wordWrap: false,
-				}}
-				onresize={(sizes) => (titleSizes = sizes)}
-			/>
-			<BitmapText
-				text={`${current} OF ${total}`}
-				{...counterPosition}
-				anchor={{ x: 0.5, y: 0 }}
-				style={{
-					fontFamily: 'gold',
-					fontSize,
-				}}
-				onresize={(sizes) => (counterSizes = sizes)}
-			/>
-		</Container>
+	<FadeContainer show={effectiveShow} {...position} {scale}>
+		<DraggableInEditor id="freeSpinCounter" transform={cfg.freeSpinCounter} {ancestorScale}>
+			{#snippet children()}
+				<Sprite key={panelKey} {...panelSizes} />
+				<Container
+					x={panelSizes.width * 0.5}
+					y={panelSizes.height * 0.48}
+					pivot={anchorToPivot({
+						sizes: textContainerSizes,
+						anchor: { x: 0.5, y: 0.5 },
+					})}
+				>
+					<BitmapText
+						text={'FREE SPIN'}
+						style={{
+							fontFamily: 'gold',
+							fontSize,
+							wordWrap: false,
+						}}
+						onresize={(sizes) => (titleSizes = sizes)}
+					/>
+					<BitmapText
+						text={`${displayCurrent} OF ${displayTotal}`}
+						{...counterPosition}
+						anchor={{ x: 0.5, y: 0 }}
+						style={{
+							fontFamily: 'gold',
+							fontSize,
+						}}
+						onresize={(sizes) => (counterSizes = sizes)}
+					/>
+				</Container>
+			{/snippet}
+		</DraggableInEditor>
 	</FadeContainer>
 </MainContainer>

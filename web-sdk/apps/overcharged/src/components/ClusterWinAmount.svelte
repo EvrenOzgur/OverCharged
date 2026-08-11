@@ -6,7 +6,7 @@
 		reel: number; // 0 | 1 | 2 | 3 | 4 | 5;
 		row: number; // 1 | 2 | 3 | 4 | 5; // excluding the off top row and the off bottom row
 	};
-	export type Win = RawWin & { oncomplete: () => void; collisionOffset?: number };
+	export type Win = RawWin & { id: number; oncomplete: () => void; collisionOffset?: number };
 </script>
 
 <script lang="ts">

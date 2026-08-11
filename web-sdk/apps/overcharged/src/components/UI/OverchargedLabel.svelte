@@ -24,15 +24,14 @@
 		const b = 25; // bezel/radius
 
 		// Background with alpha (Glassmorphism)
-		g.beginFill(PANEL_BG, PANEL_ALPHA);
-		g.lineStyle(2, 0x4a4a4e, 0.4);
-		g.drawRoundedRect(0, 0, w, h, b);
-		g.endFill();
+		g.roundRect(0, 0, w, h, b)
+			.fill({ color: PANEL_BG, alpha: PANEL_ALPHA })
+			.stroke({ width: 2, color: 0x4a4a4e, alpha: 0.4 });
 
 		// Top Highlight line (Neon)
-		g.lineStyle(2, NEON_GREEN, 0.4);
 		g.moveTo(b, 0);
 		g.lineTo(w - b, 0);
+		g.stroke({ width: 2, color: NEON_GREEN, alpha: 0.4 });
 	}
 
 	const labelStyle = {

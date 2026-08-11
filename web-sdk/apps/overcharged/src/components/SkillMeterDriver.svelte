@@ -14,6 +14,7 @@
 	Mount inside a `SpineProvider`. Missing bones are silently skipped.
 -->
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import { Tween } from 'svelte/motion';
 	import { cubicOut, cubicIn, backOut } from 'svelte/easing';
 	import { getContextSpine } from 'pixi-svelte';
@@ -152,17 +153,41 @@
 		L4: new Tween(1, { duration: 220, easing: cubicOut }),
 	};
 
-	// Effect 1 — drive tween targets from state.
-	$effect(() => {
-		const meters = context.stateGame.skillMeters;
-		const thresholds = config.skillThresholds;
-		const cancellers: Array<() => void> = [];
+	// Per-key "ready pulse" loop bookkeeping — plain (non-reactive) state, not
+	// $state. See the note above Effect 1 for why.
+	const pulseState: Record<SkillKey, { running: boolean; signal: { cancelled: boolean } | null }> = {
+		L1: { running: false, signal: null },
+		L2: { running: false, signal: null },
+		L3: { running: false, signal: null },
+		L4: { running: false, signal: null },
+	};
 
+	onDestroy(() => {
 		for (const key of SKILL_KEYS) {
-			const meter = meters[key];
-			const threshold = thresholds[key];
+			if (pulseState[key].signal) pulseState[key].signal!.cancelled = true;
+		}
+	});
+
+	// Effect 1 — drive tween targets from state.
+	//
+	// One `$effect` PER skill key, not a single effect looping over all 4 —
+	// a shared effect re-runs (and re-evaluates every key) whenever ANY key
+	// changes, which is unnecessary churn; scoping to one key means it only
+	// re-runs when that key's own meter/threshold changes.
+	//
+	// The "ready" pulse loop is guarded by `pulseState[key].running` instead
+	// of being started/cancelled via the effect's own return-cleanup. A
+	// meter can be re-evaluated (ratio recomputed, clamped to 1) many times
+	// in a row while ALREADY at 100% — e.g. L2's chain explosion keeps
+	// crediting a meter past its threshold within one tumble. Guarding with
+	// `running` makes re-entry into an already-ready key a no-op: only a
+	// real ready→not-ready transition (or the reverse) starts/stops a loop.
+	for (const key of SKILL_KEYS) {
+		$effect(() => {
+			const meter = context.stateGame.skillMeters[key];
+			const threshold = config.skillThresholds[key];
 			if (typeof meter !== 'number' || typeof threshold !== 'number' || threshold <= 0) {
-				continue;
+				return;
 			}
 
 			const ratio = clamp01(meter / threshold);
@@ -171,9 +196,12 @@
 			// and drain after activation).
 			fillScale[key].set(ratio, { duration: 280, easing: cubicOut });
 
+			const state = pulseState[key];
 			if (ratio >= 1) {
-				// Start the ready-pulse loop on the parent bone.
+				if (state.running) return; // already pulsing — nothing to do
+				state.running = true;
 				const signal = { cancelled: false };
+				state.signal = signal;
 				(async () => {
 					await pulseScale[key].set(1, { duration: 220, easing: cubicOut });
 					while (!signal.cancelled) {
@@ -182,19 +210,15 @@
 						await pulseScale[key].set(1, { duration: 450, easing: cubicIn });
 					}
 				})();
-				cancellers.push(() => {
-					signal.cancelled = true;
-				});
-			} else {
+			} else if (state.running) {
+				state.signal!.cancelled = true;
+				state.signal = null;
+				state.running = false;
 				// Settle pulse back to 1 so the bar isn't stuck at an enlarged size.
 				pulseScale[key].set(1, { duration: 180, easing: cubicOut });
 			}
-		}
-
-		return () => {
-			for (const fn of cancellers) fn();
-		};
-	});
+		});
+	}
 
 	// Effect 2 — apply tween values to skeleton bones each reactive tick.
 	$effect(() => {

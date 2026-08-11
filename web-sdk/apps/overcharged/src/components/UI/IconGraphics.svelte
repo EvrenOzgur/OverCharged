@@ -42,21 +42,17 @@
 		const h = r * Math.sqrt(3);
 		// Shift slightly left so the visual centroid sits at (0,0)
 		const cx = -r * 0.15;
-		g.beginFill(color, 1);
-		g.drawPolygon([
+		g.poly([
 			cx + r, 0,
 			cx - r / 2, -h / 2,
 			cx - r / 2, h / 2,
-		]);
-		g.endFill();
+		]).fill({ color, alpha: 1 });
 	}
 
 	function drawStop(g: PIXI.Graphics) {
 		const s = size * 0.55;
 		const r = s * 0.18;
-		g.beginFill(color, 1);
-		g.drawRoundedRect(-s / 2, -s / 2, s, s, r);
-		g.endFill();
+		g.roundRect(-s / 2, -s / 2, s, s, r).fill({ color, alpha: 1 });
 	}
 
 	function drawPause(g: PIXI.Graphics) {
@@ -64,10 +60,9 @@
 		const barH = size * 0.55;
 		const gap = size * 0.12;
 		const r = barW * 0.4;
-		g.beginFill(color, 1);
-		g.drawRoundedRect(-gap / 2 - barW, -barH / 2, barW, barH, r);
-		g.drawRoundedRect(gap / 2, -barH / 2, barW, barH, r);
-		g.endFill();
+		g.roundRect(-gap / 2 - barW, -barH / 2, barW, barH, r);
+		g.roundRect(gap / 2, -barH / 2, barW, barH, r);
+		g.fill({ color, alpha: 1 });
 	}
 
 	/**
@@ -94,15 +89,12 @@
 		const endA = (5 * Math.PI) / 3; // 1 o'clock (reached by sweeping CW)
 
 		// Main arc stroke
-		g.lineStyle(thickness, color, 1);
 		g.moveTo(r * Math.cos(startA), r * Math.sin(startA));
 		g.arc(0, 0, r, startA, endA);
-		g.lineStyle(0);
+		g.stroke({ width: thickness, color, alpha: 1 });
 
 		// Rounded cap at the start of the arc (5 o'clock)
-		g.beginFill(color, 1);
-		g.drawCircle(r * Math.cos(startA), r * Math.sin(startA), thickness / 2);
-		g.endFill();
+		g.circle(r * Math.cos(startA), r * Math.sin(startA), thickness / 2).fill({ color, alpha: 1 });
 
 		// Arrowhead at the end (1 o'clock), pointing along the CW tangent.
 		// Tangent vector for increasing-angle direction at θ = (-sinθ, cosθ).
@@ -123,9 +115,7 @@
 		const innerX = tipBaseX - radX * arrowHalfW;
 		const innerY = tipBaseY - radY * arrowHalfW;
 
-		g.beginFill(color, 1);
-		g.drawPolygon([tipX, tipY, outerX, outerY, innerX, innerY]);
-		g.endFill();
+		g.poly([tipX, tipY, outerX, outerY, innerX, innerY]).fill({ color, alpha: 1 });
 	}
 
 	function drawIcon(g: PIXI.Graphics) {

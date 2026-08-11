@@ -6,7 +6,7 @@
 	import { getContextApp } from '../context.svelte';
 	import { preloadFont } from '../utils.svelte';
 
-	type Props = { children: Snippet };
+	type Props = { children: Snippet; webFontTypekitId?: string | false };
 
 	const props: Props = $props();
 	const context = getContextApp();
@@ -17,7 +17,7 @@
 	const initialiseApplication = async () => {
 		PIXI.Assets.reset();
 
-		await preloadFont();
+		await preloadFont(props.webFontTypekitId);
 		context.stateApp.pixiApplication = new PIXI.Application<PIXI.Renderer<HTMLCanvasElement>>();
 		await context.stateApp.pixiApplication.init({
 			autoDensity: true,

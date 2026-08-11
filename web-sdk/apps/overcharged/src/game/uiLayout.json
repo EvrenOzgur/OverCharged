@@ -499,7 +499,9 @@
     "multiplierBgX": -6,
     "multiplierBgY": -4,
     "multiplierBgWidth": 1164,
-    "multiplierBgHeight": 911
+    "multiplierBgHeight": 911,
+    "freeSpinCounterX": 15,
+    "freeSpinCounterY": -74
   },
   "presetConfigs": {
     "1200x675": {
@@ -712,7 +714,7 @@
         "scale": 0.78
       },
       "freeSpinCounter": {
-        "x": -50,
+        "x": -40,
         "y": 0,
         "scale": 1,
         "rotation": 0,
@@ -978,8 +980,8 @@
         }
       },
       "freeSpinCounter": {
-        "x": 0,
-        "y": 0,
+        "x": -51,
+        "y": 3,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1244,7 +1246,7 @@
         }
       },
       "freeSpinCounter": {
-        "x": 0,
+        "x": -80,
         "y": 0,
         "scale": 1,
         "rotation": 0,
@@ -1511,7 +1513,7 @@
       },
       "freeSpinCounter": {
         "x": 0,
-        "y": 0,
+        "y": -75,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -1777,7 +1779,7 @@
       },
       "freeSpinCounter": {
         "x": 0,
-        "y": 0,
+        "y": -51,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -2042,8 +2044,8 @@
         }
       },
       "freeSpinCounter": {
-        "x": 0,
-        "y": 0,
+        "x": -1,
+        "y": -50,
         "scale": 1,
         "rotation": 0,
         "style": {
@@ -2378,7 +2380,7 @@
         }
       },
       "freeSpinCounter": {
-        "x": 0,
+        "x": -78,
         "y": 0,
         "scale": 1,
         "rotation": 0,

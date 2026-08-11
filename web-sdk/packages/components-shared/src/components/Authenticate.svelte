@@ -23,11 +23,6 @@
 	 */
 	const bootstrapReplay = async () => {
 		const params = stateUrlDerived.replayParams();
-		console.log('[REPLAY-DEBUG] bootstrapReplay START', {
-			rgsUrl: stateUrlDerived.rgsUrl(),
-			params,
-			fullEndpoint: `https://${stateUrlDerived.rgsUrl()}/bet/replay/${params.game}/${params.version}/${params.mode}/${params.event}`,
-		});
 		try {
 			const data = await requestReplay({
 				rgsUrl: stateUrlDerived.rgsUrl(),
@@ -35,14 +30,6 @@
 				version: params.version,
 				mode: params.mode,
 				event: params.event,
-			});
-			console.log('[REPLAY-DEBUG] requestReplay RESPONSE', {
-				dataKeys: data ? Object.keys(data) : null,
-				stateLength: (data as any)?.state?.length,
-				stateFirstEvent: (data as any)?.state?.[0],
-				payoutMultiplier: (data as any)?.payoutMultiplier,
-				costMultiplier: (data as any)?.costMultiplier,
-				rawData: data,
 			});
 
 			// Stake docs: optional currency/amount are display-only. Default
@@ -85,12 +72,7 @@
 				mode: (params.mode || 'BASE').toUpperCase(),
 				event: null,
 			} as any;
-			console.log('[REPLAY-DEBUG] stateBet.lastBet AFTER inject', {
-				lastBet: $state.snapshot?.(stateBet.lastBet) ?? stateBet.lastBet,
-				stateLength: stateBet.lastBet?.state?.length,
-			});
 		} catch (error) {
-			console.error('[REPLAY-DEBUG] replay fetch FAILED', error);
 			stateModal.modal = { name: 'error', error };
 		}
 	};
@@ -198,12 +180,6 @@
 
 	onMount(async () => {
 		const replayDetected = stateUrlDerived.isReplayMode();
-		console.log('[REPLAY-DEBUG] Authenticate onMount', {
-			isReplayMode: replayDetected,
-			rgsUrl: stateUrlDerived.rgsUrl(),
-			replayParams: stateUrlDerived.replayParams(),
-			rawSearch: typeof window !== 'undefined' ? window.location.search : '(no window)',
-		});
 		if (replayDetected) {
 			await bootstrapReplay();
 		} else {

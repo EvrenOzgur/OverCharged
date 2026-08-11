@@ -201,18 +201,16 @@
 		g.clear();
 		if (alpha <= 0) return;
 		// Concentric soft halo around the bar
-		g.lineStyle(0);
 		const pad = 14;
 		const w = METER_WIDTH + pad * 2;
 		const h = METER_HEIGHT + pad * 2;
 		// Outer faint band
-		g.beginFill(color, alpha * 0.18);
-		g.drawRoundedRect(-pad, -METER_HEIGHT / 2 - pad, w, h, 12);
-		g.endFill();
+		g.roundRect(-pad, -METER_HEIGHT / 2 - pad, w, h, 12).fill({ color, alpha: alpha * 0.18 });
 		// Inner tighter band
-		g.beginFill(color, alpha * 0.28);
-		g.drawRoundedRect(-pad / 2, -METER_HEIGHT / 2 - pad / 2, METER_WIDTH + pad, METER_HEIGHT + pad, 8);
-		g.endFill();
+		g.roundRect(-pad / 2, -METER_HEIGHT / 2 - pad / 2, METER_WIDTH + pad, METER_HEIGHT + pad, 8).fill({
+			color,
+			alpha: alpha * 0.28,
+		});
 	}
 </script>
 
@@ -305,9 +303,7 @@
 			<Graphics
 				draw={(g) => {
 					g.clear();
-					g.beginFill(0x333333, 0.8);
-					g.drawRect(0, -METER_HEIGHT / 2, METER_WIDTH, METER_HEIGHT);
-					g.endFill();
+					g.rect(0, -METER_HEIGHT / 2, METER_WIDTH, METER_HEIGHT).fill({ color: 0x333333, alpha: 0.8 });
 				}}
 			/>
 
@@ -315,14 +311,11 @@
 			<Graphics
 				draw={(g) => {
 					g.clear();
-					g.beginFill(meterColor, fullAlpha.current);
-					g.drawRect(
-						0,
-						-METER_HEIGHT / 2,
-						METER_WIDTH * fillTween.current,
-						METER_HEIGHT,
-					);
-					g.endFill();
+					const rectWidth = METER_WIDTH * fillTween.current;
+					g.rect(0, -METER_HEIGHT / 2, rectWidth, METER_HEIGHT).fill({
+						color: meterColor,
+						alpha: fullAlpha.current,
+					});
 				}}
 			/>
 

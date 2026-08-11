@@ -197,6 +197,74 @@ class GameConfig(Config):
                 ],
             ),
             BetMode(
+                # "OVERCHARGED MODE" — persistent ante bet (Stake's "activate"
+                # bet-mode type): costs 1.25x the base stake per spin, in
+                # exchange for a ~2x natural Free Spins trigger rate (see
+                # game_optimization.py opt_params["ante"], hr=100 vs base's
+                # hr=200). Stays active across spins until the player toggles
+                # it off client-side (is_feature=True — RGS keeps replaying
+                # the last-selected mode without a per-spin confirmation,
+                # exactly like "base"). Same criteria/scatter_triggers shape
+                # as "base", only the quota split shifts probability mass
+                # from "0" (dead spin) into "freegame" to feed the higher
+                # trigger rate.
+                name="ante",
+                cost=1.25,
+                rtp=self.rtp,
+                max_win=self.wincap,
+                auto_close_disabled=False,
+                is_feature=True,
+                is_buybonus=False,
+                distributions=[
+                    Distribution(
+                        criteria="wincap",
+                        quota=0.001,
+                        win_criteria=self.wincap,
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"WCAP": 1},
+                            },
+                            "scatter_triggers": {3: 5, 4: 1},
+                            "force_wincap": True,
+                            "force_freegame": True,
+                        },
+                    ),
+                    Distribution(
+                        criteria="freegame",
+                        quota=0.004,
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"FR0": 1},
+                            },
+                            "scatter_triggers": {3: 5, 4: 1},
+                            "force_wincap": False,
+                            "force_freegame": True,
+                        },
+                    ),
+                    Distribution(
+                        criteria="0",
+                        quota=0.65,
+                        win_criteria=0.0,
+                        conditions={
+                            "reel_weights": {self.basegame_type: {"BR0": 1}},
+                            "force_wincap": False,
+                            "force_freegame": False,
+                        },
+                    ),
+                    Distribution(
+                        criteria="basegame",
+                        quota=0.345,
+                        conditions={
+                            "reel_weights": {self.basegame_type: {"BR0": 1}},
+                            "force_wincap": False,
+                            "force_freegame": False,
+                        },
+                    ),
+                ],
+            ),
+            BetMode(
                 name="bonus",
                 cost=100,
                 rtp=self.rtp,
@@ -222,6 +290,97 @@ class GameConfig(Config):
                     Distribution(
                         criteria="freegame",
                         quota=0.999,
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"FR0": 1},
+                            },
+                            "scatter_triggers": {3: 5, 4: 1},
+                            "force_wincap": False,
+                            "force_freegame": True,
+                        },
+                    ),
+                ],
+            ),
+            BetMode(
+                # "SUPER FREE SPINS" — premium bonus buy. Guarantees a longer
+                # session (5-7 scatters -> 12/15/18 spins vs "bonus"'s ~7.5-spin
+                # average) AND starts the session with the L1 (yellow) skill
+                # meter half-filled, so an early Wild-drop trigger is markedly
+                # more likely than a cold start. The meter pre-fill itself is
+                # set in game_override.py's reset_fs_spin() (gated on
+                # self.betmode == "super"), not here — this Distribution only
+                # controls the guaranteed scatter count.
+                name="super",
+                cost=300,
+                rtp=self.rtp,
+                max_win=self.wincap,
+                auto_close_disabled=False,
+                is_feature=False,
+                is_buybonus=True,
+                distributions=[
+                    Distribution(
+                        criteria="wincap",
+                        quota=0.002,
+                        win_criteria=self.wincap,
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"WCAP": 1},
+                            },
+                            "scatter_triggers": {5: 3, 6: 2, 7: 1},
+                            "force_wincap": True,
+                            "force_freegame": True,
+                        },
+                    ),
+                    Distribution(
+                        criteria="freegame",
+                        quota=0.998,
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"FR0": 1},
+                            },
+                            "scatter_triggers": {5: 3, 6: 2, 7: 1},
+                            "force_wincap": False,
+                            "force_freegame": True,
+                        },
+                    ),
+                ],
+            ),
+            BetMode(
+                # "MULTIPLIER FREE SPINS" — premium bonus buy. Same scatter/spin
+                # count as standard "bonus", but the session's global_multiplier
+                # starts at 5x instead of 1x, compounding with every M-symbol /
+                # L3-skill hit for the rest of the session. Set in
+                # game_override.py's reset_fs_spin() (gated on
+                # self.betmode == "multiplier") — nothing distribution-level
+                # differs here from "bonus".
+                name="multiplier",
+                cost=500,
+                rtp=self.rtp,
+                max_win=self.wincap,
+                auto_close_disabled=False,
+                is_feature=False,
+                is_buybonus=True,
+                distributions=[
+                    Distribution(
+                        criteria="wincap",
+                        quota=0.002,
+                        win_criteria=self.wincap,
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"WCAP": 1},
+                            },
+                            "scatter_triggers": {3: 5, 4: 1},
+                            "force_wincap": True,
+                            "force_freegame": True,
+                        },
+                    ),
+                    Distribution(
+                        criteria="freegame",
+                        quota=0.998,
                         conditions={
                             "reel_weights": {
                                 self.basegame_type: {"BR0": 1},

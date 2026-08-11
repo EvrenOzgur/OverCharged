@@ -94,12 +94,6 @@ export const stateGame = $state({
 	tumbleBoardBase: [] as TumbleSymbol[][],
 	scatterCounter: 0,
 	globalMultiplier: 1,
-	// TEST/MODE toggle: when true, every spin auto-skips the symbol explosion
-	// animations (the tumble per-symbol explosions AND the green L2 explosion
-	// burst). Lets QA reach the final board fast without manually pressing Space.
-	// Driven by the MODE button in FooterMenuOverlay; read by TumbleBoard +
-	// Board explosion handlers.
-	skipExplosions: false,
 	skillMeters: {
 		L1: 0, // Yellow
 		L2: 0, // Green

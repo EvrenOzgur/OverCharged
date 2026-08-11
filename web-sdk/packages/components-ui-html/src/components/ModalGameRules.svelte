@@ -263,27 +263,26 @@
 				<p>The Global Multiplier starts at ×1 and increases through Multiplier (M) symbols landing in winning clusters and via the Power Surge skill. It is applied to all cluster wins in the same round. During the Free Spin feature the Global Multiplier carries across all spins (including retriggers) and continues to grow.</p>
 			</section>
 
-			<h3 class="rules-subtitle rules-subtitle-centered">GAME CONTROLS</h3>
+			<h3 class="rules-subtitle rules-subtitle-centered">GENERAL INFORMATION</h3>
 			<section class="rules-section rules-controls-list">
 				{#if isSocial}
-					<div class="rules-control"><h4>SPIN</h4><p>Plays a single round at the selected play amount. Spacebar also triggers SPIN.</p></div>
-					<div class="rules-control"><h4>TURBO</h4><p>Toggle faster spin animations. State persists across rounds.</p></div>
-					<div class="rules-control"><h4>AUTO SPIN</h4><p>Opens the autoplay configuration. Choose number of rounds, optional loss limit and single-win limit, then press START AUTOPLAY to begin. Click again during autoplay to stop.</p></div>
-					<div class="rules-control"><h4>PLAY AMOUNT ± </h4><p>Decrease / increase the current play amount through the available play levels.</p></div>
-					<div class="rules-control"><h4>MENU</h4><p>Opens the side drawer with INFO (this dialog), {paytableLabel}, SETTINGS, SOUND ON/OFF, and EXIT.</p></div>
-					<div class="rules-control"><h4>SETTINGS</h4><p>Adjust master volume, music, SFX, and turbo/quick spin preferences.</p></div>
-					<div class="rules-control"><h4>SOUND ON/OFF</h4><p>Mute or unmute all game audio.</p></div>
-					<div class="rules-control"><h4>SPACE (hold)</h4><p>Hold the spacebar to repeatedly spin until released (quick-spin mode).</p></div>
+					<div class="rules-control"><h4>BALANCE</h4><p>Displays the current balance in the selected currency.</p></div>
+					<div class="rules-control"><h4>PLAY AMOUNT</h4><p>Displays the total play amount.</p></div>
+					<div class="rules-control"><h4>PLAY BUTTON</h4><p>Starts a new game round.</p></div>
+					<div class="rules-control"><h4>REWARD</h4><p>Displays the total reward for the current round.</p></div>
+					<div class="rules-control"><h4>MAXIMUM REWARD</h4><p>If 5,000× the base play amount is reached, the game ends and the reward is awarded immediately.</p></div>
+					<div class="rules-control"><h4>AUTOPLAY</h4><p>Automatically plays multiple game rounds consecutively.</p></div>
+					<div class="rules-control"><h4>TURBO MODE</h4><p>Increases the speed of the game for faster rounds.</p></div>
+					<div class="rules-control"><h4>BONUS BUTTON</h4><p>Opens the Bonus play menu.</p></div>
 				{:else}
-					<div class="rules-control"><h4>BET</h4><p>Place a single spin at the selected bet amount. Spacebar also triggers BET.</p></div>
-					<div class="rules-control"><h4>TURBO</h4><p>Toggle faster spin animations. State persists across rounds.</p></div>
-					<div class="rules-control"><h4>AUTO SPIN</h4><p>Opens the autoplay configuration. Choose number of rounds, optional loss limit and single-win limit, then press START AUTOPLAY to begin. Click again during autoplay to stop.</p></div>
-					<div class="rules-control"><h4>BUY BONUS</h4><p>Opens the bonus purchase menu. Select a bonus mode and confirm in the dialog to enter the feature directly. Availability may be restricted by jurisdiction.</p></div>
-					<div class="rules-control"><h4>BET ± </h4><p>Decrease / increase the current bet amount through the available bet levels.</p></div>
-					<div class="rules-control"><h4>MENU</h4><p>Opens the side drawer with INFO (this dialog), PAYTABLE, SETTINGS, SOUND ON/OFF, and EXIT.</p></div>
-					<div class="rules-control"><h4>SETTINGS</h4><p>Adjust master volume, music, SFX, and turbo/quick spin preferences.</p></div>
-					<div class="rules-control"><h4>SOUND ON/OFF</h4><p>Mute or unmute all game audio.</p></div>
-					<div class="rules-control"><h4>SPACE (hold)</h4><p>Hold the spacebar to repeatedly bet until released (quick-bet mode).</p></div>
+					<div class="rules-control"><h4>BALANCE</h4><p>Displays the current balance in the selected currency.</p></div>
+					<div class="rules-control"><h4>BET</h4><p>Displays the total bet amount in the selected currency.</p></div>
+					<div class="rules-control"><h4>SPIN BUTTON</h4><p>Starts a new game round.</p></div>
+					<div class="rules-control"><h4>WIN</h4><p>Displays the total win for the current round.</p></div>
+					<div class="rules-control"><h4>MAXIMUM WIN</h4><p>If 5,000× the base bet is reached, the game ends and the win is paid immediately.</p></div>
+					<div class="rules-control"><h4>AUTOPLAY</h4><p>Automatically plays multiple game rounds consecutively.</p></div>
+					<div class="rules-control"><h4>TURBO MODE</h4><p>Increases the speed of the game for faster rounds.</p></div>
+					<div class="rules-control"><h4>BONUS BUTTON</h4><p>Opens the Bonus purchase menu.</p></div>
 				{/if}
 			</section>
 
@@ -301,8 +300,20 @@
 						<span class="rules-desc">Standard play. Cost: the player's selected bet amount. RTP 95.00%. Maximum win 5,000× bet.</span>
 					</div>
 					<div class="mode-block">
+						<strong>OVERCHARGED MODE</strong>
+						<span class="rules-desc">Roughly doubles the natural chance of triggering the Free Spin feature. Cost: 1.25× the player's selected bet amount per spin. Remains active until turned off. RTP 95.00%. Maximum win 5,000× bet. Availability may be restricted by jurisdiction.</span>
+					</div>
+					<div class="mode-block">
 						<strong>BUY BONUS</strong>
 						<span class="rules-desc">Direct entry to the Free Spin feature. Cost: 100× the player's selected bet amount. RTP 95.00%. Maximum win 5,000× bet. Availability may be restricted by jurisdiction.</span>
+					</div>
+					<div class="mode-block">
+						<strong>SUPER FREE SPINS</strong>
+						<span class="rules-desc">Direct entry to a longer Free Spin feature (guaranteed 5-7 Scatters) that also starts with the Yellow skill meter half-filled. Cost: 300× the player's selected bet amount. RTP 95.00%. Maximum win 5,000× bet. Availability may be restricted by jurisdiction.</span>
+					</div>
+					<div class="mode-block">
+						<strong>MULTIPLIER FREE SPINS</strong>
+						<span class="rules-desc">Direct entry to the Free Spin feature with the Global Multiplier starting at 5× instead of 1×. Cost: 500× the player's selected bet amount. RTP 95.00%. Maximum win 5,000× bet. Availability may be restricted by jurisdiction.</span>
 					</div>
 				{/if}
 			</section>
@@ -311,7 +322,10 @@
 			<section class="rules-section rules-info">
 				<div class="rules-info-row"><span>RTP (Base)</span><span>95.00%</span></div>
 				{#if !isSocial}
+					<div class="rules-info-row"><span>RTP (Overcharged Mode)</span><span>95.00%</span></div>
 					<div class="rules-info-row"><span>RTP (Buy Bonus)</span><span>95.00%</span></div>
+					<div class="rules-info-row"><span>RTP (Super Free Spins)</span><span>95.00%</span></div>
+					<div class="rules-info-row"><span>RTP (Multiplier Free Spins)</span><span>95.00%</span></div>
 				{/if}
 				<div class="rules-info-row"><span>Maximum Win</span><span>5,000× {xUnit}</span></div>
 				<div class="rules-info-row"><span>Maximum Win Hit Rate</span><span>1 in 500,000</span></div>

@@ -37,13 +37,6 @@
 		const b = 15; // bevel size
 
 		// Main Face (Octagon)
-		g.beginFill(METALLIC_FACE);
-		if (active) {
-			g.lineStyle(2, NEON_GREEN, 1);
-		} else {
-			g.lineStyle(1, BEVEL_COLOR, 0.5);
-		}
-		
 		const path = [
 			b, 0,
 			w - b, 0,
@@ -54,14 +47,13 @@
 			0, h - b,
 			0, b
 		];
-		g.drawPolygon(path);
-		g.endFill();
+		g.poly(path)
+			.fill(METALLIC_FACE)
+			.stroke(active ? { width: 2, color: NEON_GREEN, alpha: 1 } : { width: 1, color: BEVEL_COLOR, alpha: 0.5 });
 
 		// Add a subtle inner glow if active
 		if (active) {
-			g.beginFill(NEON_GREEN, 0.1);
-			g.drawPolygon(path);
-			g.endFill();
+			g.poly(path).fill({ color: NEON_GREEN, alpha: 0.1 });
 		}
 	}
 </script>
